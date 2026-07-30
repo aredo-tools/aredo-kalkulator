@@ -1655,42 +1655,66 @@ function calc() {
     const t2maxCorpus = rad.pmax + rad.r;
     const t2minCorpus = rad.pmin + rad.r;
     const is2zab = currentZaoblenia === 2;
-    const armSum = P1mm + P2mm;
-    const armMaxWhenTall = 355;
-    const armSumMax = 1000;
-    // 1 zaoblenie: kratšie rameno (korpus) max 200 mm (dlhé rameno môže byť až pmax)
-    const shorterCorpus = Math.min(a2, b2);
-    const MAX_SHORT_ARM = 200;
 
-    if (a2 > t2maxCorpus || b2 > t2maxCorpus) {
-      alertMsg = `⚠️ Rozmer korpusu presahuje maximum pre R${rad.r} mm (max ${t2maxCorpus} mm)`;
-      alertType = 'error';
-    } else if (P1mm < 0 || P2mm < 0) {
-      alertMsg = `⚠️ Rozmer korpusu musí byť väčší ako rádius R${rad.r} mm`;
-      alertType = 'error';
-    } else if (P1mm < rad.pmin || P2mm < rad.pmin) {
-      alertMsg = `⚠️ Predĺženie P je menšie ako P min (${rad.pmin} mm) pre R${rad.r} mm. Min. korpus: ${t2minCorpus} mm`;
-      alertType = 'error';
-    } else if (!is2zab && shorterCorpus > MAX_SHORT_ARM) {
-      alertMsg = `⚠️ TYP 2 (1 zaoblenie): kratší korpus max ${MAX_SHORT_ARM} mm (aktuálne ${shorterCorpus} mm). Jedno rameno môže byť dlhé, druhé max ${MAX_SHORT_ARM} mm.`;
-      alertType = 'error';
-    } else if (is2zab && armSum > armSumMax) {
-      alertMsg = `⚠️ 2 zaoblenia: súčet ramien A + B nesmie presiahnuť ${armSumMax} mm (aktuálne ${armSum} mm)`;
-      alertType = 'error';
-    } else if (is2zab && h > 800 && (P1mm > armMaxWhenTall || P2mm > armMaxWhenTall)) {
-      alertMsg = `⚠️ 2 zaoblenia: pri výške nad 800 mm je max. dĺžka každého ramena ${armMaxWhenTall} mm`;
-      alertType = 'error';
-    } else if (P1mm > rad.pmax || P2mm > rad.pmax) {
-      alertMsg = `⚠️ Predĺženie P presahuje P max (${rad.pmax} mm) pre tento rádius`;
-      alertType = 'warning';
+    if (is2zab) {
+      // ===== 2 zaoblenia (C-tvar) =====
+      // A = rameno (obe rovnaké, vrátane ¼ kruhu): R ≤ A ≤ 200
+      // B = šírka celého dielca (2R + priečka): 2R ≤ B ≤ 800 (výnimka ≤1000 len ak H ≤ 355)
+      const ARM_MAX = 200;          // rameno vrátane zaoblenia
+      const B_MAX = 800;            // bežná max šírka dielca
+      const B_MAX_EXC = 1000;       // výnimka (len ak H ≤ 355)
+      const B_MIN = 2 * rad.r;      // polkruh (priečka = 0)
+      if (a2 < rad.r || b2 < B_MIN) {
+        alertMsg = `⚠️ Rameno A musí byť ≥ ${rad.r} mm (R) a šírka B ≥ ${B_MIN} mm (polkruh)`;
+        alertType = 'error';
+      } else if (a2 > ARM_MAX) {
+        alertMsg = `⚠️ Rameno A max ${ARM_MAX} mm vrátane zaoblenia (aktuálne ${a2} mm)`;
+        alertType = 'error';
+      } else if (b2 > B_MAX_EXC) {
+        alertMsg = `⚠️ Šírka dielca B max ${B_MAX_EXC} mm (aktuálne ${b2} mm)`;
+        alertType = 'error';
+      } else if (b2 > B_MAX && h > 355) {
+        alertMsg = `⚠️ Šírka B nad ${B_MAX} mm je možná len do výšky H ≤ 355 mm (aktuálne H = ${h} mm). Inak je B max ${B_MAX} mm.`;
+        alertType = 'error';
+      } else if (h > 1000) {
+        alertMsg = `ℹ️ Pri 2 zaobleniach a výške nad 1000 mm kontaktuj výrobu, či to vieme vyrobiť.`;
+        alertType = 'warning';
+      } else {
+        alertMsg = `✓ Rozmery sú v povolenom rozsahu pre R${rad.r} mm`;
+        alertType = 'ok';
+      }
+      const aErr = a2 < rad.r || a2 > ARM_MAX;
+      const bErr = b2 < B_MIN || b2 > B_MAX_EXC || (b2 > B_MAX && h > 355);
+      document.getElementById('inp-a').classList.toggle('error', aErr);
+      document.getElementById('inp-b').classList.toggle('error', bErr);
     } else {
-      alertMsg = `✓ Rozmery sú v povolenom rozsahu pre R${rad.r} mm`;
-      alertType = 'ok';
+      // ===== 1 zaoblenie: kratšie rameno (korpus) max 200 mm (dlhé rameno až pmax) =====
+      const shorterCorpus = Math.min(a2, b2);
+      const MAX_SHORT_ARM = 200;
+      if (a2 > t2maxCorpus || b2 > t2maxCorpus) {
+        alertMsg = `⚠️ Rozmer korpusu presahuje maximum pre R${rad.r} mm (max ${t2maxCorpus} mm)`;
+        alertType = 'error';
+      } else if (P1mm < 0 || P2mm < 0) {
+        alertMsg = `⚠️ Rozmer korpusu musí byť väčší ako rádius R${rad.r} mm`;
+        alertType = 'error';
+      } else if (P1mm < rad.pmin || P2mm < rad.pmin) {
+        alertMsg = `⚠️ Predĺženie P je menšie ako P min (${rad.pmin} mm) pre R${rad.r} mm. Min. korpus: ${t2minCorpus} mm`;
+        alertType = 'error';
+      } else if (shorterCorpus > MAX_SHORT_ARM) {
+        alertMsg = `⚠️ TYP 2 (1 zaoblenie): kratší korpus max ${MAX_SHORT_ARM} mm (aktuálne ${shorterCorpus} mm). Jedno rameno môže byť dlhé, druhé max ${MAX_SHORT_ARM} mm.`;
+        alertType = 'error';
+      } else if (P1mm > rad.pmax || P2mm > rad.pmax) {
+        alertMsg = `⚠️ Predĺženie P presahuje P max (${rad.pmax} mm) pre tento rádius`;
+        alertType = 'warning';
+      } else {
+        alertMsg = `✓ Rozmery sú v povolenom rozsahu pre R${rad.r} mm`;
+        alertType = 'ok';
+      }
+      const aErr = a2 > t2maxCorpus || P2mm < rad.pmin || (shorterCorpus > MAX_SHORT_ARM && a2 === shorterCorpus);
+      const bErr = b2 > t2maxCorpus || P1mm < rad.pmin || (shorterCorpus > MAX_SHORT_ARM && b2 === shorterCorpus);
+      document.getElementById('inp-a').classList.toggle('error', aErr);
+      document.getElementById('inp-b').classList.toggle('error', bErr);
     }
-    const aErr = a2 > t2maxCorpus || P2mm < rad.pmin || (!is2zab && shorterCorpus > MAX_SHORT_ARM && a2 === shorterCorpus);
-    const bErr = b2 > t2maxCorpus || P1mm < rad.pmin || (!is2zab && shorterCorpus > MAX_SHORT_ARM && b2 === shorterCorpus);
-    document.getElementById('inp-a').classList.toggle('error', aErr);
-    document.getElementById('inp-b').classList.toggle('error', bErr);
   }
 
   const alertEl = document.getElementById('alert-dim');
@@ -1701,8 +1725,8 @@ function calc() {
   if (currentTyp === 1) {
     document.getElementById('pmax-info').textContent = `P max: ${rad.pmax} mm | Max. korpus: ${rad.maxCorpus}×${rad.maxCorpus} mm`;
   } else if (currentZaoblenia === 2) {
-    const tallNote = h > 800 ? ` | výška >800 mm: max rameno 355 mm` : ` | max rameno 355 mm (pri H>800)`;
-    document.getElementById('pmax-info').textContent = `P min: ${rad.pmin} mm, P max: ${rad.pmax} mm | 2 zaoblenia: A+B max 1000 mm${tallNote}`;
+    const wideNote = h > 1000 ? ` | ⚠️ H>1000 mm – over vo výrobe` : '';
+    document.getElementById('pmax-info').textContent = `2 zaoblenia (C): rameno A ≤ 200 mm (min ${rad.r}) | šírka B ${2*rad.r}–800 mm (do 1000 len ak H ≤ 355) | polkruh ${rad.polkruh} mm${wideNote}`;
   } else {
     document.getElementById('pmax-info').textContent = `P min: ${rad.pmin} mm, P max: ${rad.pmax} mm | Kratšie rameno max 200 mm | Polkruh: ${rad.polkruh} mm`;
   }
@@ -1978,6 +2002,67 @@ function drawTyp1(R, thick, H, P1mm, P2mm, pmax) {
 
 function drawTyp2(R, thick, H, P1mm, P2mm, pmin, pmax) {
   const VW = 320, VH = 280;
+
+  if (currentZaoblenia === 2) {
+    // ── 2 zaoblenia (tvar C) – rovnaké ramená + vnútorná priečka ──
+    const armStraight = Math.max(P2mm, 0);       // rovná časť ramena (A − R)
+    const partition   = Math.max(P1mm - R, 0);   // vnútorná priečka (B − 2R)
+    const Amm = P2mm + R;                          // rameno vrátane ¼ kruhu
+    const Bmm = P1mm + R;                           // šírka celého dielca
+    const totWc = R + armStraight;
+    const totHc = 2 * R + partition;
+    const sc = Math.min((VW - 120) / Math.max(totWc, 20), (VH - 120) / Math.max(totHc, 20), 0.62);
+    const Rpx = R * sc, thkPx = Math.max(thick * sc, 5);
+    const armPx = armStraight * sc, partPx = partition * sc;
+    const cx = 74 + armPx, cy = 46 + Rpx;
+
+    let s = `<rect width="${VW}" height="${VH}" fill="#f7f7f5" rx="6"/>`;
+    s += `<text x="${VW/2}" y="14" font-size="10" font-weight="700" fill="#333" text-anchor="middle">TYP 2 – 2 zaoblenia (tvar C)</text>`;
+    s += `<path d="${_crossSection2(cx, cy, Rpx, thkPx, armPx, armPx, partPx)}" fill="#c9c5be" stroke="#444" stroke-width="1.2" stroke-linejoin="round"/>`;
+
+    // A kóta (rameno vrátane ¼ kruhu) – hore
+    const dyA = cy - Rpx - 16;
+    s += `<line x1="${_f(cx-armPx)}" y1="${_f(dyA)}" x2="${_f(cx+Rpx)}" y2="${_f(dyA)}" stroke="#1565c0" stroke-width="1.3"/>`;
+    s += `<line x1="${_f(cx-armPx)}" y1="${_f(dyA-4)}" x2="${_f(cx-armPx)}" y2="${_f(dyA+4)}" stroke="#1565c0" stroke-width="1.3"/>`;
+    s += `<line x1="${_f(cx+Rpx)}" y1="${_f(dyA-4)}" x2="${_f(cx+Rpx)}" y2="${_f(dyA+4)}" stroke="#1565c0" stroke-width="1.3"/>`;
+    s += `<text x="${_f((cx-armPx + cx+Rpx)/2)}" y="${_f(dyA-6)}" font-size="9" fill="#1565c0" text-anchor="middle">A = ${Amm} mm (rameno)</text>`;
+
+    // B kóta (celková šírka dielca) – vľavo
+    const yTopC = cy - Rpx, yBotC = cy + partPx + Rpx;
+    const dxB = (cx - armPx) - 18;
+    s += `<line x1="${_f(dxB)}" y1="${_f(yTopC)}" x2="${_f(dxB)}" y2="${_f(yBotC)}" stroke="#1565c0" stroke-width="1.3"/>`;
+    s += `<line x1="${_f(dxB-4)}" y1="${_f(yTopC)}" x2="${_f(dxB+4)}" y2="${_f(yTopC)}" stroke="#1565c0" stroke-width="1.3"/>`;
+    s += `<line x1="${_f(dxB-4)}" y1="${_f(yBotC)}" x2="${_f(dxB+4)}" y2="${_f(yBotC)}" stroke="#1565c0" stroke-width="1.3"/>`;
+    const midB = (yTopC + yBotC) / 2;
+    s += `<text x="${_f(dxB-7)}" y="${_f(midB)}" font-size="9" fill="#1565c0" text-anchor="middle" transform="rotate(-90,${_f(dxB-7)},${_f(midB)})">B = ${Bmm} mm (šírka)</text>`;
+
+    // vnútorná priečka (oranžová – premenlivá časť)
+    if (partPx > 3) {
+      const xBack = cx + Rpx + 8;
+      s += `<line x1="${_f(cx+Rpx)}" y1="${_f(cy)}" x2="${_f(xBack)}" y2="${_f(cy)}" stroke="#e67e22" stroke-width="0.6" stroke-dasharray="2,2"/>`;
+      s += `<line x1="${_f(cx+Rpx)}" y1="${_f(cy+partPx)}" x2="${_f(xBack)}" y2="${_f(cy+partPx)}" stroke="#e67e22" stroke-width="0.6" stroke-dasharray="2,2"/>`;
+      s += `<line x1="${_f(xBack)}" y1="${_f(cy)}" x2="${_f(xBack)}" y2="${_f(cy+partPx)}" stroke="#e67e22" stroke-width="1.2"/>`;
+      s += `<text x="${_f(xBack+3)}" y="${_f(cy+partPx/2+3)}" font-size="8" fill="#e67e22">priečka ${Math.round(partition)} mm</text>`;
+    }
+
+    // R anotácia
+    const r_inC2 = Math.max(R - thick, 0);
+    s += `<circle cx="${_f(cx)}" cy="${_f(cy)}" r="2.5" fill="#666"/>`;
+    const olvXC2 = cx + Rpx * 0.99, olvYC2 = cy - Rpx * 0.99;
+    s += `<line x1="${_f(cx)}" y1="${_f(cy)}" x2="${_f(olvXC2)}" y2="${_f(olvYC2)}" stroke="#888" stroke-width="0.8" stroke-dasharray="4,2"/>`;
+    s += `<text x="${_f(olvXC2 + 2)}" y="${_f(olvYC2)}" font-size="8" fill="#555">R ${R} von.</text>`;
+    if (r_inC2 > 0) {
+      const rinPxC2 = r_inC2 * sc, ilvXC2 = cx + rinPxC2 * 0.28, ilvYC2 = cy - rinPxC2 * 0.28;
+      s += `<line x1="${_f(cx)}" y1="${_f(cy)}" x2="${_f(ilvXC2)}" y2="${_f(ilvYC2)}" stroke="#bbb" stroke-width="0.7" stroke-dasharray="2,3"/>`;
+      s += `<text x="${_f(ilvXC2 + 2)}" y="${_f(ilvYC2)}" font-size="8" fill="#999">R ${r_inC2} vn.</text>`;
+    }
+
+    s += `<text x="${VW-6}" y="${VH-6}" font-size="9" fill="#c0392b" text-anchor="end">limity: rameno A ≤ 200 · šírka B ≤ 800 mm</text>`;
+
+    document.getElementById('diagram').innerHTML = s;
+    return;
+  }
+
   const dispP1 = Math.min(P1mm, pmax);
   const dispP2 = Math.min(P2mm, pmax);
   const dispPmax = Math.min(pmax, 200);
@@ -2166,51 +2251,58 @@ function drawElevation(R, thick, H, P1mm, P2mm, zab) {
   const VW = 320, VH = 280;
 
   if (zab === 2) {
-    // ── C-tvar: 2 zaoblenia ──
-    const Vmm = Math.max(H - 2 * R, 0); // vertikálna časť medzi oblúkmi
-    const totW = R + Math.max(P1mm, P2mm, 20);
-    const totH = 2 * R + Vmm;
-    const sc = Math.min((VW - 120) / totW, (VH - 120) / Math.max(totH, 20), 0.62);
+    // ── C-tvar: 2 zaoblenia (symetrický – obe ramená rovnaké) ──
+    // Rameno vrátane ¼ kruhu = A  → rovná časť ramena = A − R = P2mm
+    // Šírka celého dielca = B      → vnútorná priečka = B − 2R = P1mm − R
+    const armStraight = Math.max(P2mm, 0);       // rovná časť ramena (A − R)
+    const partition   = Math.max(P1mm - R, 0);   // vnútorná priečka (B − 2R)
+    const Amm = P2mm + R;                         // rameno vrátane ¼ kruhu = A
+    const Bmm = P1mm + R;                         // šírka celého dielca = B
+    const totW = R + armStraight;                 // horizontálny rozsah = A
+    const totH = 2 * R + partition;               // vertikálny rozsah = B
+    const sc = Math.min((VW - 120) / Math.max(totW, 20), (VH - 120) / Math.max(totH, 20), 0.62);
 
     const Rpx = R * sc;
     const thkPx = Math.max(thick * sc, 5);
-    const P1px = P1mm * sc;
-    const P2px = P2mm * sc;
-    const Vpx = Vmm * sc;
-    const cx = 55 + Math.max(P1px, P2px);
-    const cy = 50 + Rpx;
+    const armPx = armStraight * sc;
+    const partPx = partition * sc;
+    const cx = 72 + armPx;
+    const cy = 46 + Rpx;
 
     let s = `<rect width="${VW}" height="${VH}" fill="#f7f7f5" rx="6"/>`;
-    s += `<text x="${VW/2}" y="14" font-size="10" font-weight="700" fill="#333" text-anchor="middle">2 zaoblenia</text>`;
+    s += `<text x="${VW/2}" y="14" font-size="10" font-weight="700" fill="#333" text-anchor="middle">2 zaoblenia – tvar C</text>`;
 
-    s += `<path d="${_crossSection2(cx, cy, Rpx, thkPx, P1px, P2px, Vpx)}" fill="#cdc9c2" stroke="#333" stroke-width="1.3"/>`;
+    // Obe ramená rovnaké (armPx), medzi nimi vnútorná priečka (partPx)
+    s += `<path d="${_crossSection2(cx, cy, Rpx, thkPx, armPx, armPx, partPx)}" fill="#cdc9c2" stroke="#333" stroke-width="1.3"/>`;
 
-    // A kóta – nad horným ramenom
+    // A kóta – rameno vrátane ¼ kruhu (nad horným ramenom): od (cx-armPx) po (cx+Rpx)
     const dyA = cy - Rpx - 16;
-    s += `<line x1="${_f(cx-P1px)}" y1="${_f(cy-Rpx-2)}" x2="${_f(cx-P1px)}" y2="${_f(dyA-2)}" stroke="#777" stroke-width="0.6" stroke-dasharray="2,2"/>`;
-    s += `<line x1="${_f(cx)}" y1="${_f(cy-Rpx-2)}" x2="${_f(cx)}" y2="${_f(dyA-2)}" stroke="#777" stroke-width="0.6" stroke-dasharray="2,2"/>`;
-    s += `<line x1="${_f(cx-P1px)}" y1="${_f(dyA)}" x2="${_f(cx)}" y2="${_f(dyA)}" stroke="#1565c0" stroke-width="1"/>`;
-    s += `<line x1="${_f(cx-P1px)}" y1="${_f(dyA-4)}" x2="${_f(cx-P1px)}" y2="${_f(dyA+4)}" stroke="#1565c0" stroke-width="1.5"/>`;
-    s += `<line x1="${_f(cx)}" y1="${_f(dyA-4)}" x2="${_f(cx)}" y2="${_f(dyA+4)}" stroke="#1565c0" stroke-width="1.5"/>`;
-    s += `<text x="${_f(cx-P1px/2)}" y="${_f(dyA-6)}" font-size="9" fill="#1565c0" text-anchor="middle">A = ${P1mm} mm</text>`;
+    s += `<line x1="${_f(cx-armPx)}" y1="${_f(cy-Rpx-2)}" x2="${_f(cx-armPx)}" y2="${_f(dyA-2)}" stroke="#777" stroke-width="0.6" stroke-dasharray="2,2"/>`;
+    s += `<line x1="${_f(cx+Rpx)}" y1="${_f(cy-Rpx-2)}" x2="${_f(cx+Rpx)}" y2="${_f(dyA-2)}" stroke="#777" stroke-width="0.6" stroke-dasharray="2,2"/>`;
+    s += `<line x1="${_f(cx-armPx)}" y1="${_f(dyA)}" x2="${_f(cx+Rpx)}" y2="${_f(dyA)}" stroke="#1565c0" stroke-width="1"/>`;
+    s += `<line x1="${_f(cx-armPx)}" y1="${_f(dyA-4)}" x2="${_f(cx-armPx)}" y2="${_f(dyA+4)}" stroke="#1565c0" stroke-width="1.5"/>`;
+    s += `<line x1="${_f(cx+Rpx)}" y1="${_f(dyA-4)}" x2="${_f(cx+Rpx)}" y2="${_f(dyA+4)}" stroke="#1565c0" stroke-width="1.5"/>`;
+    s += `<text x="${_f((cx-armPx + cx+Rpx)/2)}" y="${_f(dyA-6)}" font-size="9" fill="#1565c0" text-anchor="middle">A = ${Amm} mm (rameno)</text>`;
 
-    // B kóta – pod dolným ramenom
-    const dyB = cy + Vpx + Rpx + 16;
-    s += `<line x1="${_f(cx-P2px)}" y1="${_f(cy+Vpx+Rpx+2)}" x2="${_f(cx-P2px)}" y2="${_f(dyB+2)}" stroke="#777" stroke-width="0.6" stroke-dasharray="2,2"/>`;
-    s += `<line x1="${_f(cx)}" y1="${_f(cy+Vpx+Rpx+2)}" x2="${_f(cx)}" y2="${_f(dyB+2)}" stroke="#777" stroke-width="0.6" stroke-dasharray="2,2"/>`;
-    s += `<line x1="${_f(cx-P2px)}" y1="${_f(dyB)}" x2="${_f(cx)}" y2="${_f(dyB)}" stroke="#1565c0" stroke-width="1"/>`;
-    s += `<line x1="${_f(cx-P2px)}" y1="${_f(dyB-4)}" x2="${_f(cx-P2px)}" y2="${_f(dyB+4)}" stroke="#1565c0" stroke-width="1.5"/>`;
-    s += `<line x1="${_f(cx)}" y1="${_f(dyB-4)}" x2="${_f(cx)}" y2="${_f(dyB+4)}" stroke="#1565c0" stroke-width="1.5"/>`;
-    s += `<text x="${_f(cx-P2px/2)}" y="${_f(dyB+12)}" font-size="9" fill="#1565c0" text-anchor="middle">B = ${P2mm} mm</text>`;
+    // B kóta – celková šírka dielca (vertikálne vľavo): od (cy-Rpx) po (cy+partPx+Rpx)
+    const yTopC = cy - Rpx, yBotC = cy + partPx + Rpx;
+    const dxB = (cx - armPx) - 18;
+    s += `<line x1="${_f(cx-armPx)}" y1="${_f(yTopC)}" x2="${_f(dxB-2)}" y2="${_f(yTopC)}" stroke="#777" stroke-width="0.6" stroke-dasharray="2,2"/>`;
+    s += `<line x1="${_f(cx-armPx)}" y1="${_f(yBotC)}" x2="${_f(dxB-2)}" y2="${_f(yBotC)}" stroke="#777" stroke-width="0.6" stroke-dasharray="2,2"/>`;
+    s += `<line x1="${_f(dxB)}" y1="${_f(yTopC)}" x2="${_f(dxB)}" y2="${_f(yBotC)}" stroke="#1565c0" stroke-width="1"/>`;
+    s += `<line x1="${_f(dxB-4)}" y1="${_f(yTopC)}" x2="${_f(dxB+4)}" y2="${_f(yTopC)}" stroke="#1565c0" stroke-width="1.5"/>`;
+    s += `<line x1="${_f(dxB-4)}" y1="${_f(yBotC)}" x2="${_f(dxB+4)}" y2="${_f(yBotC)}" stroke="#1565c0" stroke-width="1.5"/>`;
+    const midB = (yTopC + yBotC) / 2;
+    s += `<text x="${_f(dxB-7)}" y="${_f(midB)}" font-size="9" fill="#1565c0" text-anchor="middle" transform="rotate(-90,${_f(dxB-7)},${_f(midB)})">B = ${Bmm} mm (šírka)</text>`;
 
-    // H kóta – celková výška vľavo
-    const dxTot = cx - Math.max(P1px, P2px) - 20;
-    const yTop = cy - Rpx, yBot = cy + Vpx + Rpx;
-    s += `<line x1="${_f(dxTot)}" y1="${_f(yTop)}" x2="${_f(dxTot)}" y2="${_f(yBot)}" stroke="#333" stroke-width="1"/>`;
-    s += `<line x1="${_f(dxTot-4)}" y1="${_f(yTop)}" x2="${_f(dxTot+4)}" y2="${_f(yTop)}" stroke="#333" stroke-width="1.5"/>`;
-    s += `<line x1="${_f(dxTot-4)}" y1="${_f(yBot)}" x2="${_f(dxTot+4)}" y2="${_f(yBot)}" stroke="#333" stroke-width="1.5"/>`;
-    const midH = (yTop + yBot) / 2;
-    s += `<text x="${_f(dxTot-7)}" y="${_f(midH)}" font-size="9" fill="#333" text-anchor="middle" transform="rotate(-90,${_f(dxTot-7)},${_f(midH)})">${H} mm</text>`;
+    // Vnútorná priečka – zvýraznenie premenlivej časti (zadná strana medzi oblúkmi)
+    if (partPx > 3) {
+      const xBack = cx + Rpx + 8;
+      s += `<line x1="${_f(cx+Rpx)}" y1="${_f(cy)}" x2="${_f(xBack)}" y2="${_f(cy)}" stroke="#e67e22" stroke-width="0.6" stroke-dasharray="2,2"/>`;
+      s += `<line x1="${_f(cx+Rpx)}" y1="${_f(cy+partPx)}" x2="${_f(xBack)}" y2="${_f(cy+partPx)}" stroke="#e67e22" stroke-width="0.6" stroke-dasharray="2,2"/>`;
+      s += `<line x1="${_f(xBack)}" y1="${_f(cy)}" x2="${_f(xBack)}" y2="${_f(cy+partPx)}" stroke="#e67e22" stroke-width="1"/>`;
+      s += `<text x="${_f(xBack+3)}" y="${_f(cy+partPx/2+3)}" font-size="8" fill="#e67e22">priečka ${Math.round(partition)} mm</text>`;
+    }
 
     // R anotácia (horný oblúk): vonkajší – outside arc | vnútorný – inside corner
     const r_inC = Math.max(R - thick, 0);
@@ -2314,8 +2406,8 @@ function draw3D(R, thick, H, P1mm, P2mm, zab) {
 
   if (zab === 2) {
     // ── C-tvar: 2 zaoblenia ──
-    const Vmm = Math.max(H - 2 * R, 0);
-    const totW = R + Math.max(P1mm, P2mm, 20);
+    const Vmm = Math.max(P1mm - R, 0);   // vnútorná priečka = B − 2R
+    const totW = R + Math.max(P2mm, 20); // horizontálny rozsah = rameno A (P2 = A − R)
     const totH = 2 * R + Vmm;
     const sc = Math.min((VW - 90) / Math.max(totW, 1), (VH * 0.46) / Math.max(totH, 20), 0.5);
 
@@ -2326,7 +2418,7 @@ function draw3D(R, thick, H, P1mm, P2mm, zab) {
     const Vpx = Vmm * sc;
 
     // pozícia: stred horného oblúka
-    const cx = 48 + Math.max(P1px, P2px);
+    const cx = 48 + P2px; // ramená rovnaké (P2)
     const cy = VH - 22 - Vpx - Rpx;
 
     const HpxMax = Math.max(20, VH - 42 - Vpx - 2 * Rpx);
@@ -2342,12 +2434,12 @@ function draw3D(R, thick, H, P1mm, P2mm, zab) {
     let s = `<rect width="${VW}" height="${VH}" fill="#f7f7f5" rx="6"/>`;
 
     // 1. Zadná plocha (vrch kusu, d=1)
-    s += `<path d="${_crossSection2(cx + ddx, cy + ddy, Rpx, thkPx, P1px, P2px, Vpx)}" fill="#a8a39a" stroke="#666" stroke-width="0.7"/>`;
+    s += `<path d="${_crossSection2(cx + ddx, cy + ddy, Rpx, thkPx, P2px, P2px, Vpx)}" fill="#a8a39a" stroke="#666" stroke-width="0.7"/>`;
 
     // 2. Vonkajší povrch horného ramena P1 (y = cy - Rpx)
     {
       const yt = cy - Rpx;
-      s += quad(proj(cx - P1px, yt, 0), proj(cx - P1px, yt, 1), proj(cx, yt, 1), proj(cx, yt, 0), '#bab5ac');
+      s += quad(proj(cx - P2px, yt, 0), proj(cx - P2px, yt, 1), proj(cx, yt, 1), proj(cx, yt, 0), '#bab5ac');
     }
 
     // 3. Vonkajší povrch horného oblúka – pásiky
@@ -2384,7 +2476,7 @@ function draw3D(R, thick, H, P1mm, P2mm, zab) {
     }
 
     // 7. Predná plocha (spodok kusu, d=0)
-    s += `<path d="${_crossSection2(cx, cy, Rpx, thkPx, P1px, P2px, Vpx)}" fill="#d4cfc8" stroke="#333" stroke-width="1.3"/>`;
+    s += `<path d="${_crossSection2(cx, cy, Rpx, thkPx, P2px, P2px, Vpx)}" fill="#d4cfc8" stroke="#333" stroke-width="1.3"/>`;
 
     // H rozmer – vertikálny kotovaný úsek
     const dmX = cx + Rpx + 14;
@@ -2545,8 +2637,8 @@ function drawFront3D(R, thick, H, P1mm, P2mm, zab, finishName) {
 
   if (zab === 2) {
     // ── C-shape: cabinet oblique from +X (outer arc surface facing viewer) ──
-    var V = Math.max(H - 2*R, 0);
-    var maxP = Math.max(P1mm, P2mm);
+    var V = Math.max(P1mm - R, 0); // vnútorná priečka = B − 2R
+    var maxP = P2mm;               // rameno A (obe rovnaké)
     // Cabinet oblique from +X: outer face (at px=R) appears flat.
     // sx = cxC + py*scC - (R-px)*0.354*scC,  sy = cyC - pz*scC - (R-px)*0.354*scC
     var avW2 = VW - 52, avH2 = VH - 55;
@@ -2562,7 +2654,7 @@ function drawFront3D(R, thick, H, P1mm, P2mm, zab, finishName) {
 
     // Painter's order: px ascending (smaller px = further back = draw first)
     // 1. P1 arm outer face (at py=R, normal +Y, px from -P1mm to 0)
-    s += poly([projC(-P1mm,R,0),projC(0,R,0),projC(0,R,H),projC(-P1mm,R,H)], shade(col.face,bright(0.1,0.9,0)));
+    s += poly([projC(-P2mm,R,0),projC(0,R,0),projC(0,R,H),projC(-P2mm,R,H)], shade(col.face,bright(0.1,0.9,0)));
     // 2. P2 arm outer face (at py=-(V+R), normal -Y, px from -P2mm to 0)
     s += poly([projC(-P2mm,-(V+R),0),projC(0,-(V+R),0),projC(0,-(V+R),H),projC(-P2mm,-(V+R),H)], shade(col.face,bright(0.1,-0.7,0.1)));
     // 3. Straight outer section (at px=R, py from 0 to -V, normal +X)
@@ -2588,7 +2680,7 @@ function drawFront3D(R, thick, H, P1mm, P2mm, zab, finishName) {
     bSt.sort(function(a,b){return a.dep-b.dep;});
     bSt.forEach(function(st){s+=poly(st.pts,st.c,col.dark,0.4);});
     // 6. Top cap
-    var tpc=[]; tpc.push(projC(-P1mm,R,H)); tpc.push(projC(0,R,H));
+    var tpc=[]; tpc.push(projC(-P2mm,R,H)); tpc.push(projC(0,R,H));
     for(var j=0;j<=N;j++){var a=Math.PI/2*j/N;tpc.push(projC(R*Math.cos(a),R*Math.sin(a),H));}
     tpc.push(projC(R,-V,H));
     for(var j=0;j<=N;j++){var a=Math.PI/2*j/N;tpc.push(projC(R*Math.cos(a),-V-R*Math.sin(a),H));}
@@ -2597,7 +2689,7 @@ function drawFront3D(R, thick, H, P1mm, P2mm, zab, finishName) {
     for(var j=N;j>=0;j--){var a=Math.PI/2*j/N;tpc.push(projC(rin*Math.cos(a),-V-rin*Math.sin(a),H));}
     tpc.push(projC(rin,0,H));
     for(var j=N;j>=0;j--){var a=Math.PI/2*j/N;tpc.push(projC(rin*Math.cos(a),rin*Math.sin(a),H));}
-    tpc.push(projC(0,rin,H)); tpc.push(projC(-P1mm,rin,H));
+    tpc.push(projC(0,rin,H)); tpc.push(projC(-P2mm,rin,H));
     s+='<polygon points="'+tpc.map(function(p){return p[0]+','+p[1];}).join(' ')+'" fill="'+col.top+'" stroke="'+col.dark+'" stroke-width="0.8"/>';
 
     s += hBadge();
@@ -2852,9 +2944,9 @@ function drawInteractive3D(R, thick, H, P1mm, P2mm, zab, finishName) {
   var shape = new THREE.Shape();
 
   if (zab === 2) {
-    // C-shape: two 90° arcs, both arms go left
-    var V = Math.max(H - 2 * R, 0);
-    shape.moveTo(-P1mm, R);
+    // C-shape: two 90° arcs, both arms equal (A). V = vnútorná priečka = B − 2R
+    var V = Math.max(P1mm - R, 0);
+    shape.moveTo(-P2mm, R);
     shape.lineTo(0, R);
     shape.absarc(0, 0, R, Math.PI / 2, 0, true);           // outer arc 1 CW
     shape.lineTo(R, -V);
@@ -2865,7 +2957,7 @@ function drawInteractive3D(R, thick, H, P1mm, P2mm, zab, finishName) {
     shape.absarc(0, -V, rin, -Math.PI / 2, 0, false);      // inner arc 2 CCW
     shape.lineTo(rin, 0);
     shape.absarc(0, 0, rin, 0, Math.PI / 2, false);        // inner arc 1 CCW
-    shape.lineTo(-P1mm, rin);
+    shape.lineTo(-P2mm, rin);
     shape.closePath();
   } else {
     // L-shape: one 90° arc
