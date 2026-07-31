@@ -1786,8 +1786,8 @@ function calc() {
   drawElevation(rad.r, currentThick, h, P1mm, P2mm, currentZaoblenia);
   draw3D(rad.r, currentThick, h, P1mm, P2mm, currentZaoblenia);
   var finName = fin ? fin.name : '';
-  drawFront3D(rad.r, currentThick, h, P1mm, P2mm, currentZaoblenia, finName);
   drawInteractive3D(rad.r, currentThick, h, P1mm, P2mm, currentZaoblenia, finName);
+  drawFront3D(rad.r, currentThick, h, P1mm, P2mm, currentZaoblenia, finName);
   if (typeof v3dApplyColor === 'function') v3dApplyColor();
   if (typeof v3dSyncFromCalc === 'function') v3dSyncFromCalc(rad.r, currentThick, h, P1mm, P2mm, currentZaoblenia, finName);
 
@@ -2608,6 +2608,21 @@ function _fin3DColor(cat) {
 // ============================================================
 function drawFront3D(R, thick, H, P1mm, P2mm, zab, finishName) {
   var VW = 320, VH = 280;
+
+  // Ak je dostupný reálny 3D model, použi jeho snímku z predného (dekoratívneho) uhla
+  var _snap = _front3DDataURL();
+  if (_snap) {
+    var hTs='H = '+H+' mm', hBWs=Math.max(50,hTs.length*7.2+14), hBXs=(VW-hBWs)/2;
+    var _fs = '<svg viewBox="0 0 '+VW+' '+VH+'" width="100%" xmlns="http://www.w3.org/2000/svg">'
+      + '<rect width="'+VW+'" height="'+VH+'" fill="#f0efe8" rx="6"/>'
+      + '<image href="'+_snap+'" x="0" y="0" width="'+VW+'" height="'+VH+'" preserveAspectRatio="xMidYMid meet"/>'
+      + '<g class="hbadge"><rect x="'+_f(hBXs)+'" y="'+(VH-28)+'" width="'+_f(hBWs)+'" height="22" fill="#e8f4fd" rx="4" stroke="#2980b9" stroke-width="0.8"/>'
+      + '<text x="'+_f(hBXs+hBWs/2)+'" y="'+(VH-12)+'" font-size="11" font-weight="700" fill="#2980b9" text-anchor="middle">'+hTs+'</text></g>'
+      + '</svg>';
+    document.getElementById('diagram-front').innerHTML = _fs;
+    return;
+  }
+
   var N = 16;  // arc segment count
   var rin = Math.max(R - thick, 0.5);
   var cat = _finCat(finishName);
@@ -2697,29 +2712,28 @@ function drawFront3D(R, thick, H, P1mm, P2mm, zab, finishName) {
     return;
   }
 
-  // ── L-shape: standard isometric from outside the corner ──
-  // px=Three.js X (P2 dir), py=Three.js Y (P1 dir), pz=height
-  // sx = cx+(px-py)*cos30*sc,  sy = cy-pz*sc-(px+py)*sin30*sc
+  // ── L-shape: pohľad spredu na vypuklú (dekoratívnu) stranu ──
+  // px=X (P2 dir), py=Y (P1 dir), pz=výška. Kamera z +X,+Y, mierne zhora.
+  // Vypuklý roh (veľké px+py) ide dopredu-dole, ramená idú dozadu-hore, H zvisle.
+  var RX = 0.66, K = 0, KZ = 1;   // úplne rovný čelný pohľad (žiadny sklon zhora)
+  function _raw(px, py, pz) { return [ (py - px) * RX, KZ * pz - K * (px + py) ]; }
   var bboxPts = [[-P1mm,R],[0,R],[R,0],[R,-P2mm],[rin,-P2mm],[rin,0],[0,rin],[-P1mm,rin]];
-  var sxLo=1e9, sxHi=-1e9, spLo=1e9, spHi=-1e9;
-  bboxPts.forEach(function(p) {
-    var sxv=(p[0]-p[1])*cos30, spv=(p[0]+p[1])*sin30;
-    if(sxv<sxLo)sxLo=sxv; if(sxv>sxHi)sxHi=sxv;
-    if(spv<spLo)spLo=spv; if(spv>spHi)spHi=spv;
+  for(var ii=0;ii<=N;ii++){ var aa=Math.PI/2*ii/N; bboxPts.push([R*Math.cos(aa),R*Math.sin(aa)]); }
+  var sxLo=1e9, sxHi=-1e9, upLo=1e9, upHi=-1e9;
+  bboxPts.forEach(function(p){
+    [0,H].forEach(function(z){
+      var q=_raw(p[0],p[1],z);
+      if(q[0]<sxLo)sxLo=q[0]; if(q[0]>sxHi)sxHi=q[0];
+      if(q[1]<upLo)upLo=q[1]; if(q[1]>upHi)upHi=q[1];
+    });
   });
-  for(var ii=0;ii<=N;ii++){
-    var a=Math.PI/2*ii/N;
-    var sxa=(R*Math.cos(a)-R*Math.sin(a))*cos30, spa=(R*Math.cos(a)+R*Math.sin(a))*sin30;
-    if(sxa<sxLo)sxLo=sxa; if(sxa>sxHi)sxHi=sxa;
-    if(spa<spLo)spLo=spa; if(spa>spHi)spHi=spa;
-  }
-  var sc = Math.min((VW-52)/(sxHi-sxLo), (VH-55)/(H+spHi-spLo), 0.65);
+  var sc = Math.min((VW-52)/Math.max(sxHi-sxLo,1), (VH-55)/Math.max(upHi-upLo,1), 0.65);
   var cx = VW/2 - (sxLo+sxHi)*sc/2;
-  var cyA = 30 + H*sc + spHi*sc, cyB = VH-32+spLo*sc;
-  var cy = Math.max(cyA, Math.min(cyB, (cyA+cyB)/2));
+  var cy = VH/2 + (upLo+upHi)*sc/2;
 
   function proj(px, py, pz) {
-    return [_f(cx+(px-py)*cos30*sc), _f(cy-pz*sc-(px+py)*sin30*sc)];
+    var q=_raw(px,py,pz);
+    return [_f(cx + q[0]*sc), _f(cy - q[1]*sc)];
   }
 
   // Painter order: back → front
@@ -2738,14 +2752,10 @@ function drawFront3D(R, thick, H, P1mm, P2mm, zab, finishName) {
   }
   arcSt.sort(function(a,b){return a.dep-b.dep;});
   arcSt.forEach(function(st){s+=poly(st.pts,st.c,col.dark,0.4);});
-  // 4. Top cap: L cross-section at pz=H
-  var tp=[];
-  tp.push(proj(-P1mm,R,H)); tp.push(proj(0,R,H));
-  for(var j=0;j<=N;j++){var a=Math.PI/2*j/N;tp.push(proj(R*Math.cos(a),R*Math.sin(a),H));}
-  tp.push(proj(R,-P2mm,H)); tp.push(proj(rin,-P2mm,H)); tp.push(proj(rin,0,H));
-  for(var j=N;j>=0;j--){var a=Math.PI/2*j/N;tp.push(proj(rin*Math.cos(a),rin*Math.sin(a),H));}
-  tp.push(proj(-P1mm,rin,H));
-  s+='<polygon points="'+tp.map(function(p){return p[0]+','+p[1];}).join(' ')+'" fill="'+col.top+'" stroke="'+col.dark+'" stroke-width="0.8"/>';
+  // 4. Rovný čelný pohľad – žiadna vrchná plocha, len čistá rovná horná hrana
+  var topY=proj(0,R,H)[1];
+  var xL=proj(R,-P2mm,H)[0], xR=proj(-P1mm,R,H)[0];
+  s+='<line x1="'+_f(Math.min(xL,xR))+'" y1="'+_f(topY)+'" x2="'+_f(Math.max(xL,xR))+'" y2="'+_f(topY)+'" stroke="'+col.dark+'" stroke-width="0.8"/>';
 
   // H dimension line (left edge of piece)
   var ptT=proj(-P1mm,R,H), ptB=proj(-P1mm,R,0);
@@ -2772,7 +2782,7 @@ function _init3DScene(container) {
   _3d.scene = new THREE.Scene();
   _3d.scene.background = new THREE.Color(0xf0efe8);
   _3d.camera = new THREE.PerspectiveCamera(42, W / H, 1, 200000);
-  _3d.renderer = new THREE.WebGLRenderer({ antialias: true });
+  _3d.renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
   _3d.renderer.setSize(W, H);
   _3d.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   container.appendChild(_3d.renderer.domElement);
@@ -2854,6 +2864,34 @@ function _3dCamUpdate() {
     r * Math.sin(ph) * Math.cos(th)
   );
   _3d.camera.lookAt(_3dOrbit.panX, _3dOrbit.panY, 0);
+}
+
+// Snímka reálneho 3D modelu z predného (dekoratívneho) uhla → PNG dataURL
+function _front3DDataURL() {
+  if (!window.THREE || !_3d.renderer || !_3d.scene || !_3d.mesh) return null;
+  var el = _3d.renderer.domElement;
+  if (!el || el.width < 10 || el.height < 10) return null;
+  try {
+    _3d.mesh.geometry.computeBoundingBox();
+    var bb = _3d.mesh.geometry.boundingBox;
+    var cx=(bb.min.x+bb.max.x)/2, cy=(bb.min.y+bb.max.y)/2, cz=(bb.min.z+bb.max.z)/2;
+    var sx=bb.max.x-bb.min.x, sy=bb.max.y-bb.min.y, sz=bb.max.z-bb.min.z;
+    var radius = Math.sqrt(sx*sx+sy*sy+sz*sz)/2 || 100;
+    var aspect = el.width/el.height;
+    var cam = new THREE.PerspectiveCamera(38, aspect, 1, 400000);
+    var fov = 38*Math.PI/180;
+    var dist = radius / Math.sin(fov/2) * 1.12;
+    // dekoratívna (vypuklá) strana +X,+Y; mierne zhora (výška je +Z)
+    var dir = new THREE.Vector3(1, 1, 0.42); dir.normalize();
+    cam.position.set(cx + dir.x*dist, cy + dir.y*dist, cz + dir.z*dist);
+    cam.up.set(0,0,1);
+    cam.lookAt(cx, cy, cz);
+    _3d.renderer.render(_3d.scene, cam);
+    var url = el.toDataURL('image/png');
+    // hneď obnov interaktívny pohľad
+    if (_3d.camera) { _3dCamUpdate(); _3d.renderer.render(_3d.scene, _3d.camera); }
+    return url;
+  } catch(e) { return null; }
 }
 
 function _make3DTexture(cat) {
