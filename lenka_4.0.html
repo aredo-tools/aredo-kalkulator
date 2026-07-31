@@ -4385,28 +4385,45 @@ async function exportPDF() {
   }
   py += 4;
 
-  // --- SVG DIAGRAMS ---
+  // --- DIAGRAMY: Nakres, 3D z boku, 3D spredu ---
   const diagrams = [
-    { id: 'diagram-elev', title: 'Nakres dielca' },
-    { id: 'diagram-3d',   title: '3D model' },
+    { id: 'diagram-elev',  title: 'Nakres dielca' },
+    { id: 'diagram-3d',    title: '3D z boku' },
+    { id: 'diagram-front', title: '3D spredu' },
   ];
 
-  const dw = (cw - 6) / 2;
-  const footerY = ph - 16;
-  const estimatedInfoH = 50; // rezerva pre info text
-  const dh = Math.max(40, footerY - py - estimatedInfoH - 13);
+  const gap = 4;
+  const dw = (cw - gap * (diagrams.length - 1)) / diagrams.length;
+  const dh = dw * 280 / 320; // zachovaj pomer 320:280
 
-  doc.setFontSize(9); doc.setTextColor(80,80,80); doc.setFont(undefined, 'bold');
+  doc.setFontSize(8.5); doc.setTextColor(80,80,80); doc.setFont(undefined, 'bold');
 
   for (let i = 0; i < diagrams.length; i++) {
-    const dx = margin + i * (dw + 4);
+    const dx = margin + i * (dw + gap);
     doc.text(diagrams[i].title, dx, py);
     const svgEl = document.getElementById(diagrams[i].id);
     if (svgEl) {
       try {
-        const canvas = await svgToCanvas(svgEl, 320, 280);
-        const imgData = canvas.toDataURL('image/png');
-        doc.addImage(imgData, 'PNG', dx, py + 3, dw, dh);
+        // Ak diagram obsahuje hotový PNG render (3D spredu), použi ho; inak SVG → canvas.
+        // Do PDF ide JPEG (menšia veľkosť súboru).
+        const imgEl = svgEl.querySelector('image');
+        const href = imgEl && (imgEl.getAttribute('href') || imgEl.getAttribute('xlink:href'));
+        let canvas;
+        if (href && href.indexOf('data:image') === 0) {
+          canvas = await new Promise((res, rej) => {
+            const im = new Image();
+            im.onload = () => {
+              const c = document.createElement('canvas'); c.width = 640; c.height = 560;
+              const cx = c.getContext('2d'); cx.fillStyle = '#f0efe8'; cx.fillRect(0, 0, 640, 560);
+              const s = Math.min(640 / im.width, 560 / im.height), iw = im.width * s, ih = im.height * s;
+              cx.drawImage(im, (640 - iw) / 2, (560 - ih) / 2, iw, ih); res(c);
+            };
+            im.onerror = rej; im.src = href;
+          });
+        } else {
+          canvas = await svgToCanvas(svgEl, 320, 280);
+        }
+        doc.addImage(canvas.toDataURL('image/jpeg', 0.88), 'JPEG', dx, py + 3, dw, dh);
       } catch(e) { console.warn('diagram error', e); }
     }
     doc.setDrawColor(200,200,200); doc.setLineWidth(0.3);
