@@ -1634,9 +1634,6 @@ function calc() {
     } else if (P1mm < 0 || P2mm < 0) {
       alertMsg = `⚠️ Rozmer korpusu musí byť väčší ako rádius R${rad.r} mm`;
       alertType = 'error';
-    } else if (P1mm > rad.pmax || P2mm > rad.pmax) {
-      alertMsg = `⚠️ Predĺženie P presahuje P max (${rad.pmax} mm) pre tento rádius`;
-      alertType = 'warning';
     } else if (h > 2750) {
       alertMsg = '⚠️ Výška presahuje maximum 2750 mm';
       alertType = 'error';
@@ -1704,9 +1701,6 @@ function calc() {
       } else if (shorterCorpus > MAX_SHORT_ARM) {
         alertMsg = `⚠️ TYP 2 (1 zaoblenie): kratší korpus max ${MAX_SHORT_ARM} mm (aktuálne ${shorterCorpus} mm). Jedno rameno môže byť dlhé, druhé max ${MAX_SHORT_ARM} mm.`;
         alertType = 'error';
-      } else if (P1mm > rad.pmax || P2mm > rad.pmax) {
-        alertMsg = `⚠️ Predĺženie P presahuje P max (${rad.pmax} mm) pre tento rádius`;
-        alertType = 'warning';
       } else {
         alertMsg = `✓ Rozmery sú v povolenom rozsahu pre R${rad.r} mm`;
         alertType = 'ok';
@@ -4267,6 +4261,7 @@ function nd(str) {
 }
 
 async function exportPDF() {
+  if (typeof window.jspdf === 'undefined') { alert('PDF knižnica sa ešte načítava, skúste znova o chvíľu.'); return; }
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const pw = 210, ph = 297;
@@ -4475,6 +4470,7 @@ async function exportPDF() {
 
 // ===================== SKLO PDF – ZÁKAZNÍK =====================
 async function exportSkloPDFZakaznik() {
+  if (typeof window.jspdf === 'undefined') { alert('PDF knižnica sa ešte načítava, skúste znova o chvíľu.'); return; }
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const pw = 210, ph = 297, margin = 14, cw = pw - 2 * margin;
@@ -4586,6 +4582,7 @@ async function exportSkloPDFZakaznik() {
 
 // ===================== SKLO PDF – SKLENEÁR =====================
 async function exportSkloPDFSklenar() {
+  if (typeof window.jspdf === 'undefined') { alert('PDF knižnica sa ešte načítava, skúste znova o chvíľu.'); return; }
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const pw = 210, ph = 297, margin = 14, cw = pw - 2 * margin;
