@@ -423,6 +423,7 @@
         <input type="text" id="inp-order" placeholder="napr. OBJ-2026-001" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:5px;font-size:14px;">
 
         <button onclick="exportPDF()" style="margin-top:12px;width:100%;padding:11px;background:var(--yellow);border:none;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;color:#1e1e1e;">⬇ Stiahnuť PDF</button>
+        <button id="btn-dl-3dhtml" onclick="downloadModel3DHTML()" style="margin-top:8px;width:100%;padding:10px;background:#fff;border:1.5px solid var(--yellow);border-radius:6px;font-size:13.5px;font-weight:700;cursor:pointer;color:#1e1e1e;">⬇ Stiahnuť 3D model (.html – otvorí sa na mobile aj PC)</button>
       </div>
     </div>
 
@@ -5442,6 +5443,72 @@ function _v3dDL(name, data, mime) {
   var url = URL.createObjectURL(new Blob([data],{type:mime}));
   var a = document.createElement('a'); a.href=url; a.download=name; a.click();
   setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+}
+
+// ── Stiahnuť interaktívny 3D model ako samostatný (offline) HTML súbor ──
+function _arrbufToB64(buf) {
+  var bytes = new Uint8Array(buf), bin = '', chunk = 0x8000;
+  for (var i = 0; i < bytes.length; i += chunk) {
+    bin += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+  }
+  return btoa(bin);
+}
+
+function _build3DViewerHTML(title, libs, glbB64) {
+  var viewer = ''
+    + 'var scene=new THREE.Scene();scene.background=new THREE.Color(0xf0efe8);'
+    + 'var camera=new THREE.PerspectiveCamera(45,innerWidth/innerHeight,0.1,1e6);'
+    + 'var renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);document.body.appendChild(renderer.domElement);'
+    + 'scene.add(new THREE.AmbientLight(0xffffff,0.62));'
+    + 'var dl=new THREE.DirectionalLight(0xffffff,0.85);dl.position.set(3,5,4);scene.add(dl);'
+    + 'var fl=new THREE.DirectionalLight(0xbbccdd,0.35);fl.position.set(-3,-2,-4);scene.add(fl);'
+    + 'var bin=atob(__glb),arr=new Uint8Array(bin.length),i;for(i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);'
+    + 'new THREE.GLTFLoader().parse(arr.buffer,"",function(g){var m=g.scene;scene.add(m);'
+    + 'var box=new THREE.Box3().setFromObject(m),c=box.getCenter(new THREE.Vector3()),sz=box.getSize(new THREE.Vector3());'
+    + 'var md=Math.max(sz.x,sz.y,sz.z)||100;camera.position.set(c.x+md*1.1,c.y+md*0.85,c.z+md*1.5);camera.near=md/100;camera.far=md*50;camera.updateProjectionMatrix();'
+    + 'var ctr=new THREE.OrbitControls(camera,renderer.domElement);ctr.target.copy(c);ctr.enableDamping=true;ctr.update();'
+    + '(function loop(){requestAnimationFrame(loop);ctr.update();renderer.render(scene,camera);})();},function(e){document.getElementById("hint").textContent="Chyba načítania modelu.";});'
+    + 'addEventListener("resize",function(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});';
+  return '<!doctype html><html lang="sk"><head><meta charset="utf-8">'
+    + '<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">'
+    + '<title>' + title + '</title>'
+    + '<style>html,body{margin:0;height:100%;overflow:hidden;background:#f0efe8;font-family:-apple-system,Segoe UI,Roboto,sans-serif}'
+    + 'canvas{display:block}#hd{position:fixed;top:10px;left:12px;color:#333;font-size:14px;font-weight:700}'
+    + '#hint{position:fixed;left:0;right:0;bottom:10px;text-align:center;color:#666;font-size:13px;pointer-events:none}</style></head><body>'
+    + '<div id="hd">AREDO – 3D model</div><div id="hint">Ťahaním otáčajte · dvoma prstami / kolieskom priblížite</div>'
+    + '<script>' + libs[0] + '<\/script><script>' + libs[1] + '<\/script><script>' + libs[2] + '<\/script>'
+    + '<script>var __glb="' + glbB64 + '";' + viewer + '<\/script></body></html>';
+}
+
+async function downloadModel3DHTML() {
+  if (!window.THREE || !_3d.mesh) { alert('3D model ešte nie je pripravený – chvíľu počkajte.'); return; }
+  var btn = document.getElementById('btn-dl-3dhtml');
+  var oldTxt = btn ? btn.textContent : null;
+  if (btn) { btn.textContent = 'Pripravujem 3D súbor…'; btn.disabled = true; }
+  try {
+    if (!THREE.GLTFExporter) {
+      await new Promise(function(res, rej){
+        var s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js';
+        s.onload = res; s.onerror = rej; document.head.appendChild(s);
+      });
+    }
+    var glbBuf = await new Promise(function(res){ new THREE.GLTFExporter().parse(_3d.mesh, function(buf){ res(buf); }, { binary: true }); });
+    var glbB64 = _arrbufToB64(glbBuf);
+    var urls = [
+      'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',
+      'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js',
+      'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js'
+    ];
+    var libs = await Promise.all(urls.map(function(u){ return fetch(u).then(function(r){ if(!r.ok) throw new Error('fetch '+u); return r.text(); }); }));
+    var orderNum = (document.getElementById('inp-order') && document.getElementById('inp-order').value) || '';
+    var html = _build3DViewerHTML('AREDO 3D model' + (orderNum ? ' – ' + orderNum : ''), libs, glbB64);
+    _v3dDL('aredo-3d-model' + (orderNum ? '-' + orderNum : '') + '.html', html, 'text/html;charset=utf-8');
+  } catch(e) {
+    alert('Nepodarilo sa vytvoriť 3D súbor (potrebné pripojenie na internet pri sťahovaní knižníc). ' + (e && e.message ? e.message : ''));
+  } finally {
+    if (btn) { btn.textContent = oldTxt; btn.disabled = false; }
+  }
 }
 
 init();
