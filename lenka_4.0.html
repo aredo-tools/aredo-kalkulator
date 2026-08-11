@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AREDO – Kalkulátor | lenka 3.0</title>
+<title>AREDO – Kalkulátor | lenka 4.0</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
@@ -1605,6 +1605,25 @@ function populateFinishes() {
 // ============================================================
 // MAIN CALCULATION
 // ============================================================
+// Debounce ťažkej 3D prestavby (model + snímka spredu) – nebeží pri každom údere klávesy
+var _heavy3DTimer = null, _heavy3DArgs = null;
+function _runHeavy3D() {
+  if (!_heavy3DArgs) return;
+  var a = _heavy3DArgs;
+  drawInteractive3D(a[0], a[1], a[2], a[3], a[4], a[5], a[6]);
+  drawFront3D(a[0], a[1], a[2], a[3], a[4], a[5], a[6]);
+  if (typeof v3dApplyColor === 'function') v3dApplyColor();
+  if (typeof applyAllOhybRots === 'function') applyAllOhybRots();
+}
+function _scheduleHeavy3D(R, thick, H, P1, P2, zab, finName) {
+  _heavy3DArgs = [R, thick, H, P1, P2, zab, finName];
+  if (_heavy3DTimer) clearTimeout(_heavy3DTimer);
+  _heavy3DTimer = setTimeout(function() { _heavy3DTimer = null; _runHeavy3D(); }, 130);
+}
+function _flushHeavy3D() {   // vynúti okamžitú prestavbu (napr. pred exportom PDF)
+  if (_heavy3DTimer) { clearTimeout(_heavy3DTimer); _heavy3DTimer = null; }
+  _runHeavy3D();
+}
 function calc() {
   const radii = currentTyp === 1 ? TYP1_RADII[currentThick] : TYP2_RADII[currentThick];
   const radIdx = parseInt(document.getElementById('sel-radius').value) || 0;
@@ -1740,13 +1759,13 @@ function calc() {
   const zabMult = (currentTyp === 2 && currentZaoblenia === 2) ? 1.20 : 1.0;
   const pricePerM2 = fin.p[tierIdx] * zabMult;
 
-  // Minimum billing area: 0.100 m² per piece
+  // Minimum billing area: 0.100 m² per piece (0 keď je plocha nulová – napr. H=0)
   const MIN_M2 = 0.100;
-  const billedM2 = Math.max(totalM2, MIN_M2);
+  const billedM2 = totalM2 > 0 ? Math.max(totalM2, MIN_M2) : 0;
   const billedMulti = billedM2 * count;
   const priceTotal = billedM2 * pricePerM2;
   const priceTotalMulti = billedMulti * pricePerM2;
-  const isMinApplied = totalM2 < MIN_M2;
+  const isMinApplied = totalM2 > 0 && totalM2 < MIN_M2;
 
   // Update UI
   document.getElementById('res-m2').textContent = totalM2.toFixed(3) + ' m²';
@@ -1781,9 +1800,7 @@ function calc() {
   drawElevation(rad.r, currentThick, h, P1mm, P2mm, currentZaoblenia);
   draw3D(rad.r, currentThick, h, P1mm, P2mm, currentZaoblenia);
   var finName = fin ? fin.name : '';
-  drawInteractive3D(rad.r, currentThick, h, P1mm, P2mm, currentZaoblenia, finName);
-  drawFront3D(rad.r, currentThick, h, P1mm, P2mm, currentZaoblenia, finName);
-  if (typeof v3dApplyColor === 'function') v3dApplyColor();
+  _scheduleHeavy3D(rad.r, currentThick, h, P1mm, P2mm, currentZaoblenia, finName);
   if (typeof v3dSyncFromCalc === 'function') v3dSyncFromCalc(rad.r, currentThick, h, P1mm, P2mm, currentZaoblenia, finName);
 
   // Re-apply any active rotation (preserves rotation when user changes inputs)
@@ -2847,7 +2864,7 @@ function _init3DScene(container) {
     _3d.renderer.setSize(W2, H2);
   });
 
-  (function loop() { requestAnimationFrame(loop); _3d.renderer.render(_3d.scene, _3d.camera); })();
+  (function loop() { requestAnimationFrame(loop); if (_3d.renderer && _3d.renderer.domElement.clientWidth > 0) _3d.renderer.render(_3d.scene, _3d.camera); })();
 }
 
 function _3dCamUpdate() {
@@ -2967,8 +2984,8 @@ function drawInteractive3D(R, thick, H, P1mm, P2mm, zab, finishName) {
   if (!_3d.scene) return;
 
   // Clear old geometry
-  if (_3d.mesh)     { _3d.scene.remove(_3d.mesh);     _3d.mesh.geometry.dispose();     _3d.mesh = null; }
-  if (_3d.edgeMesh) { _3d.scene.remove(_3d.edgeMesh); _3d.edgeMesh.geometry.dispose(); _3d.edgeMesh = null; }
+  if (_3d.mesh)     { _3d.scene.remove(_3d.mesh);     _3d.mesh.geometry.dispose(); if (_3d.mesh.material) { if (_3d.mesh.material.map) _3d.mesh.material.map.dispose(); _3d.mesh.material.dispose(); } _3d.mesh = null; }
+  if (_3d.edgeMesh) { _3d.scene.remove(_3d.edgeMesh); _3d.edgeMesh.geometry.dispose(); if (_3d.edgeMesh.material) _3d.edgeMesh.material.dispose(); _3d.edgeMesh = null; }
 
   var rin = Math.max(R - thick, 0.5);
 
@@ -4208,7 +4225,7 @@ function calcSklo() {
     const vSkla = Math.max(0, vyska - 2 * sirkaRamu + presah);
     const sSkla = Math.max(0, sirka - 2 * sirkaRamu + presah);
     const plochaPc = (vSkla * sSkla) / 1e6;              // plocha 1 ks
-    const plochaBillPc = Math.max(plochaPc, MIN_M2);      // min 0.200/ks
+    const plochaBillPc = plochaPc > 0 ? Math.max(plochaPc, MIN_M2) : 0; // min 0.200/ks; 0 pri prázdnom riadku
     const plochaCelkom = plochaPc * ks;
     const plochaBillCelkom = plochaBillPc * ks;
     const cenaRow = plochaBillCelkom * pricePerM2;
@@ -4225,7 +4242,7 @@ function calcSklo() {
     tr.querySelector('.sk-s-obj').textContent = Math.max(0, sSkla - 2).toFixed(0);
     tr.querySelector('.sk-plocha').textContent = plochaPc.toFixed(4);
     tr.querySelector('.sk-plocha-c').textContent = plochaCelkom.toFixed(4);
-    tr.querySelector('.sk-plocha-fact').textContent = plochaBillCelkom.toFixed(4) + (plochaPc < MIN_M2 ? ' ⚠' : '');
+    tr.querySelector('.sk-plocha-fact').textContent = plochaBillCelkom.toFixed(4) + (plochaPc > 0 && plochaPc < MIN_M2 ? ' ⚠' : '');
     tr.querySelector('.sk-obvod').textContent = obvod.toFixed(3);
     tr.querySelector('.sk-gumicka').textContent = gumicka.toFixed(3);
     tr.querySelector('.sk-cena').textContent = pricePerM2 > 0 ? cenaRow.toFixed(2) + ' €' : '—';
@@ -4262,6 +4279,7 @@ function nd(str) {
 
 async function exportPDF() {
   if (typeof window.jspdf === 'undefined') { alert('PDF knižnica sa ešte načítava, skúste znova o chvíľu.'); return; }
+  if (typeof _flushHeavy3D === 'function') _flushHeavy3D();   // istota, že 3D spredu je aktuálne
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const pw = 210, ph = 297;
@@ -5478,6 +5496,7 @@ function _build3DViewerHTML(title, libs, glbB64) {
 }
 
 async function downloadModel3DHTML() {
+  if (typeof _flushHeavy3D === 'function') _flushHeavy3D();   // aktuálny model pred exportom
   if (!window.THREE || !_3d.mesh) { alert('3D model ešte nie je pripravený – chvíľu počkajte.'); return; }
   var btn = document.getElementById('btn-dl-3dhtml');
   var oldTxt = btn ? btn.textContent : null;
