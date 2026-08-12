@@ -1714,9 +1714,6 @@ function calc() {
       } else if (P1mm < 0 || P2mm < 0) {
         alertMsg = `⚠️ Rozmer korpusu musí byť väčší ako rádius R${rad.r} mm`;
         alertType = 'error';
-      } else if (P1mm < rad.pmin || P2mm < rad.pmin) {
-        alertMsg = `⚠️ Predĺženie P je menšie ako P min (${rad.pmin} mm) pre R${rad.r} mm. Min. korpus: ${t2minCorpus} mm`;
-        alertType = 'error';
       } else if (shorterCorpus > MAX_SHORT_ARM) {
         alertMsg = `⚠️ TYP 2 (1 zaoblenie): kratší korpus max ${MAX_SHORT_ARM} mm (aktuálne ${shorterCorpus} mm). Jedno rameno môže byť dlhé, druhé max ${MAX_SHORT_ARM} mm.`;
         alertType = 'error';
@@ -1724,8 +1721,8 @@ function calc() {
         alertMsg = `✓ Rozmery sú v povolenom rozsahu pre R${rad.r} mm`;
         alertType = 'ok';
       }
-      const aErr = a2 > t2maxCorpus || P2mm < rad.pmin || (shorterCorpus > MAX_SHORT_ARM && a2 === shorterCorpus);
-      const bErr = b2 > t2maxCorpus || P1mm < rad.pmin || (shorterCorpus > MAX_SHORT_ARM && b2 === shorterCorpus);
+      const aErr = a2 > t2maxCorpus || P2mm < 0 || (shorterCorpus > MAX_SHORT_ARM && a2 === shorterCorpus);
+      const bErr = b2 > t2maxCorpus || P1mm < 0 || (shorterCorpus > MAX_SHORT_ARM && b2 === shorterCorpus);
       document.getElementById('inp-a').classList.toggle('error', aErr);
       document.getElementById('inp-b').classList.toggle('error', bErr);
     }
@@ -1742,7 +1739,7 @@ function calc() {
     const wideNote = h > 1000 ? ` | ⚠️ H>1000 mm – over vo výrobe` : '';
     document.getElementById('pmax-info').textContent = `2 zaoblenia (C): rameno A ≤ 200 mm (min ${rad.r}) | šírka B ${2*rad.r}–800 mm (do 1000 len ak H ≤ 355) | polkruh ${rad.polkruh} mm${wideNote}`;
   } else {
-    document.getElementById('pmax-info').textContent = `P min: ${rad.pmin} mm, P max: ${rad.pmax} mm | Kratšie rameno max 200 mm | Polkruh: ${rad.polkruh} mm`;
+    document.getElementById('pmax-info').textContent = `1 zaoblenie: kratšie rameno ≤ 200 mm | dlhšie rameno korpus max ${rad.pmax + rad.r} mm | Polkruh: ${rad.polkruh} mm`;
   }
 
   // m² calculation
