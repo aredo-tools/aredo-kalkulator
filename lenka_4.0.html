@@ -203,14 +203,80 @@
   @media (max-width: 600px) {
     .grid2, .grid3, .grid4 { grid-template-columns: 1fr; }
   }
+
+  /* ===== Prihlasovacia brána (Supabase auth) ===== */
+  #auth-gate {
+    position: fixed; inset: 0; z-index: 100000;
+    background: #f2f2f0;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  #auth-gate .auth-card {
+    background: #fff; border: 1px solid var(--border); border-radius: 14px;
+    box-shadow: 0 10px 40px rgba(0,0,0,.12);
+    width: 100%; max-width: 420px; padding: 32px 28px; text-align: center;
+  }
+  #auth-gate .auth-card img { height: 34px; margin-bottom: 18px; }
+  #auth-gate h1 { font-size: 20px; font-weight: 800; margin-bottom: 6px; color: var(--text); }
+  #auth-gate p { color: #666; font-size: 13.5px; line-height: 1.5; margin-bottom: 16px; }
+  #auth-gate input[type=email] {
+    width: 100%; padding: 12px 14px; font-size: 15px; margin-bottom: 12px;
+    border: 1px solid var(--border); border-radius: 8px; outline: none; font-family: inherit;
+  }
+  #auth-gate input[type=email]:focus { border-color: var(--yellow); }
+  #auth-gate button {
+    width: 100%; padding: 12px 14px; font-size: 15px; font-weight: 700;
+    background: var(--yellow); color: #1e1e1e; border: none; border-radius: 8px; cursor: pointer;
+    font-family: inherit;
+  }
+  #auth-gate button:hover { filter: brightness(0.96); }
+  #auth-gate button:disabled { opacity: .6; cursor: default; }
+  #auth-gate .auth-msg { margin-top: 14px; font-size: 13px; min-height: 18px; }
+  #auth-gate .auth-msg.ok { color: var(--green); }
+  #auth-gate .auth-msg.err { color: var(--red); }
+  #auth-gate .auth-sub { margin-top: 18px; font-size: 11.5px; color: #999; }
+  #auth-user {
+    display: none; align-items: center; gap: 10px; margin-left: auto;
+    font-size: 13px; color: #555;
+  }
+  #auth-user .auth-email { font-weight: 600; color: var(--text); }
+  #auth-user button {
+    background: #f4f4f4; border: 1px solid var(--border); color: #555;
+    padding: 6px 12px; border-radius: 7px; cursor: pointer; font-size: 12.5px; font-family: inherit;
+  }
+  #auth-user button:hover { background: #eee; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
+<!-- ===== Prihlasovacia brána ===== -->
+<div id="auth-gate">
+  <div class="auth-card">
+    <img src="https://aredo.sk/wp-content/uploads/2026/02/logo_sirka_bez_zony.png" alt="AREDO">
+    <h1>Kalkulátor – prihlásenie</h1>
+    <div id="auth-loading"><p>Načítavam…</p></div>
+    <div id="auth-login" style="display:none">
+      <p>Zadajte svoj e‑mail. Pošleme vám prihlasovací odkaz – po kliknutí naň budete prihlásení.</p>
+      <input id="auth-email" type="email" placeholder="vas@email.sk" autocomplete="email" inputmode="email">
+      <button id="auth-send" type="button">Poslať prihlasovací odkaz</button>
+      <div id="auth-msg" class="auth-msg"></div>
+    </div>
+    <div id="auth-denied" style="display:none">
+      <p>Tento e‑mail nemá prístup do kalkulátora.<br>Kontaktujte správcu, aby vás pridal.</p>
+      <button id="auth-retry" type="button">Skúsiť iný e‑mail</button>
+    </div>
+    <div class="auth-sub">AREDO Kalkulátor · zabezpečený prístup</div>
+  </div>
+</div>
+
 <header>
   <div class="logo" onclick="showTab('home')" style="cursor:pointer;"><img src="https://aredo.sk/wp-content/uploads/2026/02/logo_sirka_bez_zony.png" alt="AREDO"></div>
-
+  <div id="auth-user">
+    <span class="auth-email"></span>
+    <button id="auth-logout" type="button">Odhlásiť</button>
+  </div>
 </header>
 <nav>
   <button class="active" onclick="showTab('home')">🏠 Domov</button>
@@ -5527,5 +5593,93 @@ async function downloadModel3DHTML() {
 init();
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- ===== Supabase prihlásenie + prístup ===== -->
+<script>
+(function(){
+  var SUPABASE_URL = 'https://htufpadwknvlssghgbla.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_GnAh1mNXfV4opXpptqgxdQ_X9ZZjsBv';
+
+  var gate   = document.getElementById('auth-gate');
+  var elLoad = document.getElementById('auth-loading');
+  var elLogin= document.getElementById('auth-login');
+  var elDeny = document.getElementById('auth-denied');
+  var elEmail= document.getElementById('auth-email');
+  var elSend = document.getElementById('auth-send');
+  var elMsg  = document.getElementById('auth-msg');
+  var elRetry= document.getElementById('auth-retry');
+  var elUser = document.getElementById('auth-user');
+  var elUserEmail = elUser ? elUser.querySelector('.auth-email') : null;
+  var elLogout = document.getElementById('auth-logout');
+
+  function view(state){ // 'load' | 'login' | 'denied'
+    if (elLoad)  elLoad.style.display  = (state==='load')  ? '' : 'none';
+    if (elLogin) elLogin.style.display = (state==='login') ? '' : 'none';
+    if (elDeny)  elDeny.style.display  = (state==='denied')? '' : 'none';
+    if (gate)    gate.style.display = 'flex';
+  }
+
+  if (!window.supabase || !window.supabase.createClient) {
+    view('login');
+    if (elMsg){ elMsg.className='auth-msg err'; elMsg.textContent='Nepodarilo sa načítať prihlasovaciu knižnicu. Skontrolujte pripojenie a obnovte stránku.'; }
+    return;
+  }
+
+  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  window._sb = sb; // dostupné pre ďalšie fázy (ukladanie ponúk)
+
+  function redirectTarget(){ return window.location.origin + window.location.pathname; }
+
+  function unlock(email){
+    if (gate) gate.style.display = 'none';
+    if (elUser){ elUser.style.display = 'flex'; }
+    if (elUserEmail){ elUserEmail.textContent = email || ''; }
+    window._authEmail = email || null;
+  }
+
+  async function isAllowed(email){
+    try {
+      var res = await sb.from('allowed_emails').select('email').eq('email', email).maybeSingle();
+      if (res.error){ console.warn('allowlist check error', res.error); return false; }
+      return !!res.data;
+    } catch(e){ console.warn('allowlist check exception', e); return false; }
+  }
+
+  var resolving = false;
+  async function resolve(session){
+    if (resolving) return; resolving = true;
+    try {
+      if (!session){ view('login'); return; }
+      var email = (session.user && session.user.email) ? session.user.email.toLowerCase() : '';
+      var ok = await isAllowed(email);
+      if (ok){ unlock(email); }
+      else {
+        view('denied');
+      }
+    } finally { resolving = false; }
+  }
+
+  if (elSend){
+    elSend.addEventListener('click', async function(){
+      var email = (elEmail.value||'').trim().toLowerCase();
+      if (!email || email.indexOf('@')<0){ elMsg.className='auth-msg err'; elMsg.textContent='Zadajte platný e‑mail.'; return; }
+      elSend.disabled = true; elMsg.className='auth-msg'; elMsg.textContent='Posielam odkaz…';
+      try {
+        var res = await sb.auth.signInWithOtp({ email: email, options: { emailRedirectTo: redirectTarget() } });
+        if (res.error){ elMsg.className='auth-msg err'; elMsg.textContent='Chyba: '+res.error.message; }
+        else { elMsg.className='auth-msg ok'; elMsg.textContent='Odkaz sme poslali na '+email+'. Otvorte e‑mail (skontrolujte aj SPAM) a kliknite naň.'; }
+      } catch(e){ elMsg.className='auth-msg err'; elMsg.textContent='Chyba: '+(e && e.message ? e.message : e); }
+      finally { elSend.disabled = false; }
+    });
+    if (elEmail){ elEmail.addEventListener('keydown', function(ev){ if(ev.key==='Enter'){ ev.preventDefault(); elSend.click(); } }); }
+  }
+
+  if (elRetry){ elRetry.addEventListener('click', async function(){ try{ await sb.auth.signOut(); }catch(e){} view('login'); }); }
+  if (elLogout){ elLogout.addEventListener('click', async function(){ try{ await sb.auth.signOut(); }catch(e){} window.location.reload(); }); }
+
+  sb.auth.getSession().then(function(r){ resolve(r.data ? r.data.session : null); });
+  sb.auth.onAuthStateChange(function(_evt, session){ resolve(session); });
+})();
+</script>
 </body>
 </html>
