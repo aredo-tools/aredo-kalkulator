@@ -469,6 +469,7 @@
           <div class="thick-btn active" id="thick18" onclick="setThick(18)">18 mm</div>
           <div class="thick-btn" id="thick22" onclick="setThick(22)">22 mm</div>
         </div>
+        <div id="thick-eff-note" style="display:none;margin-top:6px;font-size:12px;color:#b59a60;font-weight:600;"></div>
 
         <label>Rádius (R vonkajší)</label>
         <select id="sel-radius" onchange="calc()"></select>
@@ -1692,6 +1693,17 @@ function setThick(t) {
   calc();
 }
 
+// Dyhované povrchy (dub/orech) pridávajú 1 mm k hrúbke (18→19, 22→23).
+// Rádiusy a cena sa počítajú z currentThick (18/22); mení sa len zobrazená/zapísaná hrúbka.
+function ohybIsVeneer() {
+  var finishes = currentTyp === 1 ? FINISHES_T1 : FINISHES_T2;
+  var fin = finishes[parseInt(document.getElementById('sel-finish').value) || 0];
+  return !!(fin && /dub|orech/i.test(fin.name));
+}
+function ohybEffectiveThick() {
+  return currentThick + (ohybIsVeneer() ? 1 : 0);
+}
+
 function setTier(tier, el) {
   currentTier = tier;
   document.querySelectorAll('#tab-kalk .tier-btn').forEach(b => b.classList.remove('active'));
@@ -1893,10 +1905,19 @@ function calc() {
   const priceTotalMulti = billedMulti * pricePerM2;
   const isMinApplied = totalM2 > 0 && totalM2 < MIN_M2;
 
+  // Dyhované (dub/orech) → hrúbka +1 mm (len zobrazenie/zápis, cena/rádiusy ostávajú)
+  const isVeneer = !!(fin && /dub|orech/i.test(fin.name));
+  const effThick = currentThick + (isVeneer ? 1 : 0);
+  const effNote = document.getElementById('thick-eff-note');
+  if (effNote) {
+    if (isVeneer) { effNote.style.display = 'block'; effNote.textContent = `🪵 Dyhované → hrúbka ${effThick} mm (MDF + 1 mm)`; }
+    else { effNote.style.display = 'none'; }
+  }
+
   // Snapshot pre uloženie ponuky (Fáza 4)
   window._lastOhyb = {
     valid: alertType !== 'error',
-    typ: currentTyp, zaoblenia: currentZaoblenia, thick: currentThick, radius: rad.r,
+    typ: currentTyp, zaoblenia: currentZaoblenia, thick: effThick, radius: rad.r,
     a: parseFloat(document.getElementById('inp-a').value) || 0,
     b: parseFloat(document.getElementById('inp-b').value) || 0,
     h: h, count: count,
@@ -4455,7 +4476,7 @@ async function exportPDF() {
   // --- PARAMETERS ---
   doc.setFontSize(9); doc.setFont(undefined, 'normal'); doc.setTextColor(80, 80, 80);
   const typ = document.getElementById('btn-typ1').classList.contains('active') ? 'TYP 1' : 'TYP 2';
-  const thick = document.querySelector('.thick-btn.active')?.textContent || '';
+  const thick = (typeof ohybEffectiveThick === 'function' ? ohybEffectiveThick() + ' mm' : (document.querySelector('.thick-btn.active')?.textContent || ''));
   const radius = document.getElementById('sel-radius')?.selectedOptions[0]?.text || '';
   const finish = document.getElementById('sel-finish')?.selectedOptions[0]?.text || '';
   const H = document.getElementById('inp-h')?.value || '';
