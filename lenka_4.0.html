@@ -245,6 +245,42 @@
     padding: 6px 12px; border-radius: 7px; cursor: pointer; font-size: 12.5px; font-family: inherit;
   }
   #auth-user button:hover { background: #eee; }
+
+  /* ===== Uložiť ponuku (modal) ===== */
+  .so-overlay{ position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; padding:20px; }
+  .so-card{ background:#fff; border-radius:14px; width:100%; max-width:440px; padding:24px; box-shadow:0 20px 60px rgba(0,0,0,.3); max-height:92vh; overflow:auto; }
+  .so-title{ font-size:18px; font-weight:800; margin-bottom:12px; color:var(--text); }
+  .so-summary{ background:var(--gray); border-radius:8px; padding:12px; font-size:12.5px; line-height:1.6; color:#444; margin-bottom:14px; }
+  .so-label{ display:block; font-size:12px; font-weight:600; color:#666; margin:10px 0 4px; }
+  .so-input{ width:100%; padding:9px 11px; border:1.5px solid var(--border); border-radius:7px; font-size:14px; font-family:inherit; outline:none; }
+  .so-input:focus{ border-color:var(--yellow); }
+  textarea.so-input{ resize:vertical; }
+  .so-author-row{ font-size:12px; color:#888; margin-top:12px; }
+  .so-msg{ font-size:13px; min-height:18px; margin-top:10px; }
+  .so-msg.ok{ color:var(--green); } .so-msg.err{ color:var(--red); }
+  .so-btns{ display:flex; gap:10px; margin-top:16px; }
+  .so-btns button{ flex:1; padding:11px; border-radius:8px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; border:none; }
+  .so-cancel{ background:#f0f0f0; color:#555; }
+  .so-save{ background:var(--yellow); color:#1e1e1e; }
+  .so-save:disabled{ opacity:.5; cursor:default; }
+
+  /* ===== Evidencia ponúk ===== */
+  #offers-list{ display:flex; flex-direction:column; gap:10px; max-width:900px; }
+  .offers-empty{ color:#888; font-size:14px; padding:24px; text-align:center; background:#fff; border:1px solid var(--border); border-radius:10px; }
+  .offer-card{ background:#fff; border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+  .offer-head{ display:flex; align-items:center; gap:12px; padding:14px 16px; cursor:pointer; }
+  .offer-head:hover{ background:#fafafa; }
+  .offer-main{ flex:1; min-width:0; }
+  .offer-name{ font-size:14.5px; font-weight:700; color:var(--text); }
+  .offer-num{ color:#b59a60; font-weight:600; }
+  .offer-sub{ font-size:12px; color:#999; margin-top:2px; }
+  .offer-price{ font-size:15px; font-weight:800; color:var(--text); white-space:nowrap; }
+  .offer-detail{ padding:0 16px 14px; border-top:1px solid var(--border); }
+  .off-item{ font-size:12.5px; color:#555; padding:10px 0; line-height:1.5; border-bottom:1px dashed #eee; }
+  .off-note{ font-size:13px; color:#555; background:var(--gray); border-radius:7px; padding:10px; margin-top:10px; }
+  .off-actions{ margin-top:12px; }
+  .off-del{ background:#fff; border:1px solid var(--red); color:var(--red); padding:6px 12px; border-radius:7px; font-size:12.5px; cursor:pointer; font-family:inherit; }
+  .off-del:hover{ background:var(--red); color:#fff; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -381,8 +417,32 @@
         <div style="font-size:12px;color:#666;line-height:1.5;">Interaktívny 3D náhľad ohýbaného dielca. Výber povrchu, farby, stiahnutie OBJ / GLB.</div>
       </div>
 
+      <!-- R3C1: Evidencia ponúk -->
+      <div onclick="showTab('ponuky')" style="cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
+        <div style="width:48px;height:48px;background:#F5C800;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1e1e1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        </div>
+        <div style="font-size:15px;font-weight:700;color:#1e1e1e;margin-bottom:5px;">Evidencia ponúk</div>
+        <div style="font-size:12px;color:#666;line-height:1.5;">Uložené ponuky – kto ju vytvoril, kedy, meno zákazníka a poznámka.</div>
+      </div>
+
     </div>
   </div>
+</div>
+
+<!-- ========== TAB: EVIDENCIA PONÚK ========== -->
+<div id="tab-ponuky" class="tab-content">
+<div class="container">
+  <div style="padding:12px 0 4px;"><button onclick="showTab('home')" style="background:none;border:none;cursor:pointer;font-size:13px;font-weight:600;color:#787878;padding:0;display:flex;align-items:center;gap:6px;">← Domov</button></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin:6px 0 16px;max-width:900px;flex-wrap:wrap;gap:10px;">
+    <h1 style="font-size:22px;font-weight:800;color:var(--text);">📁 Evidencia ponúk</h1>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span id="offers-count" style="font-size:13px;color:#888;"></span>
+      <button onclick="loadOffers()" style="background:#f0f0f0;border:1px solid var(--border);color:#555;padding:7px 13px;border-radius:7px;font-size:13px;cursor:pointer;font-family:inherit;">↻ Obnoviť</button>
+    </div>
+  </div>
+  <div id="offers-list"><div class="offers-empty">Načítavam…</div></div>
+</div>
 </div>
 
 <!-- ========== TAB: KALKULÁTOR ========== -->
@@ -490,6 +550,7 @@
 
         <button onclick="exportPDF()" style="margin-top:12px;width:100%;padding:11px;background:var(--yellow);border:none;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;color:#1e1e1e;">⬇ Stiahnuť PDF</button>
         <button id="btn-dl-3dhtml" onclick="downloadModel3DHTML()" style="margin-top:8px;width:100%;padding:10px;background:#fff;border:1.5px solid var(--yellow);border-radius:6px;font-size:13.5px;font-weight:700;cursor:pointer;color:#1e1e1e;">⬇ Stiahnuť 3D model (.html – otvorí sa na mobile aj PC)</button>
+        <div style="margin-top:8px;font-size:11.5px;color:#999;text-align:center;">Stiahnutím PDF sa ponuka automaticky uloží do evidencie.</div>
       </div>
     </div>
 
@@ -1580,6 +1641,8 @@ function showTab(id) {
   const navBtn = [...document.querySelectorAll('nav button')].find(b => b.getAttribute('onclick') === "showTab('" + id + "')");
   if (navBtn) navBtn.classList.add('active');
 
+  if (id === 'ponuky' && typeof loadOffers === 'function') loadOffers();
+
   // Move interactive-3d-container between kalk slot and tab-3d slot
   var c3d = document.getElementById('interactive-3d-container');
   if (c3d) {
@@ -1829,6 +1892,20 @@ function calc() {
   const priceTotal = billedM2 * pricePerM2;
   const priceTotalMulti = billedMulti * pricePerM2;
   const isMinApplied = totalM2 > 0 && totalM2 < MIN_M2;
+
+  // Snapshot pre uloženie ponuky (Fáza 4)
+  window._lastOhyb = {
+    valid: alertType !== 'error',
+    typ: currentTyp, zaoblenia: currentZaoblenia, thick: currentThick, radius: rad.r,
+    a: parseFloat(document.getElementById('inp-a').value) || 0,
+    b: parseFloat(document.getElementById('inp-b').value) || 0,
+    h: h, count: count,
+    finish: fin ? fin.name : '',
+    tierLabel: TIER_LABELS[tierIdx], tier: currentTier,
+    m2_per_piece: totalM2, billed_m2: billedM2,
+    price_per_m2: pricePerM2, price_1ks: priceTotal, price_total: priceTotalMulti,
+    isMinApplied: isMinApplied
+  };
 
   // Update UI
   document.getElementById('res-m2').textContent = totalM2.toFixed(3) + ' m²';
@@ -4547,6 +4624,9 @@ async function exportPDF() {
 
   const fname = orderNum && orderNum !== '—' ? 'aredo-ohyb-' + orderNum + '.pdf' : 'aredo-ohyb.pdf';
   doc.save(fname);
+
+  // Automaticky zaeviduj ponuku (Fáza 4)
+  if (typeof saveOfferAfterPDF === 'function') saveOfferAfterPDF(orderNum);
 }
 
 // ===================== SKLO PDF – ZÁKAZNÍK =====================
@@ -5679,6 +5759,148 @@ init();
 
   sb.auth.getSession().then(function(r){ resolve(r.data ? r.data.session : null); });
   sb.auth.onAuthStateChange(function(_evt, session){ resolve(session); });
+})();
+</script>
+
+<!-- ===== Toast ===== -->
+<div id="app-toast" style="display:none;position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:100001;background:#1e1e1e;color:#fff;padding:11px 18px;border-radius:10px;font-size:13.5px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,.35);"></div>
+
+<!-- ===== Evidencia ponúk – logika ===== -->
+<script>
+(function(){
+  function sb(){ return window._sb; }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function fmtEur(n){ if(n==null||isNaN(n)) return '—'; return (Math.round(n*100)/100).toFixed(2).replace('.',',')+' €'; }
+  function fmtDT(iso){ if(!iso) return ''; var d=new Date(iso); var p=function(x){return (x<10?'0':'')+x;}; return p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear()+' '+p(d.getHours())+':'+p(d.getMinutes()); }
+  function plural(n){ return n===1?'ponuka':(n>=2&&n<=4?'ponuky':'ponúk'); }
+  var _toastT=null;
+  function showToast(msg, ok){
+    var t=document.getElementById('app-toast'); if(!t) return;
+    t.textContent=msg; t.style.background = ok===false ? '#c0392b' : '#1e1e1e'; t.style.display='block';
+    if(_toastT) clearTimeout(_toastT);
+    _toastT=setTimeout(function(){ t.style.display='none'; }, 2400);
+  }
+
+  window._offersById = {};
+
+  // ---------- Auto-uloženie po stiahnutí PDF ----------
+  window.saveOfferAfterPDF = async function(orderNum){
+    var snap = window._lastOhyb;
+    if(!snap || !snap.valid || !sb()) return;
+    try {
+      var order = (orderNum && orderNum !== '—') ? orderNum : ((document.getElementById('inp-order')||{}).value||'').trim();
+      var offerRow = {
+        offer_number: order || null,
+        author_email: window._authEmail || null,
+        customer_name: null, note: null, currency: 'EUR',
+        total_m2: snap.m2_per_piece * snap.count, total_price: snap.price_total, status: 'saved'
+      };
+      var ins = await sb().from('offers').insert(offerRow).select('id').single();
+      if(ins.error) throw ins.error;
+      var item = {
+        offer_id: ins.data.id, position: 1, product_kind: 'ohyb',
+        typ: 'TYP'+snap.typ, thickness_mm: snap.thick, radius_mm: snap.radius,
+        zaoblenia: snap.zaoblenia, height_mm: snap.h, dim_a_mm: snap.a, dim_b_mm: snap.b,
+        surface: snap.finish, tier: snap.tierLabel, qty: snap.count,
+        m2_per_piece: snap.m2_per_piece, m2_total: snap.m2_per_piece*snap.count,
+        price_per_m2: snap.price_per_m2, price_total: snap.price_total,
+        meta: { billed_m2: snap.billed_m2, price_1ks: snap.price_1ks, min_applied: snap.isMinApplied, tier_key: snap.tier }
+      };
+      var insItem = await sb().from('offer_items').insert(item);
+      if(insItem.error) throw insItem.error;
+      showToast('Uložené do evidencie ✓', true);
+      var pt = document.getElementById('tab-ponuky');
+      if(pt && pt.classList.contains('active')) loadOffers();
+    } catch(e){ showToast('Nepodarilo sa uložiť do evidencie', false); console.warn('saveOfferAfterPDF', e); }
+  };
+
+  // ---------- Evidencia / história ----------
+  window.loadOffers = async function(){
+    var list = document.getElementById('offers-list');
+    if(!list) return;
+    list.innerHTML = '<div class="offers-empty">Načítavam…</div>';
+    if(!sb()){ list.innerHTML = '<div class="offers-empty" style="color:var(--red)">Nie ste prihlásená.</div>'; return; }
+    try {
+      var res = await sb().from('offers').select('*, offer_items(*)').order('created_at', {ascending:false});
+      if(res.error) throw res.error;
+      renderOffers(res.data||[]);
+    } catch(e){
+      list.innerHTML = '<div class="offers-empty" style="color:var(--red)">Chyba: '+esc(e.message||e)+'</div>';
+    }
+  };
+
+  function renderOffers(rows){
+    var list = document.getElementById('offers-list');
+    var cnt = document.getElementById('offers-count');
+    window._offersById = {};
+    if(cnt) cnt.textContent = rows.length ? (rows.length+' '+plural(rows.length)) : '';
+    if(!rows.length){ list.innerHTML = '<div class="offers-empty">Zatiaľ žiadne uložené ponuky. Vypočítaj dielec a stiahni PDF – ponuka sa uloží sem automaticky.</div>'; return; }
+    list.innerHTML = rows.map(function(o){
+      window._offersById[o.id] = o;
+      var items = o.offer_items||[];
+      var itemsHtml = items.map(function(x){
+        return '<div class="off-item">'+esc(x.typ||'')+(x.zaoblenia?(' · '+x.zaoblenia+' zaobl.'):'')+' · R'+esc(x.radius_mm)+' · hr. '+esc(x.thickness_mm)+' mm · A '+esc(x.dim_a_mm)+' × B '+esc(x.dim_b_mm)+' · V '+esc(x.height_mm)+' mm · '+esc(x.surface||'')+' · '+esc(x.tier||'')+' · '+esc(x.qty)+' ks · <b>'+fmtEur(x.price_total)+'</b></div>';
+      }).join('');
+      return '<div class="offer-card" id="off-'+o.id+'">'
+        + '<div class="offer-head" onclick="toggleOfferDetail(\''+o.id+'\')">'
+        +   '<div class="offer-main">'
+        +     '<div class="offer-name">'+(o.customer_name?esc(o.customer_name):'<span style=\'color:#999\'>(bez mena)</span>')+(o.offer_number?(' · <span class="offer-num">'+esc(o.offer_number)+'</span>'):'')+'</div>'
+        +     '<div class="offer-sub">'+esc(o.author_email||'')+' · '+fmtDT(o.created_at)+'</div>'
+        +   '</div>'
+        +   '<div class="offer-price">'+fmtEur(o.total_price)+'</div>'
+        + '</div>'
+        + '<div class="offer-detail" style="display:none">'
+        +   (itemsHtml||'<div class="off-item" style="color:#999">(bez položiek)</div>')
+        +   (o.note?('<div class="off-note">📝 '+esc(o.note)+'</div>'):'')
+        +   '<div class="off-actions" style="display:flex;gap:8px;flex-wrap:wrap;">'
+        +     '<button class="off-del" style="border-color:#b59a60;color:#b59a60" onclick="editOffer(\''+o.id+'\')">✏️ Upraviť meno / poznámku</button>'
+        +     '<button class="off-del" onclick="deleteOffer(\''+o.id+'\')">🗑 Zmazať ponuku</button>'
+        +   '</div>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+  }
+
+  window.toggleOfferDetail = function(id){
+    var card = document.getElementById('off-'+id); if(!card) return;
+    var d = card.querySelector('.offer-detail');
+    d.style.display = (d.style.display==='none') ? 'block' : 'none';
+  };
+
+  window.editOffer = function(id){
+    var o = window._offersById[id]; if(!o) return;
+    var card = document.getElementById('off-'+id); if(!card) return;
+    var d = card.querySelector('.offer-detail');
+    d.innerHTML = '<label class="so-label">Meno / zákazník</label>'
+      + '<input type="text" class="so-input" id="edit-meno-'+id+'" value="'+esc(o.customer_name||'')+'" placeholder="napr. Kuchyňa Novák">'
+      + '<label class="so-label">Poznámka</label>'
+      + '<textarea class="so-input" id="edit-note-'+id+'" rows="3" placeholder="nepovinné…">'+esc(o.note||'')+'</textarea>'
+      + '<div class="off-actions" style="display:flex;gap:8px;margin-top:12px;">'
+      +   '<button class="off-del" style="border-color:#ccc;color:#555" onclick="loadOffers()">Zrušiť</button>'
+      +   '<button class="off-del" style="border-color:var(--green);color:#fff;background:var(--green)" onclick="saveOfferEdit(\''+id+'\')">Uložiť zmeny</button>'
+      + '</div>';
+  };
+
+  window.saveOfferEdit = async function(id){
+    var meno = (document.getElementById('edit-meno-'+id).value||'').trim();
+    var note = (document.getElementById('edit-note-'+id).value||'').trim();
+    try {
+      var res = await sb().from('offers').update({ customer_name: meno||null, note: note||null }).eq('id', id);
+      if(res.error) throw res.error;
+      showToast('Zmeny uložené ✓', true);
+      loadOffers();
+    } catch(e){ showToast('Chyba pri ukladaní zmien', false); console.warn('saveOfferEdit', e); }
+  };
+
+  window.deleteOffer = async function(id){
+    if(!confirm('Naozaj zmazať túto ponuku? Túto akciu nie je možné vrátiť späť.')) return;
+    try {
+      var res = await sb().from('offers').delete().eq('id', id);
+      if(res.error) throw res.error;
+      showToast('Ponuka zmazaná', true);
+      loadOffers();
+    } catch(e){ showToast('Chyba pri mazaní', false); console.warn('deleteOffer', e); }
+  };
 })();
 </script>
 </body>
