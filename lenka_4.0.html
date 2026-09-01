@@ -426,6 +426,15 @@
         <div style="font-size:12px;color:#666;line-height:1.5;">Uložené ponuky – kto ju vytvoril, kedy, meno zákazníka a poznámka.</div>
       </div>
 
+      <!-- R3C2: Nákupné ceny výroby -->
+      <div onclick="showTab('nakup')" style="cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
+        <div style="width:48px;height:48px;background:#F5C800;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1e1e1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l3-4 3 3 4-6"/></svg>
+        </div>
+        <div style="font-size:15px;font-weight:700;color:#1e1e1e;margin-bottom:5px;">Nákupné ceny výroby</div>
+        <div style="font-size:12px;color:#666;line-height:1.5;">Cenník v Zł → +% → kurz → nákup v €→ koeficient → predajná cena v €.</div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -837,6 +846,55 @@
     </div>
   </div>
 
+</div>
+</div>
+
+<!-- ========== TAB: NÁKUPNÉ CENY VÝROBY ========== -->
+<div id="tab-nakup" class="tab-content">
+<div class="container">
+  <div style="padding:12px 0 4px;"><button onclick="showTab('home')" style="background:none;border:none;cursor:pointer;font-size:13px;font-weight:600;color:#787878;padding:0;display:flex;align-items:center;gap:6px;">← Domov</button></div>
+
+  <div class="card" style="margin-bottom:16px;">
+    <h2>Nákupné ceny výroby</h2>
+    <p style="font-size:13px;color:#666;margin-bottom:14px;">Cena v Zł (cenník PRESTIGE) → <strong>+ percento</strong> → prepočet <strong>kurzom</strong> na nákup v €→ <strong>koeficient</strong> → predajná cena v €. Percento, kurz a koeficient sa dajú voľne meniť a prepočítajú všetky riadky.</p>
+    <div style="display:flex;gap:28px;flex-wrap:wrap;align-items:flex-end;">
+      <div>
+        <label style="margin-top:0;">Percento (%)</label>
+        <input type="number" id="nk-pct" value="8" step="0.1" oninput="recalcNakup()" style="width:120px;">
+      </div>
+      <div>
+        <label style="margin-top:0;">Kurz (Zł za 1 €)</label>
+        <input type="number" id="nk-kurz" value="4.2" step="0.01" min="0.01" oninput="recalcNakup()" style="width:120px;">
+      </div>
+      <div>
+        <label style="margin-top:0;">Koeficient (predaj)</label>
+        <input type="number" id="nk-koef" value="1" step="0.01" min="0" oninput="recalcNakup()" style="width:120px;">
+      </div>
+      <div>
+        <label style="margin-top:0;">&nbsp;</label>
+        <button onclick="addNakupRow()" style="display:block;padding:9px 16px;background:var(--yellow);border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;color:#1e1e1e;">+ Pridať riadok</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="overflow-x:auto;">
+      <table id="nk-table" style="font-size:12.5px;border-collapse:collapse;min-width:660px;width:100%;">
+        <thead>
+          <tr style="background:#2a2a2a;color:#fff;text-align:center;">
+            <th style="padding:8px 10px;text-align:left;min-width:220px;">Položka</th>
+            <th style="padding:8px 10px;white-space:nowrap;">Cena (Zł)</th>
+            <th style="padding:8px 10px;white-space:nowrap;">+ <span id="nk-pct-h">8</span> % (Zł)</th>
+            <th style="padding:8px 10px;white-space:nowrap;background:#e8f0fe;color:#1e1e1e;">Nákup (€)</th>
+            <th style="padding:8px 10px;white-space:nowrap;background:#e6f4ea;color:#1e1e1e;">Predaj (€)</th>
+            <th style="padding:8px 6px;"></th>
+          </tr>
+        </thead>
+        <tbody id="nk-tbody"></tbody>
+      </table>
+    </div>
+    <div style="margin-top:10px;font-size:11.5px;color:#888;">Cena Zł je editovateľná. Nákup (€) = (Cena Zł + percento) ÷ kurz. Predaj (€) = Nákup × koeficient.</div>
+  </div>
 </div>
 </div>
 
@@ -1664,6 +1722,7 @@ function showTab(id) {
 
   if (id === 'ponuky' && typeof loadOffers === 'function') loadOffers();
   if (id === 'sklo' && typeof clearSkloRows === 'function') clearSkloRows();
+  if (id === 'nakup' && typeof initNakup === 'function') initNakup();
 
   // Move interactive-3d-container between kalk slot and tab-3d slot
   var c3d = document.getElementById('interactive-3d-container');
@@ -5982,6 +6041,623 @@ init();
     } catch(e){ showToast('Chyba pri mazaní', false); console.warn('deleteOffer', e); }
   };
 })();
+</script>
+
+<!-- ===== Nákupné ceny výroby ===== -->
+<script>
+// Dáta z cenníka PRESTIGE (Aredo Ver 1.0, od 01-09-2026). {c:'kategória'} alebo {n:'názov', z:cenaZł}.
+let NAKUP_DATA = [
+  {s:'Fronty Proste'},
+  {c:'Fronty Gładkie - Mat'},
+  {n:'Biały', z:291},
+  {n:'Kolor', z:296},
+  {n:'Stuktura', z:341},
+  {n:'Metalik/Perła/Akryl', z:375},
+  {c:'Fronty Gładkie - Mat/Mat'},
+  {n:'Biały', z:498},
+  {n:'Kolor', z:509},
+  {n:'Struktura', z:600},
+  {n:'Metalik/Perła/Akryl', z:667},
+  {c:'Fronty Uchwyt RU ; RP - Mat'},
+  {n:'Biały', z:318},
+  {n:'Kolor', z:324},
+  {n:'Struktura', z:369},
+  {n:'Metalik/Perła/Akryl', z:403},
+  {c:'Fronty Uchwyt RU ; RP - Mat/Mat'},
+  {n:'Biały', z:526},
+  {n:'Kolor', z:538},
+  {n:'Struktura', z:628},
+  {n:'Metalik/Perła/Akryl', z:695},
+  {c:'Fronty Gładkie - Połysk'},
+  {n:'Biały', z:308},
+  {n:'Kolor', z:313},
+  {n:'Metalik/Perła/Akryl', z:414},
+  {c:'Fronty Gładkie - Połysk/Połysk'},
+  {n:'Biały', z:526},
+  {n:'Kolor', z:538},
+  {n:'Metalik/Perła/Akryl', z:740},
+  {c:'Fronty Uchwyt RU ; RP - Połysk'},
+  {n:'Biały', z:332},
+  {n:'Kolor', z:341},
+  {n:'Metalik/Perła/Akryl', z:442},
+  {c:'Fronty Uchwyt RU ; RP - Połysk-Połysk'},
+  {n:'Biały', z:554},
+  {n:'Kolor', z:566},
+  {n:'Metalik/Perła/Akryl', z:762},
+  {c:'Usługa Lakiernicza - Mat'},
+  {n:'Biały', z:227},
+  {n:'Kolor', z:251},
+  {n:'Struktura', z:287},
+  {n:'Metalik/Perła/Akryl', z:310},
+  {c:'Usługa Lakiernicza - Połysk'},
+  {n:'Biały', z:251},
+  {n:'Kolor', z:274},
+  {n:'Metalik/Perła/Akryl', z:381},
+  {c:'Usługa Lakiernicza Drzwi giętych gładkich'},
+  {n:'Matowe', z:630},
+  {n:'Połyskowe', z:945},
+  {c:'Front z wstawką Drewnianą'},
+  {n:'Front Mat RFF; RFO + wstawka drewniana bezbarwna', z:537},
+  {n:'Front Połysk RFF; RFO + wstawka drewniana bezbarwna', z:595},
+  {n:'Front Mat RFF; RFO + wstawka drewniana w kolorze', z:572},
+  {n:'Front Połysk RFF; RFO + wstawka drewniana w kolorze', z:636},
+  {c:'Formatki Surowe'},
+  {n:'Formatka Prosta R-2 MDF 18 mm', z:105},
+  {n:'Formatka Prosta RU-2D; RU-2G surowa MDF 18 mm', z:137},
+  {n:'Formatka Prosta RFO; RFF cena podstawowa + cena za uchwyt RFO; RFF', z:105},
+  {s:'Fronty Frezowane'},
+  {c:'Fronty Frezowane Lakierowane Mat'},
+  {n:'Amber, Bizet 40, Bizet 65, Chopin, Ramiak 75, Rossini, Terni 22**, Wagner', z:459},
+  {n:'Szpros typ A', z:521},
+  {n:'Szpros typ B', z:628},
+  {n:'Szpros typ C', z:684},
+  {n:'Poprzeczka', z:10, u:'%'},
+  {n:'Każdy dodatkowy łuk', z:10, u:'%'},
+  {n:'Bethoven, Mirror, Ramona, Savona, Vivaldi, Weber', z:476},
+  {n:'Szpros typ A', z:438},
+  {n:'Szpros typ B', z:638},
+  {n:'Szpros typ C', z:700},
+  {n:'Poprzeczka', z:20, u:'%'},
+  {n:'Czajkowski, Haendel, Mozart, Puccini; Ravel, Roma, Schubert, Stelvio', z:532},
+  {c:'Sycylia'},
+  {n:'Szpros typ A', z:588},
+  {n:'Szpros typ B', z:695},
+  {n:'Szpros typ C', z:751},
+  {n:'Poprzeczka', z:20, u:'%'},
+  {n:'Sztukateria gr I', z:812},
+  {n:'Amalfi 25', z:853},
+  {n:'Amalfi 25 2L', z:893},
+  {n:'Amalfi 25 4L', z:853},
+  {n:'Amalfi 25 2F', z:893},
+  {n:'Amalfi 25 4F', z:812},
+  {n:'Julia', z:853},
+  {n:'Julia 2F', z:893},
+  {n:'Julia 4F', z:853},
+  {n:'Jula 2L', z:893},
+  {c:'Julia 4L'},
+  {n:'Sztukateria grupa II', z:1040},
+  {n:'Capri 25', z:1091},
+  {n:'Capri 25 2L', z:1143},
+  {n:'Capri 25 4L', z:1143},
+  {n:'Capri 25 4F', z:1091},
+  {n:'Capri 25 2F', z:1040},
+  {n:'Inez', z:1091},
+  {n:'Inez 2L', z:1143},
+  {n:'Inez 4L', z:1091},
+  {n:'Inez 2F', z:1143},
+  {n:'Inez 4F', z:1040},
+  {n:'Lena', z:1091},
+  {n:'Lena 2L', z:1143},
+  {n:'Lena 4L', z:1091},
+  {n:'Lena 2F', z:1143},
+  {c:'Lena 4F'},
+  {c:'Listwy wykończeniowe'},
+  {n:'Listwa wieńcząca typ B 30 mm x 2440 mm', z:212},
+  {n:'Listwa wieńcząca typ D 72 mm x 2440 mm', z:296},
+  {n:'Listwa wieńcząca typ DK 92 mm x 2440 mm', z:425},
+  {n:'LIstwa podszafkowa typ G 50 mm x 2440 mm', z:133},
+  {c:'Pilastry'},
+  {n:'Pilaster P-1, P-2, P-3 szer. 50 mm , wys. 400 mm - 2600 mm', z:180},
+  {n:'Pilaster P-4, P-5 szer. 50 mm , wys. 400 mm - 2600 mm', z:191},
+  {n:'Pilaster P-6 szer. 50 mm , wys. 400 mm - 2600 mm', z:251},
+  {n:'Pilaster P-11 szer. 100 mm , wys. 400 mm - 2600 mm', z:221},
+  {n:'Pilaster P-12 szer. 100 mm , wys. 400 mm - 2600 mm', z:261},
+  {n:'Pilaster P-13 szer. 150 mm , wys. 400 mm - 2600 mm', z:287},
+  {n:'Fronty Frezowane cena pomniejszona o', z:105},
+  {n:'Listwy - cena pomniejszona o', z:53},
+  {n:'Pilaster - cena pomniejszona o', z:26},
+  {c:'** Wymagana dopłata za grubość płyty'},
+  {c:'*** Usługa lakiernicza wymaga zgody firmy Prestige'},
+  {s:'Fronty Frezowane surowe'},
+  {c:'Fronty Frezowane Surowe'},
+  {n:'Amber, Bizet 40, Bizet 65, Chopin, Ramiak 75, Rossini, Terni 22*', z:189},
+  {c:'Wagner'},
+  {n:'Szpros typ A', z:223},
+  {n:'Szpros typ B', z:251},
+  {n:'Szpros typ C', z:285},
+  {n:'Poprzeczka', z:10, u:'%'},
+  {n:'Każdy dodatkowy łuk', z:10, u:'%'},
+  {n:'Bethoven, Mirror, Ramona, Savona, Vivaldi, Weber', z:212},
+  {n:'Szpros typ A', z:251},
+  {n:'Szpros typ B', z:273},
+  {n:'Szpros typ C', z:308},
+  {n:'Poprzeczka', z:20, u:'%'},
+  {n:'Czajkowski, Haendel, Mozart, Puccini; Ravel, Roma, Schubert, Stelvio', z:234},
+  {c:'Sycylia'},
+  {n:'Szpros typ A', z:263},
+  {n:'Szpros typ B', z:285},
+  {n:'Szpros typ C', z:318},
+  {n:'Poprzeczka', z:20, u:'%'},
+  {n:'Sztukateria grupa I', z:315},
+  {n:'Amalfi 25', z:347},
+  {n:'Amalfi 25 2L', z:378},
+  {n:'Amalfi 25 4L', z:347},
+  {n:'Amalfi 25 2F', z:378},
+  {n:'Amalfi 25 4F', z:315},
+  {n:'Julia', z:347},
+  {n:'Julia 2L', z:378},
+  {n:'Julia 4L', z:347},
+  {n:'Julia 2F', z:378},
+  {c:'Julia 4F'},
+  {n:'Sztukateria Grupa II', z:368},
+  {n:'Capri 25', z:404},
+  {n:'Capri 25 2L', z:441},
+  {n:'Capri 25 4L', z:368},
+  {n:'Capri 25 2F', z:441},
+  {n:'Capri 25 4F', z:368},
+  {n:'Inez', z:404},
+  {n:'Inez 2L', z:441},
+  {n:'Inez 4L', z:404},
+  {n:'Inez 2F', z:441},
+  {n:'Inez 4F', z:368},
+  {n:'Lena', z:404},
+  {n:'Lena 2L', z:441},
+  {n:'Lena 4L', z:368},
+  {n:'Lena 2F', z:441},
+  {c:'Lena 4F'},
+  {c:'Listwy wykończeniowe surowe'},
+  {n:'Listwa wieńcząca typ B 30 mm x 2440 mm', z:189},
+  {n:'Listwa wieńcząca typ D 72 mm x 2440 mm', z:251},
+  {n:'Listwa wieńcząca typ DK 92 mm x 2440 mm', z:324},
+  {n:'LIstwa podszafkowa typ G 50 mm x 2440 mm', z:105},
+  {c:'Pilastry surowe'},
+  {n:'Pilaster P-1, P-2, P-3 szer. 50 mm , wys. 400 mm - 2600 mm', z:133},
+  {n:'Pilaster P-4, P-5 szer. 50 mm , wys. 400 mm - 2600 mm', z:150},
+  {n:'Pilaster P-6 szer. 50 mm , wys. 400 mm - 2600 mm', z:172},
+  {n:'Pilaster P-11 szer. 100 mm , wys. 400 mm - 2600 mm', z:150},
+  {n:'Pilaster P-12 szer. 100 mm , wys. 400 mm - 2600 mm', z:172},
+  {n:'Pilaster P-13 szer. 150 mm , wys. 400 mm - 2600 mm', z:189},
+  {c:'* Wymagana dopłata za grubość płyty'},
+  {c:'Ryfle'},
+  {c:'Ryfle'},
+  {n:'LP-1513471', z:429},
+  {n:'LP-2614564', z:513},
+  {n:'LK-1539495', z:450},
+  {n:'LK-2608559', z:508},
+  {n:'LK-3671616', z:561},
+  {n:'LK-4671616', z:561},
+  {n:'LK-5702645', z:587},
+  {n:'LK-6715656', z:597},
+  {n:'LK-12608559', z:508},
+  {n:'LK-19671621', z:581},
+  {n:'LB-8639587', z:534},
+  {n:'LB-12639587', z:534},
+  {n:'LB-20690633', z:576},
+  {n:'LB-24690633', z:576},
+  {c:'LV-0900'},
+  {n:'LV-1627575', z:524},
+  {n:'LV-2690633', z:576},
+  {n:'LV-3652599', z:545},
+  {c:'LV-12702'},
+  {c:'LV-15671'},
+  {n:'J-1532489', z:445},
+  {c:'Dopłata Lakiernicza'},
+  {n:'Dodatkowe dopłata lakierowanie 168126', z:105},
+  {c:'Mat Perła'},
+  {c:'Usługa lakiernicza'},
+  {c:'Ryfli powierzonych'},
+  {c:'***'},
+  {n:'Lakierowanie Ryfli - cena 100100', z:100},
+  {c:'pomniejszona o'},
+  {c:'* Brak Standardowego frezowania obwiedniowego'},
+  {c:'* Możliwość kontynuacji usłojenia.'},
+  {c:'* Ryfle w połysk w bez możliwości polerowania w cenie ryfli matowych. / brak możliwości reklamacji na wtrącenia /'},
+  {c:'* Możliwe dopłaty przy skomplikowanych projektach'},
+  {c:'* Niektóre ryfle, które mają być użyte jako fronty wymagają grubszej płyty MDF / uwaga dopłata /'},
+  {c:'*** Wymagana zgoda Prestige'},
+  {c:'Ryfle Surowe'},
+  {c:'Ryfle Surowe'},
+  {n:'LP-1210', z:193},
+  {n:'LP-2210', z:193},
+  {n:'LK-1210', z:193},
+  {n:'LK-2210', z:193},
+  {n:'LK-3237', z:218},
+  {n:'LK-4237', z:218},
+  {n:'LK-5264', z:243},
+  {n:'LK-6291', z:267},
+  {n:'LK-12210', z:193},
+  {n:'LK-19237', z:218},
+  {n:'LB-8264', z:243},
+  {n:'LB-12264', z:243},
+  {n:'LB-20264', z:243},
+  {n:'LB-24264', z:243},
+  {n:'LV-0', z:501},
+  {n:'LV-1291', z:267},
+  {n:'LV-2291', z:267},
+  {n:'LV-3291', z:267},
+  {n:'J-1210', z:193},
+  {n:'LV-12', z:264},
+  {n:'LV-15', z:264},
+  {c:'* Brak Standardowego frezowania obwiedniowego'},
+  {c:'* Możliwość kontynuacji usłojenia.'},
+  {c:'* Możliwe dopłaty przy skomplikowanych projektach'},
+  {c:'* Niektóre ryfle, które mają być użyte jako fronty wymagają grubszej płyty MDF / uwaga dopłata /'},
+  {c:'Fronty Fornirowane'},
+  {c:'Fronty Fornirowane Dębowe'},
+  {n:'Dąb Flader A/B 19 mm', z:524},
+  {n:'Dąb Flader A/B 39 mm', z:652},
+  {n:'Dąb Flader A/A 19 mm', z:669},
+  {n:'Dąb Flader A/A 39 mm', z:826},
+  {n:'Dąb Pasiak A/B 19 mm', z:503},
+  {n:'Dąb Pasiak A/B 39 mm', z:627},
+  {n:'Dąb Pasiak A/A 19 mm', z:642},
+  {n:'Dąb Pasiak A/A 39 mm', z:793},
+  {n:'Dąb Sękaty A/B 19 mm', z:597},
+  {n:'Dąb Sękaty A/B 39 mm', z:740},
+  {n:'Dąb Sękaty A/A 19 mm', z:764},
+  {n:'Dąb Sękaty A/A 39 mm', z:941},
+  {c:'Fronty Forniorowane - oferta uzupełniająca'},
+  {n:'Grupa I 19 mm', z:559},
+  {n:'Grupa I 39 mm', z:727},
+  {n:'Grupa II 19 mm', z:609},
+  {n:'Grupa II 39 mm', z:792},
+  {n:'Grupa III 19 mm', z:700},
+  {n:'Grupa III 39 mm', z:910},
+  {n:'Grupa IV 19 mm', z:861},
+  {n:'Grupa IV 39 mm', z:1119},
+  {n:'Grupa V 19 mm', z:1197},
+  {n:'Grupa V 39 mm', z:1556},
+  {c:'Fronty Lite Drewno + Fornir'},
+  {n:'Front Nevada', z:977},
+  {n:'Front Ohio', z:1008},
+  {n:'Front Alabama', z:1040},
+  {c:'Dopłaty'},
+  {n:'Uchwyt fornirowany RU, RP', z:88},
+  {n:'Uchwyt fornirowany RP', z:72},
+  {n:'Uchwyt lakierowany RU', z:88},
+  {n:'Fornirowanie ramki w środku', z:210},
+  {n:'Kontynuacja usłojenia do długości 2780 / forniry dębowe /', z:15, u:'%'},
+  {n:'Szczotkowanie', z:15, u:'%'},
+  {n:'Olejowanie', z:10, u:'%'},
+  {n:'Bejcowanie jednostronne', z:72},
+  {n:'Bejcowanie dwustronne', z:145},
+  {n:'Bejcowanie dwustronne frontów Ohio, Amsterdam, Nevada', z:263},
+  {n:'Lakierowanie na wysoki połysk / tylko forniry gładkie / - 1 strona', z:377},
+  {n:'Usługa lakierowania forniru dębowego w Macie', z:378},
+  {n:'Usługa lakierowania forniru dębowego w Macie + Bejcowanie', z:523},
+  {n:'Wstawka Drewniana do RFF; RFO - środek MDF', z:158},
+  {n:'Wstawka Drewniana do RFF; RFO - środek Fornir', z:210},
+  {n:'Formatka surowa Dąb Pasiak, Dąb Flader, Buk Pasiak klasa A/B', z:321},
+  {n:'MDF wodoodporny', z:105},
+  {n:'Izolant jednostronnie', z:89},
+  {c:'* Uwaga okleiny Modyfikowane mają różną długość okleiny / 2280 mm, 2480 mm, 2780 mm - kontynuacja możliwa tylko do tych'},
+  {c:'* Minimalna ilość zamówienia frontów modyfikowanych - 4 m2'},
+  {c:'* Forniry dębowe mają w standardzie okleinę dębową klasy "B" na lewej stronie'},
+  {c:'Fornir_Ryflowany'},
+  {c:'Fronty Fornirowane Ryflowane na czarnym MDF-ie -'},
+  {c:'kanty Dąb Naturalny'},
+  {n:'639', z:618},
+  {c:'LP-1, LK-1, LV-1'},
+  {n:'655', z:634},
+  {c:'J-1'},
+  {c:'Fronty Fornirowane Ryflowane na czarnym MDF-ie -'},
+  {c:'kanty Dąb Czarny'},
+  {n:'671', z:650},
+  {c:'LP-1, LK-1, LV-1'},
+  {n:'687', z:665},
+  {c:'J-1'},
+  {c:'Dopłaty'},
+  {n:'Lakierowanie i bejcowanie ryfli jednostronne', z:158},
+  {n:'Lakierowanie i bejcowanie ryfli dwustronne', z:230},
+  {c:'* Brak standardowego frezu obwiedniowego'},
+  {c:'* Standard Dąb Flader A/B gr. 19 mm'},
+  {c:'* Możliwość konfigurowania szerokośći ryfli'},
+  {c:'* Możliwość kontynuacji usłojenia / możliwa dopłata wg cennik za usługi CNC /'},
+  {c:'Dopłaty_Lakiernicze'},
+  {c:'Dopłaty do zleceń'},
+  {n:'Zlecenie < 1m2 *', z:83},
+  {n:'Zlecenie express **', z:30, u:'%'},
+  {n:'Kolejny uchwyt na froncie RU-D; RU-G; RP', z:48},
+  {n:'Uchwyt RFO; RFF; RFS', z:73},
+  {n:'Uchwyt RFO z frezowaniem wewnątrz R-2', z:125},
+  {n:'Uchwyt Cargo typ " C "', z:145},
+  {n:'Uchwyt Cargo typ "L"', z:100},
+  {n:'Elementy o grubości 3 mm; 8 mm ; 10 mm , 12 mm', z:79},
+  {n:'Elementy o grubości 19mm ; 22 mm ; 25 mm ; 28 mm ; 38 mm', z:150},
+  {c:'Dopłaty CNC / różne /'},
+  {n:'Frezowanie Witryny pod szybę', z:50},
+  {n:'Frezowanie pod zmywarkę', z:50},
+  {n:'Frezowanie po wentylacje / 3 nacięcia /', z:79},
+  {n:'Frezowanie Witryny pod szybę z gumką', z:79},
+  {n:'Frezowanie Szprosu pod szybę + podbarwienie', z:50, u:'%'},
+  {n:'Frezowanie Szprosu pod szybę z gumką + podbarwienie', z:75, u:'%'},
+  {n:'Wiercenie pod zawias / standard /', z:8},
+  {n:'Frezowanie pod Uchwyt UKW-4; UKW-5; UKW-7', z:42},
+  {n:'Wiercenie pod napinacze Hafelle', z:89},
+  {n:'Krawędź R-2/R-2 przy lakierowaniu Jednostronnym', z:79},
+  {n:'Elementy pogrubiane 50 mm - 60 mm', z:1201},
+  {c:'+ cena usługi lakierniczej'},
+  {n:'Elementy pogrubione 61 mm - 100 mm', z:1575},
+  {c:'+ cena usługi lakierniczej'},
+  {c:'Dopłaty Lakiernicze'},
+  {n:'Dorobienie koloru', z:84},
+  {n:'Podkład pod kolor frontu', z:58},
+  {n:'Elementy powyżej 2800 mm', z:150},
+  {n:'Fronty dwukolorowe', z:122},
+  {n:'Lakierowanie szkła', z:251},
+  {n:'Lakier Antyfinger G05', z:53},
+  {n:'Lakierowanie częściowe lewych stron ***', z:30, u:'%'},
+  {n:'Lakierowanie z wzornika Kemiart - VMO3300 N1 do N8 - Mat', z:158},
+  {n:'Lakierowanie z wzornika Kemiart - VMO3300 N1 do N8 - Połysk', z:189},
+  {n:'Podkładowanie / elementu prostego / - jednostronnie', z:105},
+  {n:'Izolowanie / elementu prostego / - jednostronnie', z:158},
+  {n:'Lakierowanie Listew z lewej strony', z:50, u:'%'},
+  {n:'Lakierowanie elementu w jednym wymiarze > 7 szt, zakres 50 mm - 70 mm', z:100, u:'%'},
+  {n:'Lakierowanie elementu w jednym wymiarze > 7 szt, zakres 30 mm - 45 mm', z:200, u:'%'},
+  {n:'Lakierowanie jednego elementu o powierzchni > 1,5 m2', z:68},
+  {n:'Lakierowanie jednego elementu o powierzchni > 1,5 m2 o raz jeden z boków jest >', z:105},
+  {c:'2000 mm'},
+  {c:'Materiały lakiernicze'},
+  {n:'Lakier mat/połysk 100 gram', z:58},
+  {n:'Lakier mat/połysk 500 gram', z:90},
+  {n:'Lakier mat/połysk 1000 gram', z:126},
+  {n:'Lakier mat/połysk + Lakier nawierzchniowy 2 x 1000 gram', z:252},
+  {n:'Lakier Metalioczny 1000 gram', z:158},
+  {n:'Lakier Metaliczny VMO; KVM 1000 gram', z:210},
+  {n:'Lakier w Sprayu - Mat', z:74},
+  {n:'Lakier w Sprayu - Połsyk', z:79},
+  {n:'Komplet lakierniczy mat/połysk 100 gram', z:69},
+  {n:'Komplet lakierniczy mat/połysk 500 gram', z:108},
+  {n:'Komplet lakierniczy mat/połysk 1000 gram', z:151},
+  {n:'Komplet lakierniczy Metaliczny 1000 gram', z:221},
+  {n:'Komplet Lakierniczy VMO, KVM 1000 gram', z:415},
+  {n:'Komplet Lakierniczy mat/połsyk + Lakier Nawierzchniowy 2 x 1000 gram', z:302},
+  {c:'* nie dotyczy kolorów - biały, RAL 9003; RAL 9005'},
+  {c:'** dotyczy - fronty płaskie termin 7 dni roboczych, odbiór osobisty, wymagana zgoda Prestige'},
+  {c:'*** dopłata do każdej malowanej krawędzi'},
+  {c:'akrylowego'},
+  {c:'Uchwyty_aluminiowe'},
+  {c:'Uchwyty montowane na froncie'},
+  {c:'kolor Aluminium UKW-4; UKW-5; UKW-7'},
+  {c:'100mb'},
+  {c:'kolor Inox lub RAL UKW-4; UKW-5; UKW-7'},
+  {c:'144mb'},
+  {c:'Lakierownie Uchwytów Aluminiowych'},
+  {c:'Sztanga/ 2,75 mb / Profil-L, Profil-C; LKW-5; LKW-10; LKW-4; LKW-40 ; - Mat'},
+  {c:'105mb'},
+  {c:'Sztanga/ 2,75 mb / Profil-L, Profil-C; LKW-5; LKW-10; LKW-4; LKW-40 - Mat Metalik'},
+  {c:'131mb'},
+  {c:'Sztanga/ 2,75 mb / Profil-L, Profil-C; LKW-5; LKW-10; LKW-4; LKW-40 - Mat VMO'},
+  {c:'158mb'},
+  {c:'Uchwyt: Profil-L, Profil-C; LKW;-5; LKW-10; LKW-4; LKW-40 - Mat'},
+  {n:'105mb', z:30},
+  {c:'Uchwyt: Profil-L, Profil-C; LKW-5; LKW-10; LKW-4; LKW-40 - Mat Metalik'},
+  {n:'131mb', z:30},
+  {n:'Uchwyt: Profil-L, Profil-C; LKW-5; LKW-10; LKW-4; LKW-40 - Mat VMO158mb', z:30},
+  {c:'Lakierownie Uchwytów Aluminiowych -'},
+  {c:'materiał powierzony *'},
+  {c:'Sztanga/ 2,75 mb / Profil-L, Profil-C; LKW-5; LKW-10; LKW-4; LKW-40 ; - Mat'},
+  {c:'79mb'},
+  {c:'Sztanga/ 2,75 mb / Profil-L, Profil-C; LKW-5; LKW-10; LKW-4; LKW-40 - Mat Metalik'},
+  {c:'105mb'},
+  {c:'Sztanga/ 2,75 mb / Profil-L, Profil-C; LKW-5; LKW-10; LKW-4; LKW-40 - Mat VMO'},
+  {c:'131mb'},
+  {c:'Sztanga/ 2,75 mb / Profil-L, Profil-C; LKW-5; LKW-10; LKW-4; LKW-40 ; - Mat'},
+  {n:'79mb', z:30},
+  {c:'Sztanga/ 2,75 mb / Profil-L, Profil-C; LKW-5; LKW-10; LKW-4; LKW-40 - Mat Metalik'},
+  {n:'105mb', z:30},
+  {c:'Sztanga/ 2,75 mb / Profil-L, Profil-C; LKW-5; LKW-10; LKW-4; LKW-40 - Mat VMO'},
+  {n:'131mb', z:30},
+  {c:'Informacje:'},
+  {c:'Profile aluminiowe mają długość 2,75 mb'},
+  {c:'Minimalna długość przy zamawianiu uchwytu na sztukę to " 146 mm "'},
+  {c:'Minimalna wartość zamówienia 500 zł'},
+  {c:'Zamówienie poniżej wartości 500 zł wiąże się dopłatą jednostkową 150 zł.'},
+  {c:'Elementy Powierzone wymagają zaakceptowanie i wyceniane są indywidualnie.'},
+  {c:'* Powierzone uchwyty do malowania wymagają akceptacji.'},
+  {c:'Dopłaty CNC'},
+  {c:'Frezowanie'},
+  {n:'Koło Fi 100 mm - 250 mm', z:53},
+  {n:'Koło Fi 251 mm - 500 mm', z:95},
+  {n:'Koło Fi 501 mm - 1200 mm', z:137},
+  {n:'Koło Fi 1201 mm - 1500 mm', z:179},
+  {n:'Zacięcie CNC na krawędzi 45 stopni w Ryflach i Frontach Głęboko Frezowanych', z:74},
+  {n:'Planowanie MDF do dowolnej grubości', z:158},
+  {n:'Frezowanie łuków o różnych promieniach oraz wcięć', z:74},
+  {n:'Frezowanie skośne elementu prostego', z:56},
+  {n:'Frezowanie skośne elementu frezowanego / Ryfle itp /', z:74},
+  {n:'Frezowanie nietypowej krawędzi', z:74},
+  {n:'Zawias standard / Blum /', z:7},
+  {n:'Zawias niestandard', z:13},
+  {n:'System Revego', z:252},
+  {n:'Frezowanie boczne', z:16},
+  {n:'Frezowanie pod HDF / MDF /Pilśnię', z:53},
+  {n:'Wiercenie wielu dziur 25 zł plus cena za każdą dziurę', z:5},
+  {n:'Wiercenie wielu otworów wentylacyjnych do h-max 400 mm', z:26},
+  {n:'Frezowanie boczne dla drzwi wejściowych zawiasy - zawiasy', z:158},
+  {n:'Frezowanie boczne dla drzwi wejściowych - zamek', z:210},
+  {n:'Frezowanie pod półki fi 3-4', z:2},
+  {c:'dla ilości dziur większej jak 100'},
+  {n:'Frezowanie pod półki fi 3-4', z:3},
+  {c:'dla ilości dziur większej jak 50'},
+  {n:'Frezowanie pod półki fi 3-4', z:4},
+  {c:'dla ilości dziur większej jak 20'},
+  {n:'Frezowanie pod półki fi 3-4', z:5},
+  {c:'dla ilości dziur mniejszej jak 20'},
+  {n:'Czas Pracy CNC', z:4},
+  {n:'Projektowanie pod CNC', z:4},
+  {c:'Próbka'},
+  {n:'Front Prosty / mat, połysk /', z:66},
+  {n:'Front Prosty / metaliczny /', z:79},
+  {n:'Front Prosty / VMO ; KVM /', z:100},
+  {n:'Front Głęboko Frezowany', z:93},
+  {n:'Front Głęboki Frez z Rattanem', z:126},
+  {n:'Front Ryflowany', z:93},
+  {n:'Front Fornirowany', z:66},
+  {n:'Front Fornirowany i bejcowany', z:93},
+  {n:'Front Fornirowany z uchwytem', z:103},
+  {n:'Front Fornirowany z uchwytem i bejcowany', z:141},
+  {n:'Front Fornirowany Ryflowany', z:93},
+  {n:'Front Fornirowany Ryflowany i bejcowany', z:141},
+  {n:'Front Fornirowany Ryflowany na Czarnym MDF-ie', z:141},
+  {n:'Front Fornirowany z Rattanem', z:152},
+  {n:'Front Prosty, RP; RU-D; RU-G / seria min. 10 szt /', z:14},
+  {n:'Front Prosty + uchwyt RFO; RFF / seria min. 10 szt /', z:49},
+  {n:'Stojak z czarnego MDF-u z wzornikami / 22 szt /', z:1155},
+  {n:'Stojak z Głębokimi frezami / 18 szt /', z:1155},
+  {c:'Fronty Gięte'},
+  {c:'Drzwi Gięte Grupa I Promienie R-196;246;296;396;496'},
+  {c:'oraz R-200;250;300;400;500'},
+  {n:'Surowe', z:1418},
+  {n:'Mat', z:1680},
+  {n:'Połysk', z:1995},
+  {n:'Połysk Akrylowy', z:2100},
+  {n:'Połysk Metaliczny', z:2205},
+  {n:'Ryflowany Mat wzory LP-1; LP-2; LK-3', z:2258},
+  {n:'Ryflowany Mat wzory LB-8; LB-12; LB-20; LB-24', z:2573},
+  {n:'Ryflowany Metaliczny wzory LP-1; LP-2; LK-3', z:2415},
+  {n:'Ryflowany Metaliczny wzory LB-8; LB-12; LB-20; LB-24', z:2730},
+  {n:'Głęboki Frez', z:2258},
+  {n:'Fornirowane Dąb', z:2363},
+  {n:'Fornirowane i bejcowane / okleina Dębowa /', z:2573},
+  {n:'Fornirowane i olejowane / okleina Dębowa /', z:2363},
+  {n:'Fornirowane Orzech Amerykański lub Naturalny', z:2394},
+  {c:'Dopłata do Drzwi Giętych z grupy II'},
+  {n:'Giete grupa II R-100; 118; 146; 175; 196; 122; 150; 179, 200', z:20, u:'%'},
+  {c:'Listwy Gięte'},
+  {n:'Listwa Gładka Mat R-50', z:273},
+  {n:'Listwa Gładka Połysk R-50', z:368},
+  {n:'Listwa Gładka Mat Fornir R-50', z:368},
+  {n:'Listwa Gładka Mat R-100; R-125', z:336},
+  {n:'Listwa Gładka Połysk R-100; R-125', z:431},
+  {n:'Listwa Gładka Fornir R-100; R-125', z:431},
+  {n:'Listwa Ryflowana Mat R-100; R-125 / wymagana zgoda Prestige /', z:420},
+  {n:'Listwa Ryflowana Połysk R-100; R-125 / wymagana zgoda Prestige /', z:420},
+  {c:'Dopłaty do lakierowanie lewych stron'},
+  {n:'Mat', z:315},
+  {n:'Połysk', z:630},
+  {n:'Połysk Akrylowy', z:840},
+  {n:'Połysk Metaliczny', z:998},
+  {c:'Fronty gięte konstrukcja gładkie'},
+  {n:'Lakierowany tylko Front', z:20},
+  {n:'Lakierowany Front + każda 1 półka', z:10},
+  {n:'Lakierowany Front + Każdy 1 Pasek', z:10},
+  {c:'wtrąceniami na lakierze co nie podlega reklamacji.'},
+  {c:'* Maksymalny wymiar Formatki 2750 mm'},
+  {c:'* Minimalny wymiar Formatki 50 mm'},
+  {c:'Fronty Rattanowe'},
+  {c:'Fronty Rattanowe MDF'},
+  {n:'A-0', z:1171},
+  {n:'A-01', z:1171},
+  {n:'A-02', z:1287},
+  {n:'A-03', z:1287},
+  {n:'A-04', z:1405},
+  {n:'B-0', z:1287},
+  {n:'B-01', z:1287},
+  {n:'B-02', z:1416},
+  {n:'B-03', z:1416},
+  {n:'B-04', z:1545},
+  {n:'C-0', z:1287},
+  {n:'C-01', z:1287},
+  {n:'C-02', z:1416},
+  {n:'C-03', z:1416},
+  {n:'C-04', z:1545},
+  {c:'Fronty Rattanowe Fornir Dębowy'},
+  {n:'DA-00', z:1171},
+  {n:'DA-02', z:1287},
+  {n:'DA-03', z:1405},
+  {n:'DB-00', z:1287},
+  {n:'DB-02', z:1415},
+  {n:'DB-03', z:1545},
+  {n:'DC-00', z:1287},
+  {n:'DC-02', z:1415},
+  {n:'DC-03', z:1545},
+  {c:'Dopłata'},
+  {n:'Bejcowanie dwustronne', z:145},
+  {c:'* standard lakier dwustronny Mat'},
+];
+
+let _nakupInit = false;
+function initNakup() {
+  if (_nakupInit) { recalcNakup(); return; }
+  renderNakup();
+  _nakupInit = true;
+}
+
+function nkEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function nkFmt(n){ if(n==null||isNaN(n)) return '—'; return (Math.round(n*100)/100).toFixed(2).replace('.',','); }
+
+function renderNakup() {
+  const tb = document.getElementById('nk-tbody');
+  if (!tb) return;
+  let html = '';
+  NAKUP_DATA.forEach(function(row, i){
+    if (row.s !== undefined) {
+      html += '<tr data-nk="sheet"><td colspan="6" style="padding:11px 12px;text-align:left;font-weight:800;font-size:14px;color:#fff;background:#1e1e1e;letter-spacing:.3px;">'+nkEsc(row.s)+'</td></tr>';
+    } else if (row.c !== undefined) {
+      html += '<tr data-nk="cat"><td colspan="6" style="padding:7px 10px;text-align:center;font-weight:700;color:#c0392b;background:#fdecec;border-bottom:1px solid #eee;">'+nkEsc(row.c)+'</td></tr>';
+    } else if (row.u === '%') {
+      html += '<tr data-nk="pct" data-idx="'+i+'">'
+        + '<td style="padding:5px 10px;border-bottom:1px solid #eee;"><input type="text" value="'+nkEsc(row.n)+'" oninput="NAKUP_DATA['+i+'].n=this.value" style="width:100%;min-width:180px;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:12.5px;"></td>'
+        + '<td colspan="4" style="padding:5px 10px;border-bottom:1px solid #eee;text-align:left;color:#e67e22;font-weight:700;">+ '+nkFmt(row.z)+' % (príplatok)</td>'
+        + '<td style="padding:5px 6px;border-bottom:1px solid #eee;text-align:center;"><button title="Zmazať" onclick="delNakupRow('+i+')" style="padding:3px 8px;background:#fee;border:1px solid #fcc;border-radius:4px;cursor:pointer;font-size:11px;color:#c00;">✕</button></td>'
+        + '</tr>';
+    } else {
+      html += '<tr data-nk="item" data-idx="'+i+'">'
+        + '<td style="padding:5px 10px;border-bottom:1px solid #eee;"><input type="text" value="'+nkEsc(row.n)+'" oninput="NAKUP_DATA['+i+'].n=this.value" style="width:100%;min-width:180px;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:12.5px;"></td>'
+        + '<td style="padding:5px 8px;border-bottom:1px solid #eee;text-align:center;"><input type="number" class="nk-zl" value="'+(row.z==null?'':row.z)+'" step="0.01" oninput="NAKUP_DATA['+i+'].z=parseFloat(this.value)||0; recalcNakup()" style="width:90px;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:12.5px;text-align:right;"></td>'
+        + '<td class="nk-plus" style="padding:5px 10px;border-bottom:1px solid #eee;text-align:right;">—</td>'
+        + '<td class="nk-eur" style="padding:5px 10px;border-bottom:1px solid #eee;text-align:right;font-weight:600;background:#f5f9ff;">—</td>'
+        + '<td class="nk-predaj" style="padding:5px 10px;border-bottom:1px solid #eee;text-align:right;font-weight:700;color:#1a7a1a;background:#f3faf4;">—</td>'
+        + '<td style="padding:5px 6px;border-bottom:1px solid #eee;text-align:center;"><button title="Zmazať" onclick="delNakupRow('+i+')" style="padding:3px 8px;background:#fee;border:1px solid #fcc;border-radius:4px;cursor:pointer;font-size:11px;color:#c00;">✕</button></td>'
+        + '</tr>';
+    }
+  });
+  tb.innerHTML = html;
+  recalcNakup();
+}
+
+function recalcNakup() {
+  const pct = parseFloat(document.getElementById('nk-pct').value) || 0;
+  const kurz = parseFloat(document.getElementById('nk-kurz').value) || 0;
+  const koef = parseFloat(document.getElementById('nk-koef').value);
+  const koefV = isNaN(koef) ? 1 : koef;
+  const hh = document.getElementById('nk-pct-h'); if (hh) hh.textContent = (Math.round(pct*100)/100).toString().replace('.',',');
+  document.querySelectorAll('#nk-tbody tr[data-nk="item"]').forEach(function(tr){
+    const zlInp = tr.querySelector('.nk-zl');
+    const zl = parseFloat(zlInp.value) || 0;
+    const plus = zl * (1 + pct/100);
+    const eur = kurz > 0 ? plus / kurz : NaN;
+    const predaj = isNaN(eur) ? NaN : eur * koefV;
+    tr.querySelector('.nk-plus').textContent = nkFmt(plus);
+    tr.querySelector('.nk-eur').textContent = nkFmt(eur) + (isNaN(eur)?'':' €');
+    tr.querySelector('.nk-predaj').textContent = nkFmt(predaj) + (isNaN(predaj)?'':' €');
+  });
+}
+
+function addNakupRow() {
+  NAKUP_DATA.push({ n:'Nová položka', z:0 });
+  renderNakup();
+  // scroll na koniec + focus
+  var rows = document.querySelectorAll('#nk-tbody tr[data-nk="item"]');
+  if (rows.length) { var last = rows[rows.length-1]; last.scrollIntoView({block:'center'}); var inp=last.querySelector('input[type="text"]'); if(inp){ inp.focus(); inp.select(); } }
+}
+
+function delNakupRow(idx) {
+  if (!confirm('Zmazať tento riadok?')) return;
+  NAKUP_DATA.splice(idx, 1);
+  renderNakup();
+}
 </script>
 </body>
 </html>
