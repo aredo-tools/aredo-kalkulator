@@ -878,6 +878,10 @@
   </div>
 
   <div class="card">
+    <div id="nk-tabs" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;"></div>
+    <div style="margin-bottom:12px;">
+      <input type="text" id="nk-filter" placeholder="🔎 Hľadať položku (naprieč všetkými hárkami)…" oninput="renderNakup()" style="width:100%;max-width:380px;padding:8px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:14px;font-family:inherit;outline:none;">
+    </div>
     <div style="overflow-x:auto;">
       <table id="nk-table" style="font-size:12.5px;border-collapse:collapse;min-width:660px;width:100%;">
         <thead>
@@ -6588,6 +6592,7 @@ let NAKUP_DATA = [
 ];
 
 let _nakupInit = false;
+let _nkSheet = 0;
 function initNakup() {
   if (_nakupInit) { recalcNakup(); return; }
   renderNakup();
@@ -6597,35 +6602,95 @@ function initNakup() {
 function nkEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 function nkFmt(n){ if(n==null||isNaN(n)) return '—'; return (Math.round(n*100)/100).toFixed(2).replace('.',','); }
 
+// Preklady (poľsky → slovensky). Presné frázy:
+var NK_SK = {
+  'Fronty Proste':'Hladké dielce','Fronty Frezowane':'Hĺbkofrézované dielce','Fronty Frezowane surowe':'Hĺbkofrézované dielce – surové',
+  'Biały':'Biely','Kolor':'Farba','Struktura':'Štruktúra','Stuktura':'Štruktúra','Metalik/Perła/Akryl':'Metalík/perleť/akryl',
+  'Matowe':'Matné','Połyskowe':'Lesklé','Poprzeczka':'Priečka','Każdy dodatkowy łuk':'Každý ďalší oblúk',
+  'Formatki Surowe':'Surové formátky','Front z wstawką Drewnianą':'Front s dreveným vsadkom',
+  'Listwy wykończeniowe':'Dokončovacie lišty','Listwy wykończeniowe surowe':'Dokončovacie lišty – surové',
+  'Pilastry':'Pilastre','Pilastry surowe':'Pilastre – surové','Ryfle':'Ryhy'
+};
+// Slovné náhrady (pre neznáme frázy):
+var NK_W = {
+  'Fronty':'Fronty','Front':'Front','Gładkie':'hladké','Frezowane':'frézované','Surowe':'surové','surowe':'surové',
+  'Lakierowane':'lakované','Lakiernicza':'lakovanie','Usługa':'Služba','Mat':'mat','Połysk':'lesk','Uchwyt':'úchytka',
+  'Sztukateria':'Štukatéria','grupa':'skupina','Grupa':'Skupina','Listwy':'Lišty','wykończeniowe':'dokončovacie',
+  'Pilastry':'Pilastre','Pilaster':'Pilaster','Ryfle':'Ryhy','Szpros':'Šprosa','typ':'typ','Formatki':'Formátky',
+  'Formatka':'Formátka','Prosta':'rovná','Drzwi':'dvere','giętych':'ohýbaných','gładkich':'hladkých',
+  'wstawką':'vsadkou','Drewnianą':'drevenou','Dopłata':'Príplatok','Dopłaty':'Príplatky','Biały':'biely',
+  'Kolor':'farba','Struktura':'štruktúra','Stuktura':'štruktúra','łuk':'oblúk','dodatkowy':'ďalší','Każdy':'Každý'
+};
+function nkSk(s){
+  if(!s) return '';
+  if(NK_SK[s]) return NK_SK[s];
+  var changed=false;
+  var t=s.replace(/[^\s\-\/;,:()%*.]+/g, function(w){ if(NK_W[w]!==undefined){ changed=true; return NK_W[w]; } return w; });
+  return changed ? t : '';
+}
+function nkSkTag(s, color){ var sk=nkSk(s); return sk ? ' <span style="color:'+(color||'#999')+';font-weight:400;">('+nkEsc(sk)+')</span>' : ''; }
+
+// Rozdelenie dát na hárky
+function nkGroups(){
+  var g=[]; var cur=null;
+  NAKUP_DATA.forEach(function(row,i){
+    if(row.s!==undefined){ cur={name:row.s, items:[]}; g.push(cur); }
+    else { if(!cur){ cur={name:'Ostatné', items:[]}; g.push(cur); } cur.items.push({row:row, idx:i}); }
+  });
+  return g;
+}
+
+function nkRowHtml(row, i){
+  if (row.c !== undefined) {
+    return '<tr data-nk="cat"><td colspan="6" style="padding:7px 10px;text-align:center;font-weight:700;color:#c0392b;background:#fdecec;border-bottom:1px solid #eee;">'+nkEsc(row.c)+nkSkTag(row.c,'#c98')+'</td></tr>';
+  }
+  if (row.u === '%') {
+    return '<tr data-nk="pct" data-idx="'+i+'">'
+      + '<td style="padding:5px 10px;border-bottom:1px solid #eee;"><input type="text" value="'+nkEsc(row.n)+'" oninput="NAKUP_DATA['+i+'].n=this.value" style="width:100%;min-width:180px;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:12.5px;">'+(nkSk(row.n)?'<div style="font-size:11px;color:#999;margin-top:2px;">'+nkEsc(nkSk(row.n))+'</div>':'')+'</td>'
+      + '<td colspan="4" style="padding:5px 10px;border-bottom:1px solid #eee;text-align:left;color:#e67e22;font-weight:700;">+ '+nkFmt(row.z)+' % (príplatok)</td>'
+      + '<td style="padding:5px 6px;border-bottom:1px solid #eee;text-align:center;"><button title="Zmazať" onclick="delNakupRow('+i+')" style="padding:3px 8px;background:#fee;border:1px solid #fcc;border-radius:4px;cursor:pointer;font-size:11px;color:#c00;">✕</button></td>'
+      + '</tr>';
+  }
+  return '<tr data-nk="item" data-idx="'+i+'">'
+    + '<td style="padding:5px 10px;border-bottom:1px solid #eee;"><input type="text" value="'+nkEsc(row.n)+'" oninput="NAKUP_DATA['+i+'].n=this.value" style="width:100%;min-width:180px;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:12.5px;">'+(nkSk(row.n)?'<div style="font-size:11px;color:#999;margin-top:2px;">'+nkEsc(nkSk(row.n))+'</div>':'')+'</td>'
+    + '<td style="padding:5px 8px;border-bottom:1px solid #eee;text-align:center;"><input type="number" class="nk-zl" value="'+(row.z==null?'':row.z)+'" step="0.01" oninput="NAKUP_DATA['+i+'].z=parseFloat(this.value)||0; recalcNakup()" style="width:90px;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:12.5px;text-align:right;"></td>'
+    + '<td class="nk-plus" style="padding:5px 10px;border-bottom:1px solid #eee;text-align:right;">—</td>'
+    + '<td class="nk-eur" style="padding:5px 10px;border-bottom:1px solid #eee;text-align:right;font-weight:600;background:#f5f9ff;">—</td>'
+    + '<td class="nk-predaj" style="padding:5px 10px;border-bottom:1px solid #eee;text-align:right;font-weight:700;color:#1a7a1a;background:#f3faf4;">—</td>'
+    + '<td style="padding:5px 6px;border-bottom:1px solid #eee;text-align:center;"><button title="Zmazať" onclick="delNakupRow('+i+')" style="padding:3px 8px;background:#fee;border:1px solid #fcc;border-radius:4px;cursor:pointer;font-size:11px;color:#c00;">✕</button></td>'
+    + '</tr>';
+}
+
 function renderNakup() {
   const tb = document.getElementById('nk-tbody');
   if (!tb) return;
-  let html = '';
-  NAKUP_DATA.forEach(function(row, i){
-    if (row.s !== undefined) {
-      html += '<tr data-nk="sheet"><td colspan="6" style="padding:11px 12px;text-align:left;font-weight:800;font-size:14px;color:#fff;background:#1e1e1e;letter-spacing:.3px;">'+nkEsc(row.s)+'</td></tr>';
-    } else if (row.c !== undefined) {
-      html += '<tr data-nk="cat"><td colspan="6" style="padding:7px 10px;text-align:center;font-weight:700;color:#c0392b;background:#fdecec;border-bottom:1px solid #eee;">'+nkEsc(row.c)+'</td></tr>';
-    } else if (row.u === '%') {
-      html += '<tr data-nk="pct" data-idx="'+i+'">'
-        + '<td style="padding:5px 10px;border-bottom:1px solid #eee;"><input type="text" value="'+nkEsc(row.n)+'" oninput="NAKUP_DATA['+i+'].n=this.value" style="width:100%;min-width:180px;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:12.5px;"></td>'
-        + '<td colspan="4" style="padding:5px 10px;border-bottom:1px solid #eee;text-align:left;color:#e67e22;font-weight:700;">+ '+nkFmt(row.z)+' % (príplatok)</td>'
-        + '<td style="padding:5px 6px;border-bottom:1px solid #eee;text-align:center;"><button title="Zmazať" onclick="delNakupRow('+i+')" style="padding:3px 8px;background:#fee;border:1px solid #fcc;border-radius:4px;cursor:pointer;font-size:11px;color:#c00;">✕</button></td>'
-        + '</tr>';
-    } else {
-      html += '<tr data-nk="item" data-idx="'+i+'">'
-        + '<td style="padding:5px 10px;border-bottom:1px solid #eee;"><input type="text" value="'+nkEsc(row.n)+'" oninput="NAKUP_DATA['+i+'].n=this.value" style="width:100%;min-width:180px;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:12.5px;"></td>'
-        + '<td style="padding:5px 8px;border-bottom:1px solid #eee;text-align:center;"><input type="number" class="nk-zl" value="'+(row.z==null?'':row.z)+'" step="0.01" oninput="NAKUP_DATA['+i+'].z=parseFloat(this.value)||0; recalcNakup()" style="width:90px;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:12.5px;text-align:right;"></td>'
-        + '<td class="nk-plus" style="padding:5px 10px;border-bottom:1px solid #eee;text-align:right;">—</td>'
-        + '<td class="nk-eur" style="padding:5px 10px;border-bottom:1px solid #eee;text-align:right;font-weight:600;background:#f5f9ff;">—</td>'
-        + '<td class="nk-predaj" style="padding:5px 10px;border-bottom:1px solid #eee;text-align:right;font-weight:700;color:#1a7a1a;background:#f3faf4;">—</td>'
-        + '<td style="padding:5px 6px;border-bottom:1px solid #eee;text-align:center;"><button title="Zmazať" onclick="delNakupRow('+i+')" style="padding:3px 8px;background:#fee;border:1px solid #fcc;border-radius:4px;cursor:pointer;font-size:11px;color:#c00;">✕</button></td>'
-        + '</tr>';
-    }
-  });
+  const groups = nkGroups();
+  if (_nkSheet >= groups.length) _nkSheet = 0;
+  const q = (document.getElementById('nk-filter').value || '').trim().toLowerCase();
+
+  // Taby (hárky)
+  const tabs = document.getElementById('nk-tabs');
+  if (tabs) {
+    tabs.innerHTML = groups.map(function(g, ix){
+      const active = (ix === _nkSheet && !q);
+      return '<button onclick="nkSelSheet('+ix+')" style="padding:8px 14px;border-radius:9px;border:1.5px solid '+(active?'#1e1e1e':'var(--border)')+';background:'+(active?'#1e1e1e':'#fff')+';color:'+(active?'#fff':'#333')+';font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;">'+nkEsc(g.name)+nkSkTag(g.name, active?'#bbb':'#999')+'</button>';
+    }).join('');
+  }
+
+  // Riadky: hľadanie naprieč všetkými hárkami, inak aktívny hárok
+  let items = [];
+  if (q) {
+    groups.forEach(function(g){ g.items.forEach(function(it){ const nm=(it.row.n||it.row.c||''); if(nm.toLowerCase().indexOf(q)>=0) items.push(it); }); });
+  } else {
+    const g = groups[_nkSheet]; items = g ? g.items : [];
+  }
+  let html = items.map(function(it){ return nkRowHtml(it.row, it.idx); }).join('');
+  if (!html) html = '<tr><td colspan="6" style="padding:22px;text-align:center;color:#888;">Žiadne položky.</td></tr>';
   tb.innerHTML = html;
   recalcNakup();
 }
+
+function nkSelSheet(ix){ _nkSheet = ix; var f=document.getElementById('nk-filter'); if(f) f.value=''; renderNakup(); }
 
 function recalcNakup() {
   const pct = parseFloat(document.getElementById('nk-pct').value) || 0;
@@ -6646,9 +6711,13 @@ function recalcNakup() {
 }
 
 function addNakupRow() {
-  NAKUP_DATA.push({ n:'Nová položka', z:0 });
+  var groups = nkGroups();
+  var g = groups[_nkSheet];
+  var insertAt = NAKUP_DATA.length;
+  if (g && g.items.length) insertAt = g.items[g.items.length-1].idx + 1;
+  NAKUP_DATA.splice(insertAt, 0, { n:'Nová položka', z:0 });
+  var f=document.getElementById('nk-filter'); if(f) f.value='';
   renderNakup();
-  // scroll na koniec + focus
   var rows = document.querySelectorAll('#nk-tbody tr[data-nk="item"]');
   if (rows.length) { var last = rows[rows.length-1]; last.scrollIntoView({block:'center'}); var inp=last.querySelector('input[type="text"]'); if(inp){ inp.focus(); inp.select(); } }
 }
