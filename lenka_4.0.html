@@ -6137,7 +6137,6 @@ let NAKUP_DATA = [
   {n:'Julia 2F', z:893},
   {n:'Julia 4F', z:853},
   {n:'Jula 2L', z:893},
-  {c:'Julia 4L'},
   {c:'Sztukateria grupa II'},
   {n:'Capri 25', z:1091},
   {n:'Capri 25 2L', z:1143},
@@ -6153,7 +6152,6 @@ let NAKUP_DATA = [
   {n:'Lena 2L', z:1143},
   {n:'Lena 4L', z:1091},
   {n:'Lena 2F', z:1143},
-  {c:'Lena 4F'},
   {c:'Listwy wykończeniowe'},
   {n:'Listwa wieńcząca typ B 30 mm x 2440 mm', z:212},
   {n:'Listwa wieńcząca typ D 72 mm x 2440 mm', z:296},
@@ -6216,7 +6214,6 @@ let NAKUP_DATA = [
   {n:'Lena 2L', z:441},
   {n:'Lena 4L', z:368},
   {n:'Lena 2F', z:441},
-  {c:'Lena 4F'},
   {c:'Listwy wykończeniowe surowe'},
   {n:'Listwa wieńcząca typ B 30 mm x 2440 mm', z:189},
   {n:'Listwa wieńcząca typ D 72 mm x 2440 mm', z:251},
@@ -6627,10 +6624,18 @@ var NK_W = {
 };
 function nkSk(s){
   if(!s) return '';
-  if(NK_SK[s]) return NK_SK[s];
-  var changed=false;
-  var t=s.replace(/[^\s\-\/;,:()%*.]+/g, function(w){ if(NK_W[w]!==undefined){ changed=true; return NK_W[w]; } return w; });
-  return changed ? t : '';
+  var base = NK_SK[s] || '';
+  if(!base){
+    var changed=false;
+    var t=s.replace(/[^\s\-\/;,:()%*.]+/g, function(w){ if(NK_W[w]!==undefined){ changed=true; return NK_W[w]; } return w; });
+    if(changed) base=t;
+  }
+  // Frezované varianty: 2L/4L = vonkajšie oblúky, 2F/4F = vnútorné oblúky
+  var arc='';
+  if(/(^|[\s(])[24]L(\s|$|\))/.test(s)) arc='(vonkajšie oblúky)';
+  else if(/(^|[\s(])[24]F(\s|$|\))/.test(s)) arc='(vnútorné oblúky)';
+  if(arc) return base ? (base+' '+arc) : arc;
+  return base;
 }
 function nkSkTag(s, color){ var sk=nkSk(s); return sk ? ' <span style="color:'+(color||'#999')+';font-weight:400;">('+nkEsc(sk)+')</span>' : ''; }
 
