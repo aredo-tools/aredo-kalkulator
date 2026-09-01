@@ -1643,6 +1643,7 @@ function showTab(id) {
   if (navBtn) navBtn.classList.add('active');
 
   if (id === 'ponuky' && typeof loadOffers === 'function') loadOffers();
+  if (id === 'sklo' && typeof clearSkloRows === 'function') clearSkloRows();
 
   // Move interactive-3d-container between kalk slot and tab-3d slot
   var c3d = document.getElementById('interactive-3d-container');
@@ -4304,7 +4305,7 @@ function initSklo() {
     }
     tbody.appendChild(tr);
   });
-  SKLO_VZORY.forEach((v, i) => addSkloRow(i));
+  // Sklo sa otvára s prázdnym zoznamom (riadky pridáva používateľ cez „+ Pridať riadok").
 }
 
 function applyGlobalVzor() {
