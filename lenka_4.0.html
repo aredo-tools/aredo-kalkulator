@@ -6123,12 +6123,11 @@ let NAKUP_DATA = [
   {n:'Szpros typ C', z:700},
   {n:'Poprzeczka', z:20, u:'%'},
   {n:'Czajkowski, Haendel, Mozart, Puccini; Ravel, Roma, Schubert, Stelvio', z:532},
-  {c:'Sycylia'},
   {n:'Szpros typ A', z:588},
   {n:'Szpros typ B', z:695},
   {n:'Szpros typ C', z:751},
   {n:'Poprzeczka', z:20, u:'%'},
-  {n:'Sztukateria gr I', z:812},
+  {c:'Sztukateria gr I'},
   {n:'Amalfi 25', z:853},
   {n:'Amalfi 25 2L', z:893},
   {n:'Amalfi 25 4L', z:853},
@@ -6139,7 +6138,7 @@ let NAKUP_DATA = [
   {n:'Julia 4F', z:853},
   {n:'Jula 2L', z:893},
   {c:'Julia 4L'},
-  {n:'Sztukateria grupa II', z:1040},
+  {c:'Sztukateria grupa II'},
   {n:'Capri 25', z:1091},
   {n:'Capri 25 2L', z:1143},
   {n:'Capri 25 4L', z:1143},
@@ -6187,12 +6186,11 @@ let NAKUP_DATA = [
   {n:'Szpros typ C', z:308},
   {n:'Poprzeczka', z:20, u:'%'},
   {n:'Czajkowski, Haendel, Mozart, Puccini; Ravel, Roma, Schubert, Stelvio', z:234},
-  {c:'Sycylia'},
   {n:'Szpros typ A', z:263},
   {n:'Szpros typ B', z:285},
   {n:'Szpros typ C', z:318},
   {n:'Poprzeczka', z:20, u:'%'},
-  {n:'Sztukateria grupa I', z:315},
+  {c:'Sztukateria grupa I'},
   {n:'Amalfi 25', z:347},
   {n:'Amalfi 25 2L', z:378},
   {n:'Amalfi 25 4L', z:347},
@@ -6203,7 +6201,7 @@ let NAKUP_DATA = [
   {n:'Julia 4L', z:347},
   {n:'Julia 2F', z:378},
   {c:'Julia 4F'},
-  {n:'Sztukateria Grupa II', z:368},
+  {c:'Sztukateria Grupa II'},
   {n:'Capri 25', z:404},
   {n:'Capri 25 2L', z:441},
   {n:'Capri 25 4L', z:368},
@@ -6648,7 +6646,8 @@ function nkGroups(){
 
 function nkRowHtml(row, i){
   if (row.c !== undefined) {
-    return '<tr data-nk="cat"><td colspan="6" style="padding:7px 10px;text-align:center;font-weight:700;color:#c0392b;background:#fdecec;border-bottom:1px solid #eee;">'+nkEsc(row.c)+nkSkTag(row.c,'#c98')+'</td></tr>';
+    return '<tr data-nk="cat"><td colspan="5" style="padding:7px 10px;text-align:center;font-weight:700;color:#c0392b;background:#fdecec;border-bottom:1px solid #eee;">'+nkEsc(row.c)+nkSkTag(row.c,'#c98')+'</td>'
+      + '<td style="padding:5px 6px;background:#fdecec;border-bottom:1px solid #eee;text-align:center;"><button title="Zmazať kategóriu" onclick="delNakupRow('+i+')" style="padding:3px 8px;background:#fff;border:1px solid #fcc;border-radius:4px;cursor:pointer;font-size:11px;color:#c00;">✕</button></td></tr>';
   }
   if (row.u === '%') {
     return '<tr data-nk="pct" data-idx="'+i+'">'
