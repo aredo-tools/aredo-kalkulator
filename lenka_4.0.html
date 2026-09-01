@@ -4336,6 +4336,14 @@ function clearSkloRowsConfirm() {
 
 let skloRowId = 0;
 function addSkloRow(vzorIdx) {
+  // Ručné pridanie (tlačidlo, bez argumentu) → prevezmi zvolený vzor rámu a nechaj rozmery prázdne.
+  const manual = (vzorIdx === undefined || vzorIdx === null);
+  if (manual) {
+    const g = document.getElementById('sklo-global-vzor');
+    vzorIdx = (g && g.value !== '') ? (parseInt(g.value) || 0) : 0;
+  }
+  const dimV = manual ? '' : '2675';
+  const dimS = manual ? '' : '537';
   const id = skloRowId++;
   const vzorOptions = SKLO_VZORY.map((v, i) => `<option value="${v.id || v.sirka}"${i === vzorIdx ? ' selected' : ''}>${v.vzor}</option>`).join('');
   const tr = document.createElement('tr');
@@ -4344,8 +4352,8 @@ function addSkloRow(vzorIdx) {
     <td><input type="text" style="width:90px;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:12px;" placeholder="napr. Dvere 1" oninput="calcSklo()"></td>
     <td><select style="width:100px;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:12px;" onchange="calcSklo()">${vzorOptions}</select></td>
     <td class="sk-sirka-ramu" style="text-align:center;font-size:12px;"></td>
-    <td><input type="number" style="width:75px;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:12px;" value="2675" oninput="calcSklo()"></td>
-    <td><input type="number" style="width:75px;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:12px;" value="537" oninput="calcSklo()"></td>
+    <td><input type="number" style="width:75px;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:12px;" value="${dimV}" placeholder="—" oninput="calcSklo()"></td>
+    <td><input type="number" style="width:75px;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:12px;" value="${dimS}" placeholder="—" oninput="calcSklo()"></td>
     <td class="sk-v-skla" style="text-align:center;font-size:12px;font-weight:600;"></td>
     <td class="sk-s-skla" style="text-align:center;font-size:12px;font-weight:600;"></td>
     <td class="sk-v-obj" style="text-align:center;font-size:12px;font-weight:700;color:#c0392b;"></td>
