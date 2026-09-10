@@ -1440,7 +1440,39 @@
         </tbody>
       </table>
     </div>
-    <p style="font-size:12px;color:#999;margin-top:14px;padding:10px 12px;background:#f8f8f8;border-radius:6px;">🛒 <strong>Nákupné ceny líšt</strong> doplníme sem (základ Zł + 8 % ÷ kurz 4,2 → nákup € × koeficient → Strieborný / Zlatý / Platinový), keď dodáš základné ceny v Zł a koeficienty.</p>
+    <h3 style="margin-top:24px;font-size:16px;color:#1e1e1e;">🛒 Nákupné ceny líšt (Listwy Gięte)</h3>
+    <p style="font-size:12px;color:#666;margin:6px 0 12px;">Cena v Zł → <strong>+ percento</strong> → ÷ <strong>kurz</strong> → nákup v € → × <strong>koeficient</strong> → predaj v €. Polia sa dajú voľne meniť.</p>
+    <div style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:14px;">
+      <div><label style="margin-top:0;font-size:12px;">Percento (%)</label><input type="number" id="ln-pct" value="8" step="0.1" oninput="recalcListyNakup()" style="width:90px;"></div>
+      <div><label style="margin-top:0;font-size:12px;">Kurz (Zł/€)</label><input type="number" id="ln-kurz" value="4.2" step="0.01" oninput="recalcListyNakup()" style="width:90px;"></div>
+      <div><label style="margin-top:0;font-size:12px;">Koeficient</label><input type="number" id="ln-koef" value="1" step="0.01" oninput="recalcListyNakup()" style="width:90px;"></div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table id="listy-nakup-table">
+        <thead><tr>
+          <th>Položka</th>
+          <th>Cena (Zł)</th>
+          <th>+ % (Zł)</th>
+          <th class="yellow">Nákup (€)</th>
+          <th>Predaj (€)</th>
+        </tr></thead>
+        <tbody>
+          <tr data-z="273"><td>Lišta hladká mat R-50</td><td>273</td><td class="ln-plus">—</td><td class="ln-eur">—</td><td class="ln-predaj">—</td></tr>
+          <tr data-z="368"><td>Lišta hladká lesk R-50</td><td>368</td><td class="ln-plus">—</td><td class="ln-eur">—</td><td class="ln-predaj">—</td></tr>
+          <tr data-z="368"><td>Lišta hladká mat dyha R-50</td><td>368</td><td class="ln-plus">—</td><td class="ln-eur">—</td><td class="ln-predaj">—</td></tr>
+          <tr data-z="336"><td>Lišta hladká mat R-100; R-125</td><td>336</td><td class="ln-plus">—</td><td class="ln-eur">—</td><td class="ln-predaj">—</td></tr>
+          <tr data-z="431"><td>Lišta hladká lesk R-100; R-125</td><td>431</td><td class="ln-plus">—</td><td class="ln-eur">—</td><td class="ln-predaj">—</td></tr>
+          <tr data-z="431"><td>Lišta hladká dyha R-100; R-125</td><td>431</td><td class="ln-plus">—</td><td class="ln-eur">—</td><td class="ln-predaj">—</td></tr>
+          <tr data-z="420"><td>Lišta ryhovaná mat R-100; R-125 <span style="color:#999">(vyžaduje súhlas Prestige)</span></td><td>420</td><td class="ln-plus">—</td><td class="ln-eur">—</td><td class="ln-predaj">—</td></tr>
+          <tr data-z="420"><td>Lišta ryhovaná lesk R-100; R-125 <span style="color:#999">(vyžaduje súhlas Prestige)</span></td><td>420</td><td class="ln-plus">—</td><td class="ln-eur">—</td><td class="ln-predaj">—</td></tr>
+          <tr><td colspan="5" style="background:#fdecec;color:#c0392b;font-weight:700;padding:7px 10px;">Dopláty za lakovanie ľavých strán</td></tr>
+          <tr data-z="315"><td>mat</td><td>315</td><td class="ln-plus">—</td><td class="ln-eur">—</td><td class="ln-predaj">—</td></tr>
+          <tr data-z="630"><td>lesk</td><td>630</td><td class="ln-plus">—</td><td class="ln-eur">—</td><td class="ln-predaj">—</td></tr>
+          <tr data-z="840"><td>lesk akrylový</td><td>840</td><td class="ln-plus">—</td><td class="ln-eur">—</td><td class="ln-predaj">—</td></tr>
+          <tr data-z="998"><td>lesk metalický</td><td>998</td><td class="ln-plus">—</td><td class="ln-eur">—</td><td class="ln-predaj">—</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
 </div>
@@ -1799,6 +1831,7 @@ function showTab(id) {
   if (id === 'ponuky' && typeof loadOffers === 'function') loadOffers();
   if (id === 'sklo' && typeof clearSkloRows === 'function') clearSkloRows();
   if (id === 'nakup' && typeof initNakup === 'function') initNakup();
+  if (id === 'listy' && typeof recalcListyNakup === 'function') recalcListyNakup();
 
   // Move interactive-3d-container between kalk slot and tab-3d slot
   var c3d = document.getElementById('interactive-3d-container');
@@ -3449,6 +3482,26 @@ function calcListy() {
   document.getElementById('listy-br-len').textContent = mb + ' mb';
   document.getElementById('listy-br-cnt').textContent = count + ' ks';
   document.getElementById('listy-br-total').textContent = fmt(total);
+}
+
+// Nákupné ceny líšt (Listwy Gięte): Zł → +% → ÷kurz → nákup € → ×koeficient → predaj €
+function recalcListyNakup() {
+  var tbl = document.getElementById('listy-nakup-table');
+  if (!tbl) return;
+  var p = parseFloat((document.getElementById('ln-pct')||{}).value) || 0;
+  var k = parseFloat((document.getElementById('ln-kurz')||{}).value) || 0;
+  var c = parseFloat((document.getElementById('ln-koef')||{}).value);
+  if (isNaN(c)) c = 1;
+  var f = function(x){ return (Math.round(x*100)/100).toFixed(2).replace('.',','); };
+  tbl.querySelectorAll('tbody tr[data-z]').forEach(function(tr){
+    var z = parseFloat(tr.getAttribute('data-z')) || 0;
+    var plus = z * (1 + p/100);
+    var eur = k>0 ? plus/k : 0;
+    var predaj = eur * c;
+    tr.querySelector('.ln-plus').textContent = f(plus);
+    tr.querySelector('.ln-eur').textContent = f(eur) + ' €';
+    tr.querySelector('.ln-predaj').textContent = f(predaj) + ' €';
+  });
 }
 
 // ============================================================
