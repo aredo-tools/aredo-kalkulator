@@ -267,6 +267,14 @@
   /* ===== Evidencia ponúk ===== */
   #offers-list{ display:flex; flex-direction:column; gap:10px; max-width:900px; }
   .offers-empty{ color:#888; font-size:14px; padding:24px; text-align:center; background:#fff; border:1px solid var(--border); border-radius:10px; }
+  .offers-month{ margin-bottom:22px; }
+  .offers-month-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; background:#1e1e1e; color:#fff; padding:11px 16px; border-radius:10px; font-weight:800; font-size:15.5px; margin-bottom:12px; }
+  .offers-month-count{ background:var(--yellow); color:#1e1e1e; padding:3px 12px; border-radius:20px; font-size:12.5px; font-weight:700; }
+  .offers-month-body{ padding-left:4px; }
+  .offers-day{ margin-bottom:14px; }
+  .offers-day-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; background:#f4f1ea; border:1px solid var(--border); padding:8px 13px; border-radius:8px; font-weight:700; font-size:13.5px; color:#444; margin-bottom:8px; }
+  .offers-day-count{ background:#fff; border:1px solid var(--border); color:#666; padding:2px 10px; border-radius:20px; font-size:12px; font-weight:600; }
+  .offers-day-body{ display:flex; flex-direction:column; gap:10px; }
   .offer-card{ background:#fff; border:1px solid var(--border); border-radius:10px; overflow:hidden; }
   .offer-head{ display:flex; align-items:center; gap:12px; padding:14px 16px; cursor:pointer; }
   .offer-head:hover{ background:#fafafa; }
@@ -6186,34 +6194,71 @@ init();
     }
   };
 
+  function offerCardHtml(o){
+    window._offersById[o.id] = o;
+    var items = o.offer_items||[];
+    var itemsHtml = items.map(function(x){
+      return '<div class="off-item">'+esc(x.typ||'')+(x.zaoblenia?(' · '+x.zaoblenia+' zaobl.'):'')+' · R'+esc(x.radius_mm)+' · hr. '+esc(x.thickness_mm)+' mm · A '+esc(x.dim_a_mm)+' × B '+esc(x.dim_b_mm)+' · V '+esc(x.height_mm)+' mm · '+esc(x.surface||'')+' · '+esc(x.tier||'')+' · '+esc(x.qty)+' ks · <b>'+fmtEur(x.price_total)+'</b></div>';
+    }).join('');
+    return '<div class="offer-card" id="off-'+o.id+'">'
+      + '<div class="offer-head" onclick="toggleOfferDetail(\''+o.id+'\')">'
+      +   '<div class="offer-main">'
+      +     '<div class="offer-name">'+(o.customer_name?esc(o.customer_name):'<span style=\'color:#999\'>(bez mena)</span>')+(o.offer_number?(' · <span class="offer-num">'+esc(o.offer_number)+'</span>'):'')+'</div>'
+      +     '<div class="offer-sub">'+esc(o.author_email||'')+' · '+fmtDT(o.created_at)+'</div>'
+      +   '</div>'
+      +   '<div class="offer-price">'+fmtEur(o.total_price)+'</div>'
+      + '</div>'
+      + '<div class="offer-detail" style="display:none">'
+      +   (itemsHtml||'<div class="off-item" style="color:#999">(bez položiek)</div>')
+      +   (o.note?('<div class="off-note">📝 '+esc(o.note)+'</div>'):'')
+      +   '<div class="off-actions" style="display:flex;gap:8px;flex-wrap:wrap;">'
+      +     '<button class="off-del" style="border-color:#b59a60;color:#b59a60" onclick="editOffer(\''+o.id+'\')">✏️ Upraviť meno / poznámku</button>'
+      +     '<button class="off-del" onclick="deleteOffer(\''+o.id+'\')">🗑 Zmazať ponuku</button>'
+      +   '</div>'
+      + '</div>'
+      + '</div>';
+  }
+
   function renderOffers(rows){
     var list = document.getElementById('offers-list');
     var cnt = document.getElementById('offers-count');
     window._offersById = {};
     if(cnt) cnt.textContent = rows.length ? (rows.length+' '+plural(rows.length)) : '';
     if(!rows.length){ list.innerHTML = '<div class="offers-empty">Zatiaľ žiadne uložené ponuky. Vypočítaj dielec a stiahni PDF – ponuka sa uloží sem automaticky.</div>'; return; }
-    list.innerHTML = rows.map(function(o){
-      window._offersById[o.id] = o;
-      var items = o.offer_items||[];
-      var itemsHtml = items.map(function(x){
-        return '<div class="off-item">'+esc(x.typ||'')+(x.zaoblenia?(' · '+x.zaoblenia+' zaobl.'):'')+' · R'+esc(x.radius_mm)+' · hr. '+esc(x.thickness_mm)+' mm · A '+esc(x.dim_a_mm)+' × B '+esc(x.dim_b_mm)+' · V '+esc(x.height_mm)+' mm · '+esc(x.surface||'')+' · '+esc(x.tier||'')+' · '+esc(x.qty)+' ks · <b>'+fmtEur(x.price_total)+'</b></div>';
+
+    // Priečinky: mesiac (September '26) → deň (1.9.2026) → ponuky, s počtom pri každom
+    var SK_MES=['Január','Február','Marec','Apríl','Máj','Jún','Júl','August','September','Október','November','December'];
+    function mKey(iso){ var d=new Date(iso); return d.getFullYear()+'-'+d.getMonth(); }
+    function mLabel(iso){ var d=new Date(iso); return SK_MES[d.getMonth()]+" '"+String(d.getFullYear()).slice(-2); }
+    function dKey(iso){ var d=new Date(iso); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+    function dLabel(iso){ var d=new Date(iso); return d.getDate()+'.'+(d.getMonth()+1)+'.'+d.getFullYear(); }
+
+    var months=[], mBy={};
+    rows.forEach(function(o){
+      var mk=mKey(o.created_at);
+      if(!mBy[mk]){ mBy[mk]={label:mLabel(o.created_at), count:0, days:[], dBy:{}}; months.push(mBy[mk]); }
+      var M=mBy[mk]; M.count++;
+      var dk=dKey(o.created_at);
+      if(!M.dBy[dk]){ M.dBy[dk]={label:dLabel(o.created_at), items:[]}; M.days.push(M.dBy[dk]); }
+      M.dBy[dk].items.push(o);
+    });
+
+    list.innerHTML = months.map(function(M){
+      var daysHtml = M.days.map(function(g){
+        return '<div class="offers-day">'
+          + '<div class="offers-day-head">'
+          +   '<span>📅 '+esc(g.label)+'</span>'
+          +   '<span class="offers-day-count">'+g.items.length+' '+plural(g.items.length)+'</span>'
+          + '</div>'
+          + '<div class="offers-day-body">'+g.items.map(offerCardHtml).join('')+'</div>'
+          + '</div>';
       }).join('');
-      return '<div class="offer-card" id="off-'+o.id+'">'
-        + '<div class="offer-head" onclick="toggleOfferDetail(\''+o.id+'\')">'
-        +   '<div class="offer-main">'
-        +     '<div class="offer-name">'+(o.customer_name?esc(o.customer_name):'<span style=\'color:#999\'>(bez mena)</span>')+(o.offer_number?(' · <span class="offer-num">'+esc(o.offer_number)+'</span>'):'')+'</div>'
-        +     '<div class="offer-sub">'+esc(o.author_email||'')+' · '+fmtDT(o.created_at)+'</div>'
-        +   '</div>'
-        +   '<div class="offer-price">'+fmtEur(o.total_price)+'</div>'
+      return '<div class="offers-month">'
+        + '<div class="offers-month-head">'
+        +   '<span>📁 '+esc(M.label)+'</span>'
+        +   '<span class="offers-month-count">'+M.count+' '+plural(M.count)+'</span>'
         + '</div>'
-        + '<div class="offer-detail" style="display:none">'
-        +   (itemsHtml||'<div class="off-item" style="color:#999">(bez položiek)</div>')
-        +   (o.note?('<div class="off-note">📝 '+esc(o.note)+'</div>'):'')
-        +   '<div class="off-actions" style="display:flex;gap:8px;flex-wrap:wrap;">'
-        +     '<button class="off-del" style="border-color:#b59a60;color:#b59a60" onclick="editOffer(\''+o.id+'\')">✏️ Upraviť meno / poznámku</button>'
-        +     '<button class="off-del" onclick="deleteOffer(\''+o.id+'\')">🗑 Zmazať ponuku</button>'
-        +   '</div>'
-        + '</div>'
+        + '<div class="offers-month-body">'+daysHtml+'</div>'
         + '</div>';
     }).join('');
   }
