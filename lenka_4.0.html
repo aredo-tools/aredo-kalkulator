@@ -471,6 +471,7 @@
         <div class="type-toggle">
           <div class="type-btn active" id="btn-typ1" onclick="setTyp(1)">TYP 1</div>
           <div class="type-btn" id="btn-typ2" onclick="setTyp(2)">TYP 2</div>
+          <div class="type-btn" id="btn-typ3" onclick="setTyp(3)">Voľný ohyb</div>
         </div>
 
         <label>Hrúbka materiálu</label>
@@ -482,6 +483,7 @@
 
         <label>Rádius (R vonkajší)</label>
         <select id="sel-radius" onchange="calc()"></select>
+        <input type="number" id="inp-free-r" value="382" min="1" step="1" oninput="calc()" style="display:none;" placeholder="napr. 382">
         <div id="pmax-info" style="font-size:11px;color:#888;margin-top:4px;"></div>
 
         <div id="zaoblenia-row" style="display:none;margin-top:14px;">
@@ -1754,9 +1756,15 @@ function setTyp(t) {
   currentTyp = t;
   document.getElementById('btn-typ1').classList.toggle('active', t === 1);
   document.getElementById('btn-typ2').classList.toggle('active', t === 2);
+  document.getElementById('btn-typ3').classList.toggle('active', t === 3);
   document.getElementById('dim-ab').style.display = 'block';
   document.getElementById('zaoblenia-row').style.display = t === 2 ? 'block' : 'none';
-  if (t === 1) { currentZaoblenia = 1; }
+  // Voľný ohyb (t===3): rádius je voľné pole namiesto výberu; geometria ako TYP 1
+  var selR = document.getElementById('sel-radius');
+  var freeR = document.getElementById('inp-free-r');
+  if (selR) selR.style.display = (t === 3) ? 'none' : 'block';
+  if (freeR) freeR.style.display = (t === 3) ? 'block' : 'none';
+  if (t === 1 || t === 3) { currentZaoblenia = 1; }
   populateRadii();
   populateFinishes();
   calc();
@@ -1780,7 +1788,7 @@ function setThick(t) {
 // Dyhované povrchy (dub/orech) pridávajú 1 mm k hrúbke (18→19, 22→23).
 // Rádiusy a cena sa počítajú z currentThick (18/22); mení sa len zobrazená/zapísaná hrúbka.
 function ohybIsVeneer() {
-  var finishes = currentTyp === 1 ? FINISHES_T1 : FINISHES_T2;
+  var finishes = currentTyp === 2 ? FINISHES_T2 : FINISHES_T1;
   var fin = finishes[parseInt(document.getElementById('sel-finish').value) || 0];
   return !!(fin && /dub|orech/i.test(fin.name));
 }
@@ -1800,7 +1808,7 @@ function setTier(tier, el) {
 // ============================================================
 function populateRadii() {
   const sel = document.getElementById('sel-radius');
-  const radii = currentTyp === 1 ? TYP1_RADII[currentThick] : TYP2_RADII[currentThick];
+  const radii = currentTyp === 2 ? TYP2_RADII[currentThick] : TYP1_RADII[currentThick];
   const prev = sel.value;
   sel.innerHTML = '';
   radii.forEach((r, i) => {
@@ -1815,7 +1823,7 @@ function populateRadii() {
 
 function populateFinishes() {
   const sel = document.getElementById('sel-finish');
-  const finishes = currentTyp === 1 ? FINISHES_T1 : FINISHES_T2;
+  const finishes = currentTyp === 2 ? FINISHES_T2 : FINISHES_T1;
   const prev = sel.value;
   sel.innerHTML = '';
   finishes.forEach((f, i) => {
@@ -1850,14 +1858,22 @@ function _flushHeavy3D() {   // vynúti okamžitú prestavbu (napr. pred exporto
   _runHeavy3D();
 }
 function calc() {
-  const radii = currentTyp === 1 ? TYP1_RADII[currentThick] : TYP2_RADII[currentThick];
-  const radIdx = parseInt(document.getElementById('sel-radius').value) || 0;
-  const rad = radii[radIdx];
+  const isFree = currentTyp === 3;
+  let rad, radIdx = 0;
+  if (isFree) {
+    // Voľný ohyb – rádius z voľného poľa, žiadne limity (forma na mieru)
+    const fr = parseFloat(document.getElementById('inp-free-r').value) || 0;
+    rad = { r: fr, pmax: Infinity, maxCorpus: Infinity, pmin: 0, polkruh: fr + '×' + (2 * fr) };
+  } else {
+    const radii = currentTyp === 1 ? TYP1_RADII[currentThick] : TYP2_RADII[currentThick];
+    radIdx = parseInt(document.getElementById('sel-radius').value) || 0;
+    rad = radii[radIdx];
+  }
   if (!rad) return;
 
   const h = parseFloat(document.getElementById('inp-h').value) || 0;
   const count = parseInt(document.getElementById('inp-count').value) || 1;
-  const finishes = currentTyp === 1 ? FINISHES_T1 : FINISHES_T2;
+  const finishes = currentTyp === 2 ? FINISHES_T2 : FINISHES_T1;
   const finIdx = parseInt(document.getElementById('sel-finish').value) || 0;
   const fin = finishes[finIdx];
   const tierIdx = TIER_IDX[currentTier];
@@ -1865,28 +1881,44 @@ function calc() {
   let P1mm = 0, P2mm = 0;
   let alertMsg = '', alertType = '';
 
-  if (currentTyp === 1) {
+  if (currentTyp !== 2) {
     const a = parseFloat(document.getElementById('inp-a').value) || 0;
     const b = parseFloat(document.getElementById('inp-b').value) || 0;
     P1mm = b - rad.r;
     P2mm = a - rad.r;
 
-    // Validation
-    if (a > rad.maxCorpus || b > rad.maxCorpus) {
-      alertMsg = `⚠️ Rozmer korpusu presahuje maximum pre R${rad.r} mm (max ${rad.maxCorpus}×${rad.maxCorpus} mm)`;
-      alertType = 'error';
-    } else if (P1mm < 0 || P2mm < 0) {
-      alertMsg = `⚠️ Rozmer korpusu musí byť väčší ako rádius R${rad.r} mm`;
-      alertType = 'error';
-    } else if (h > 2750) {
-      alertMsg = '⚠️ Výška presahuje maximum 2750 mm';
-      alertType = 'error';
+    if (isFree) {
+      // Voľný ohyb – bez obmedzení (forma na mieru); len upozornenie ak je rameno < R
+      if (rad.r <= 0) {
+        alertMsg = '⚠️ Zadaj rádius R (mm)';
+        alertType = 'error';
+      } else if (P1mm < 0 || P2mm < 0) {
+        alertMsg = `ℹ️ Voľný ohyb: rozmer A/B je menší ako R${rad.r} mm – rovná časť sa počíta ako 0. Skontroluj rozmery.`;
+        alertType = 'warning';
+      } else {
+        alertMsg = `✓ Voľný ohyb R${rad.r} mm – rozmery bez obmedzenia (forma na mieru)`;
+        alertType = 'ok';
+      }
+      document.getElementById('inp-a').classList.remove('error');
+      document.getElementById('inp-b').classList.remove('error');
     } else {
-      alertMsg = `✓ Rozmery sú v povolenom rozsahu pre R${rad.r} mm`;
-      alertType = 'ok';
+      // Validation (TYP 1)
+      if (a > rad.maxCorpus || b > rad.maxCorpus) {
+        alertMsg = `⚠️ Rozmer korpusu presahuje maximum pre R${rad.r} mm (max ${rad.maxCorpus}×${rad.maxCorpus} mm)`;
+        alertType = 'error';
+      } else if (P1mm < 0 || P2mm < 0) {
+        alertMsg = `⚠️ Rozmer korpusu musí byť väčší ako rádius R${rad.r} mm`;
+        alertType = 'error';
+      } else if (h > 2750) {
+        alertMsg = '⚠️ Výška presahuje maximum 2750 mm';
+        alertType = 'error';
+      } else {
+        alertMsg = `✓ Rozmery sú v povolenom rozsahu pre R${rad.r} mm`;
+        alertType = 'ok';
+      }
+      document.getElementById('inp-a').classList.toggle('error', a > rad.maxCorpus);
+      document.getElementById('inp-b').classList.toggle('error', b > rad.maxCorpus);
     }
-    document.getElementById('inp-a').classList.toggle('error', a > rad.maxCorpus);
-    document.getElementById('inp-b').classList.toggle('error', b > rad.maxCorpus);
   } else {
     const a2 = parseFloat(document.getElementById('inp-a').value) || 0;
     const b2 = parseFloat(document.getElementById('inp-b').value) || 0;
@@ -1958,7 +1990,9 @@ function calc() {
   alertEl.textContent = alertMsg;
 
   // Update P max info
-  if (currentTyp === 1) {
+  if (isFree) {
+    document.getElementById('pmax-info').textContent = `Voľný ohyb – rozmery A/B bez obmedzenia (forma na mieru) | počíta sa len plocha m²`;
+  } else if (currentTyp === 1) {
     document.getElementById('pmax-info').textContent = `P max: ${rad.pmax} mm | Max. korpus: ${rad.maxCorpus}×${rad.maxCorpus} mm`;
   } else if (currentZaoblenia === 2) {
     const wideNote = h > 1000 ? ` | ⚠️ H>1000 mm – over vo výrobe` : '';
@@ -1972,8 +2006,8 @@ function calc() {
   const H_m = h / 1000;
   const arcLen = R_m * Math.PI / 2;      // quarter circle arc length
   const arcM2 = arcLen * H_m;
-  const p1M2 = (P1mm / 1000) * H_m;
-  const p2M2 = (P2mm / 1000) * H_m;
+  const p1M2 = (Math.max(P1mm, 0) / 1000) * H_m;   // záporné rameno (A/B < R) sa neodpočítava
+  const p2M2 = (Math.max(P2mm, 0) / 1000) * H_m;
   const totalM2 = arcM2 + p1M2 + p2M2;
   const totalMulti = totalM2 * count;
 
@@ -2008,37 +2042,51 @@ function calc() {
     finish: fin ? fin.name : '',
     tierLabel: TIER_LABELS[tierIdx], tier: currentTier,
     m2_per_piece: totalM2, billed_m2: billedM2,
-    price_per_m2: pricePerM2, price_1ks: priceTotal, price_total: priceTotalMulti,
-    isMinApplied: isMinApplied
+    price_per_m2: isFree ? null : pricePerM2, price_1ks: isFree ? null : priceTotal, price_total: isFree ? null : priceTotalMulti,
+    isMinApplied: isMinApplied, free: isFree
   };
 
   // Update UI
   document.getElementById('res-m2').textContent = totalM2.toFixed(3) + ' m²';
-  document.getElementById('res-price').textContent = fmt(priceTotal);
-  const zabLabel = zabMult > 1 ? ` | 2 zaoblenia +20 %` : '';
-  const minLabel = isMinApplied ? ` | min. ${MIN_M2.toFixed(3)} m²` : '';
-  document.getElementById('res-tier-info').textContent = `${TIER_LABELS[tierIdx]} cenník | ${pricePerM2.toFixed(2)} €/m²${zabLabel}${minLabel} | bez DPH`;
+  const resPriceEl = document.getElementById('res-price');
+  if (isFree) {
+    // Voľný ohyb – bez ceny, len m²
+    resPriceEl.textContent = '';
+    resPriceEl.style.display = 'none';
+    document.getElementById('res-tier-info').textContent = 'Voľný ohyb – len plocha m² (bez ceny)';
+    document.getElementById('br-total').textContent = `${totalM2.toFixed(3)} m²`;
+  } else {
+    resPriceEl.style.display = '';
+    resPriceEl.textContent = fmt(priceTotal);
+    const zabLabel = zabMult > 1 ? ` | 2 zaoblenia +20 %` : '';
+    const minLabel = isMinApplied ? ` | min. ${MIN_M2.toFixed(3)} m²` : '';
+    document.getElementById('res-tier-info').textContent = `${TIER_LABELS[tierIdx]} cenník | ${pricePerM2.toFixed(2)} €/m²${zabLabel}${minLabel} | bez DPH`;
+    document.getElementById('br-total').textContent = (isMinApplied
+      ? `${totalM2.toFixed(3)} m² → min. ${billedM2.toFixed(3)} m² = ${fmt(priceTotal)}`
+      : `${totalM2.toFixed(3)} m² = ${fmt(priceTotal)}`);
+  }
 
   document.getElementById('br-arc').textContent = arcM2.toFixed(3) + ' m²';
   document.getElementById('br-p1').textContent = p1M2.toFixed(3) + ' m²';
   document.getElementById('br-p2').textContent = p2M2.toFixed(3) + ' m²';
-  document.getElementById('br-total').textContent = (isMinApplied
-    ? `${totalM2.toFixed(3)} m² → min. ${billedM2.toFixed(3)} m² = ${fmt(priceTotal)}`
-    : `${totalM2.toFixed(3)} m² = ${fmt(priceTotal)}`);
 
   const multiRow = document.getElementById('br-multi-row');
   if (count > 1) {
     multiRow.style.display = 'flex';
     document.getElementById('br-count-label').textContent = `Spolu (${count} ks)`;
-    document.getElementById('br-multi').textContent = (isMinApplied
-      ? `${(totalM2*count).toFixed(3)} m² → min. ${billedMulti.toFixed(3)} m² = ${fmt(priceTotalMulti)}`
-      : `${billedMulti.toFixed(3)} m² = ${fmt(priceTotalMulti)}`);
+    if (isFree) {
+      document.getElementById('br-multi').textContent = `${(totalM2*count).toFixed(3)} m²`;
+    } else {
+      document.getElementById('br-multi').textContent = (isMinApplied
+        ? `${(totalM2*count).toFixed(3)} m² → min. ${billedMulti.toFixed(3)} m² = ${fmt(priceTotalMulti)}`
+        : `${billedMulti.toFixed(3)} m² = ${fmt(priceTotalMulti)}`);
+    }
   } else {
     multiRow.style.display = 'none';
   }
 
-  // Draw diagram
-  if (currentTyp === 1) drawTyp1(rad.r, currentThick, h, P1mm, P2mm, rad.pmax);
+  // Draw diagram (voľný ohyb používa geometriu TYP 1)
+  if (currentTyp !== 2) drawTyp1(rad.r, currentThick, h, P1mm, P2mm, rad.pmax);
   else drawTyp2(rad.r, currentThick, h, P1mm, P2mm, rad.pmin, rad.pmax);
 
   // Draw elevation and 3D
@@ -2066,7 +2114,15 @@ function updateTechRef(selectedIdx) {
   const titleEl = document.getElementById('tech-ref-title');
   const bodyEl = document.getElementById('tech-ref-body');
 
-  if (currentTyp === 1) {
+  if (currentTyp === 3) {
+    titleEl.textContent = 'Voľný ohyb – atypický na mieru';
+    bodyEl.innerHTML = `<div style="font-size:12.5px;color:#555;line-height:1.7;">
+      Rádius <strong>R</strong> zadávaš voľne (predvolené <strong>R382</strong>, dá sa zmeniť).<br>
+      Rozmery <strong>A</strong> a <strong>B</strong> sú <strong>bez obmedzenia</strong> – forma sa vyrába na mieru podľa zákazníka.<br>
+      Plocha sa počíta rovnako ako pri TYP 1: <em>štvrťkruh (R·π/2)·H + (A−R)·H + (B−R)·H</em>.<br>
+      <strong>Cena sa neuvádza</strong> – zobrazí sa len plocha v m² (naceňuje sa individuálne).
+    </div>`;
+  } else if (currentTyp === 1) {
     const rows = TYP1_RADII[currentThick];
     titleEl.textContent = `TYP 1 – Technické parametre (hr. ${currentThick} mm)`;
     let html = `<table class="tech-table">
@@ -2157,7 +2213,8 @@ function _crossSection2(cx, cy, Rpx, thkPx, P1px, P2px, Vpx) {
 
 function drawTyp1(R, thick, H, P1mm, P2mm, pmax) {
   const VW = 320, VH = 280;
-  const pmaxV = Math.min(pmax, 250);
+  const pmaxFinite = isFinite(pmax);   // voľný ohyb má pmax = Infinity → bez „P max" čiar
+  const pmaxV = Math.min(pmaxFinite ? pmax : Math.max(P1mm, P2mm, 0), 250);
   const needW = Math.max(P1mm, pmaxV) + R;
   const needH = R + Math.max(P2mm, pmaxV);
   const sc = Math.min((VW - 90) / needW, (VH - 130) / needH, 0.68);
@@ -2177,17 +2234,19 @@ function drawTyp1(R, thick, H, P1mm, P2mm, pmax) {
 
   let s = `<rect width="${VW}" height="${VH}" fill="#f7f7f5" rx="6"/>`;
   // Title only — no subtitle (thickness shown in drawing, H in dimension lines)
-  s += `<text x="${VW/2}" y="14" font-size="10" font-weight="700" fill="#333" text-anchor="middle">TYP 1 – Rohový ohyb 90°</text>`;
+  s += `<text x="${VW/2}" y="14" font-size="10" font-weight="700" fill="#333" text-anchor="middle">${pmaxFinite ? 'TYP 1 – ' : 'Voľný ohyb – '}Rohový ohyb 90°</text>`;
 
-  // P max DOĽAVA (horizontálne, prerušované červené)
-  s += `<line x1="${_f(cx)}" y1="${_f(cy-Rpx)}" x2="${_f(cx-pmaxPx)}" y2="${_f(cy-Rpx)}" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="6,3"/>`;
-  s += `<line x1="${_f(cx-pmaxPx)}" y1="${_f(cy-Rpx-5)}" x2="${_f(cx-pmaxPx)}" y2="${_f(cy-Rpx+5)}" stroke="#c0392b" stroke-width="2"/>`;
-  s += `<text x="${_f(cx-pmaxPx)}" y="${_f(cy-Rpx-8)}" font-size="9" font-weight="700" fill="#c0392b" text-anchor="middle">P max = ${pmax} mm</text>`;
+  if (pmaxFinite) {
+    // P max DOĽAVA (horizontálne, prerušované červené)
+    s += `<line x1="${_f(cx)}" y1="${_f(cy-Rpx)}" x2="${_f(cx-pmaxPx)}" y2="${_f(cy-Rpx)}" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="6,3"/>`;
+    s += `<line x1="${_f(cx-pmaxPx)}" y1="${_f(cy-Rpx-5)}" x2="${_f(cx-pmaxPx)}" y2="${_f(cy-Rpx+5)}" stroke="#c0392b" stroke-width="2"/>`;
+    s += `<text x="${_f(cx-pmaxPx)}" y="${_f(cy-Rpx-8)}" font-size="9" font-weight="700" fill="#c0392b" text-anchor="middle">P max = ${pmax} mm</text>`;
 
-  // P max DOLE (vertikálne, prerušované červené)
-  s += `<line x1="${_f(cx+Rpx)}" y1="${_f(cy)}" x2="${_f(cx+Rpx)}" y2="${_f(cy+pmaxPx)}" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="6,3"/>`;
-  s += `<line x1="${_f(cx+Rpx-5)}" y1="${_f(cy+pmaxPx)}" x2="${_f(cx+Rpx+5)}" y2="${_f(cy+pmaxPx)}" stroke="#c0392b" stroke-width="2"/>`;
-  s += `<text x="${_f(cx+Rpx-6)}" y="${_f(cy+pmaxPx+12)}" font-size="9" font-weight="700" fill="#c0392b" text-anchor="end">P max = ${pmax} mm</text>`;
+    // P max DOLE (vertikálne, prerušované červené)
+    s += `<line x1="${_f(cx+Rpx)}" y1="${_f(cy)}" x2="${_f(cx+Rpx)}" y2="${_f(cy+pmaxPx)}" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="6,3"/>`;
+    s += `<line x1="${_f(cx+Rpx-5)}" y1="${_f(cy+pmaxPx)}" x2="${_f(cx+Rpx+5)}" y2="${_f(cy+pmaxPx)}" stroke="#c0392b" stroke-width="2"/>`;
+    s += `<text x="${_f(cx+Rpx-6)}" y="${_f(cy+pmaxPx+12)}" font-size="9" font-weight="700" fill="#c0392b" text-anchor="end">P max = ${pmax} mm</text>`;
+  }
 
   // Tvar
   s += `<path d="${shape}" fill="#c9c5be" stroke="#444" stroke-width="1.2" stroke-linejoin="round"/>`;
@@ -4568,9 +4627,10 @@ async function exportPDF() {
 
   // --- PARAMETERS ---
   doc.setFontSize(9); doc.setFont(undefined, 'normal'); doc.setTextColor(80, 80, 80);
-  const typ = document.getElementById('btn-typ1').classList.contains('active') ? 'TYP 1' : 'TYP 2';
+  const isFree = currentTyp === 3;
+  const typ = isFree ? 'Volny ohyb' : (document.getElementById('btn-typ1').classList.contains('active') ? 'TYP 1' : 'TYP 2');
   const thick = (typeof ohybEffectiveThick === 'function' ? ohybEffectiveThick() + ' mm' : (document.querySelector('.thick-btn.active')?.textContent || ''));
-  const radius = document.getElementById('sel-radius')?.selectedOptions[0]?.text || '';
+  const radius = isFree ? ('R ' + (document.getElementById('inp-free-r')?.value || '') + ' mm (volny)') : (document.getElementById('sel-radius')?.selectedOptions[0]?.text || '');
   const finish = document.getElementById('sel-finish')?.selectedOptions[0]?.text || '';
   const H = document.getElementById('inp-h')?.value || '';
   const A = document.getElementById('inp-a')?.value || '';
@@ -4639,7 +4699,7 @@ async function exportPDF() {
   doc.setFontSize(9); doc.setFont(undefined, 'bold');
   doc.setTextColor(60,60,60); doc.text('Celkom 1 ks:', margin, py);
   doc.setTextColor(30,30,30);
-  doc.text(totalM2val.toFixed(3) + ' m2 = ' + fmt(price1ks), pw - margin - 6, py, { align: 'right' });
+  doc.text(isFree ? (totalM2val.toFixed(3) + ' m2') : (totalM2val.toFixed(3) + ' m2 = ' + fmt(price1ks)), pw - margin - 6, py, { align: 'right' });
   py += 6;
 
   // Spolu N ks (len ak viac ako 1)
@@ -4648,7 +4708,7 @@ async function exportPDF() {
     doc.roundedRect(margin, py, cw, 8, 2, 2, 'F');
     doc.setTextColor(30,30,30); doc.setFontSize(9); doc.setFont(undefined, 'bold');
     doc.text('Spolu (' + countN + ' ks):', margin + 3, py + 5.5);
-    doc.text(totalMultiVal.toFixed(3) + ' m2 = ' + fmt(priceAll), pw - margin - 3, py + 5.5, { align: 'right' });
+    doc.text(isFree ? (totalMultiVal.toFixed(3) + ' m2') : (totalMultiVal.toFixed(3) + ' m2 = ' + fmt(priceAll)), pw - margin - 3, py + 5.5, { align: 'right' });
     py += 12;
   }
   py += 4;
