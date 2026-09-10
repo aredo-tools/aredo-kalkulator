@@ -722,6 +722,34 @@
 <div class="container">
   <div style="padding:12px 0 4px;"><button onclick="showTab('home')" style="background:none;border:none;cursor:pointer;font-size:13px;font-weight:600;color:#787878;padding:0;">← Domov</button></div>
 
+  <!-- Ukážky skla – rozbaľovacia galéria -->
+  <div class="card" style="margin-top:16px;">
+    <button onclick="toggleSkloGallery()" style="width:100%;display:flex;justify-content:space-between;align-items:center;background:none;border:none;cursor:pointer;font-family:inherit;padding:0;">
+      <h2 style="margin:0;">🪟 Ukážky skla</h2>
+      <span id="sklo-gallery-arrow" style="font-size:16px;color:#888;font-weight:700;">▾ Zobraziť</span>
+    </button>
+    <div id="sklo-gallery" style="display:none;margin-top:14px;">
+      <p style="font-size:13px;color:#666;margin-bottom:14px;">Ukážky typov skla na zasklievanie vitrín (hrúbka skla 4 mm). Zdroj: aredo.sk.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;">
+        <figure style="margin:0;text-align:center;"><div style="width:100%;aspect-ratio:1/1;overflow:hidden;border:1px solid var(--border);border-radius:8px;background:#fff;"><img src="sklo/satin-white.jpg" alt="Satin White" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div><figcaption style="font-size:12.5px;font-weight:600;color:#444;margin-top:6px;">Satin White</figcaption></figure>
+        <figure style="margin:0;text-align:center;"><div style="width:100%;aspect-ratio:1/1;overflow:hidden;border:1px solid var(--border);border-radius:8px;background:#fff;"><img src="sklo/satin-grey.jpg" alt="Satin Grey" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div><figcaption style="font-size:12.5px;font-weight:600;color:#444;margin-top:6px;">Satin Grey</figcaption></figure>
+        <figure style="margin:0;text-align:center;"><div style="width:100%;aspect-ratio:1/1;overflow:hidden;border:1px solid var(--border);border-radius:8px;background:#fff;"><img src="sklo/satin-bronz.jpg" alt="Satin Bronz" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div><figcaption style="font-size:12.5px;font-weight:600;color:#444;margin-top:6px;">Satin Bronz</figcaption></figure>
+        <figure style="margin:0;text-align:center;"><div style="width:100%;aspect-ratio:1/1;overflow:hidden;border:1px solid var(--border);border-radius:8px;background:#fff;"><img src="sklo/lacomat.jpg" alt="Lacomat" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div><figcaption style="font-size:12.5px;font-weight:600;color:#444;margin-top:6px;">Lacomat</figcaption></figure>
+        <figure style="margin:0;text-align:center;"><div style="width:100%;aspect-ratio:1/1;overflow:hidden;border:1px solid var(--border);border-radius:8px;background:#fff;"><img src="sklo/moru-brown.jpg" alt="Moru Brown" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div><figcaption style="font-size:12.5px;font-weight:600;color:#444;margin-top:6px;">Moru Brown</figcaption></figure>
+        <figure style="margin:0;text-align:center;"><div style="width:100%;aspect-ratio:1/1;overflow:hidden;border:1px solid var(--border);border-radius:8px;background:#fff;"><img src="sklo/kathedral-max.jpg" alt="Kathedral Max" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div><figcaption style="font-size:12.5px;font-weight:600;color:#444;margin-top:6px;">Kathedral Max</figcaption></figure>
+        <figure style="margin:0;text-align:center;"><div style="width:100%;aspect-ratio:1/1;overflow:hidden;border:1px solid var(--border);border-radius:8px;background:#fff;"><img src="sklo/dubova-kora.jpg" alt="Dubová Kôra" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div><figcaption style="font-size:12.5px;font-weight:600;color:#444;margin-top:6px;">Dubová Kôra</figcaption></figure>
+        <figure style="margin:0;text-align:center;"><div style="width:100%;aspect-ratio:1/1;overflow:hidden;border:1px solid var(--border);border-radius:8px;background:#fff;"><img src="sklo/float-dark-grey.jpg" alt="Float Dark Grey" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div><figcaption style="font-size:12.5px;font-weight:600;color:#444;margin-top:6px;">Float Dark Grey</figcaption></figure>
+        <figure style="margin:0;text-align:center;"><div style="width:100%;aspect-ratio:1/1;overflow:hidden;border:1px solid var(--border);border-radius:8px;background:#fff;"><img src="sklo/float-cire.jpg" alt="Float Číre" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div><figcaption style="font-size:12.5px;font-weight:600;color:#444;margin-top:6px;">Float Číre</figcaption></figure>
+        <figure style="margin:0;text-align:center;"><div style="width:100%;aspect-ratio:1/1;overflow:hidden;border:1px solid var(--border);border-radius:8px;background:#fff;"><img src="sklo/float-grey.jpg" alt="Float Grey" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div><figcaption style="font-size:12.5px;font-weight:600;color:#444;margin-top:6px;">Float Grey</figcaption></figure>
+        <figure style="margin:0;text-align:center;"><div style="width:100%;aspect-ratio:1/1;overflow:hidden;border:1px solid var(--border);border-radius:8px;background:#fff;"><img src="sklo/float-bronz.jpg" alt="Float Bronz" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div><figcaption style="font-size:12.5px;font-weight:600;color:#444;margin-top:6px;">Float Bronz</figcaption></figure>
+        <figure style="margin:0;text-align:center;"><div style="width:100%;aspect-ratio:1/1;overflow:hidden;border:1px solid var(--border);border-radius:8px;background:#fff;"><img src="sklo/estriado.jpg" alt="Estriado" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div><figcaption style="font-size:12.5px;font-weight:600;color:#444;margin-top:6px;">Estriado</figcaption></figure>
+        <figure style="margin:0;text-align:center;"><div style="width:100%;aspect-ratio:1/1;overflow:hidden;border:1px solid var(--border);border-radius:8px;background:#fff;"><img src="sklo/ornament-cincila.jpg" alt="Ornament Činčila" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div><figcaption style="font-size:12.5px;font-weight:600;color:#444;margin-top:6px;">Ornament Činčila</figcaption></figure>
+        <figure style="margin:0;text-align:center;"><div style="width:100%;aspect-ratio:1/1;overflow:hidden;border:1px solid var(--border);border-radius:8px;background:#fff;"><img src="sklo/ornament-dazd.jpg" alt="Ornament Dážď" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div><figcaption style="font-size:12.5px;font-weight:600;color:#444;margin-top:6px;">Ornament Dážď</figcaption></figure>
+        <figure style="margin:0;text-align:center;"><div style="width:100%;aspect-ratio:1/1;overflow:hidden;border:1px solid var(--border);border-radius:8px;background:#fff;"><img src="sklo/moru-cire.jpg" alt="Moru Číre" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;"></div><figcaption style="font-size:12.5px;font-weight:600;color:#444;margin-top:6px;">Moru Číre</figcaption></figure>
+      </div>
+    </div>
+  </div>
+
   <div class="card" style="margin-top:16px;">
     <h2>Frézovanie skla – prierez rámu</h2>
     <p style="font-size:13px;color:#666;margin-bottom:12px;">Prierez rámu s frézom <strong>pod sklo (S)</strong> a <strong>pod sklo + tesnenie (U)</strong>. Drážka je vždy zo <strong>zadnej strany</strong> rámu. Príklad na vzore <strong>CHOPIN</strong> (šírka rámu 70 mm, hrúbka 18 mm).</p>
@@ -741,21 +769,81 @@
     </div>
   </div>
 
-
-  <div class="grid2" style="margin-bottom:16px;">
-    <div class="card">
-      <h2>Vzory rámov</h2>
-      <table>
-        <thead><tr>
-          <th>Vzor</th>
-          <th>Šírka rámu (mm)</th>
-          <th>Presah do rámu (mm)</th>
-        </tr></thead>
-        <tbody id="sklo-vzory-tbody"></tbody>
-      </table>
+  <!-- Výber (čo si vyberám) – pod obrázkami frézovania -->
+  <div class="card" style="margin-top:16px;">
+    <h2>Typ skla a cena</h2>
+    <div style="display:flex;align-items:flex-start;gap:32px;flex-wrap:wrap;">
+      <div>
+        <label style="margin-top:0;">Typ skla</label>
+        <select id="sklo-typ" onchange="onSkloTypChange()" style="padding:8px 10px;border:1.5px solid #ddd;border-radius:6px;font-size:13px;min-width:180px;">
+          <option value="">— vybrať typ skla —</option>
+        </select>
+      </div>
+      <div>
+        <label style="margin-top:0;">Cena za m² (€, bez DPH)</label>
+        <input type="number" id="sklo-cena-m2" value="" placeholder="zadaj cenu" step="0.01" min="0" oninput="calcSklo()" style="width:130px;padding:8px 10px;border:1.5px solid #ddd;border-radius:6px;font-size:14px;">
+        <p style="font-size:11px;color:#888;margin-top:4px;">Predvyplní sa pri výbere skla, môžeš upraviť.</p>
+      </div>
+      <div style="font-size:12px;color:#888;padding-top:28px;line-height:1.6;">
+        Plocha sa počíta z rozmerov skla (Výška skla × Šírka skla).<br>
+        Minimálna fakturovaná plocha: <strong>0,200 m²/ks</strong>.
+      </div>
     </div>
+  </div>
 
-    <div class="card">
+  <div class="card" style="margin-bottom:16px;">
+    <h2>Nastavenia</h2>
+    <div style="display:flex;align-items:flex-start;gap:32px;flex-wrap:wrap;">
+
+      <div>
+        <label style="margin-top:0;">Presah skla do rámu (mm)</label>
+        <input type="number" id="sklo-presah" value="10" min="0" oninput="calcSklo()" style="width:100px;">
+        <p style="font-size:12px;color:#888;margin-top:6px;">Výška/šírka skla = rozmer dielca − 2 × šírka rámu + presah</p>
+      </div>
+
+      <div>
+        <label style="margin-top:0;">Vzor rámu (zmeniť všetky riadky)</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="sklo-global-vzor" style="padding:8px 10px;border:1.5px solid #ddd;border-radius:6px;font-size:13px;min-width:160px;"></select>
+          <button onclick="applyGlobalVzor()" style="padding:8px 14px;background:#F5C800;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;color:#1e1e1e;">Použiť</button>
+        </div>
+        <p style="font-size:12px;color:#888;margin-top:6px;">Zmení vzor rámu vo všetkých riadkoch tabuľky.</p>
+      </div>
+
+      <div>
+        <label style="margin-top:0;">Akcie</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button onclick="addSkloRow()" style="padding:9px 18px;background:var(--yellow);border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;color:#1e1e1e;">+ Pridať riadok</button>
+          <button onclick="clearSkloRowsConfirm()" style="padding:9px 14px;background:#e74c3c;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;color:#fff;">🗑 Vymazať zoznam</button>
+          <button onclick="exportSkloPDFZakaznik()" style="padding:9px 16px;background:#2980b9;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;color:#fff;">⬇ PDF zákazník</button>
+          <button onclick="exportSkloPDFSklenar()" style="padding:9px 16px;background:#27ae60;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;color:#fff;">⬇ PDF skleneár</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Vzory rámov – 2 stĺpce, plná šírka -->
+  <div class="card" style="margin-bottom:16px;">
+    <h2>Vzory rámov</h2>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;">
+      <div style="flex:1 1 260px;min-width:240px;">
+        <table>
+          <thead><tr><th>Vzor</th><th>Šírka rámu (mm)</th><th>Presah do rámu (mm)</th></tr></thead>
+          <tbody id="sklo-vzory-tbody"></tbody>
+        </table>
+      </div>
+      <div style="flex:1 1 260px;min-width:240px;">
+        <table>
+          <thead><tr><th>Vzor</th><th>Šírka rámu (mm)</th><th>Presah do rámu (mm)</th></tr></thead>
+          <tbody id="sklo-vzory-tbody2"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Výpočet – plná šírka -->
+  <div class="card" style="margin-bottom:16px;">
       <h2>Výpočet rozmerov skla</h2>
       <div style="overflow-x:auto;">
         <table id="sklo-table">
@@ -793,60 +881,6 @@
           </tfoot>
         </table>
       </div>
-    </div>
-  </div>
-
-  <div class="card" style="margin-bottom:16px;">
-    <h2>Typ skla a cena</h2>
-    <div style="display:flex;align-items:flex-start;gap:32px;flex-wrap:wrap;">
-      <div>
-        <label style="margin-top:0;">Typ skla</label>
-        <select id="sklo-typ" onchange="onSkloTypChange()" style="padding:8px 10px;border:1.5px solid #ddd;border-radius:6px;font-size:13px;min-width:180px;">
-          <option value="">— vybrať typ skla —</option>
-        </select>
-      </div>
-      <div>
-        <label style="margin-top:0;">Cena za m² (€, bez DPH)</label>
-        <input type="number" id="sklo-cena-m2" value="" placeholder="zadaj cenu" step="0.01" min="0" oninput="calcSklo()" style="width:130px;padding:8px 10px;border:1.5px solid #ddd;border-radius:6px;font-size:14px;">
-        <p style="font-size:11px;color:#888;margin-top:4px;">Predvyplní sa pri výbere skla, môžeš upraviť.</p>
-      </div>
-      <div style="font-size:12px;color:#888;padding-top:28px;line-height:1.6;">
-        Plocha sa počíta z rozmerov skla (Výška skla × Šírka skla).<br>
-        Minimálna fakturovaná plocha: <strong>0,200 m²/ks</strong>.
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>Nastavenia</h2>
-    <div style="display:flex;align-items:flex-start;gap:32px;flex-wrap:wrap;">
-
-      <div>
-        <label style="margin-top:0;">Presah skla do rámu (mm)</label>
-        <input type="number" id="sklo-presah" value="10" min="0" oninput="calcSklo()" style="width:100px;">
-        <p style="font-size:12px;color:#888;margin-top:6px;">Výška/šírka skla = rozmer dielca − 2 × šírka rámu + presah</p>
-      </div>
-
-      <div>
-        <label style="margin-top:0;">Vzor rámu (zmeniť všetky riadky)</label>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <select id="sklo-global-vzor" style="padding:8px 10px;border:1.5px solid #ddd;border-radius:6px;font-size:13px;min-width:160px;"></select>
-          <button onclick="applyGlobalVzor()" style="padding:8px 14px;background:#F5C800;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;color:#1e1e1e;">Použiť</button>
-        </div>
-        <p style="font-size:12px;color:#888;margin-top:6px;">Zmení vzor rámu vo všetkých riadkoch tabuľky.</p>
-      </div>
-
-      <div>
-        <label style="margin-top:0;">Akcie</label>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button onclick="addSkloRow()" style="padding:9px 18px;background:var(--yellow);border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;color:#1e1e1e;">+ Pridať riadok</button>
-          <button onclick="clearSkloRowsConfirm()" style="padding:9px 14px;background:#e74c3c;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;color:#fff;">🗑 Vymazať zoznam</button>
-          <button onclick="exportSkloPDFZakaznik()" style="padding:9px 16px;background:#2980b9;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;color:#fff;">⬇ PDF zákazník</button>
-          <button onclick="exportSkloPDFSklenar()" style="padding:9px 16px;background:#27ae60;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;color:#fff;">⬇ PDF skleneár</button>
-        </div>
-      </div>
-
-    </div>
   </div>
 
 </div>
@@ -4426,6 +4460,14 @@ const SKLO_VZORY = [
   { vzor: 'Weber',     sirka: 69   },
 ];
 
+function toggleSkloGallery() {
+  var g = document.getElementById('sklo-gallery');
+  var a = document.getElementById('sklo-gallery-arrow');
+  var open = (g.style.display === 'none' || !g.style.display);
+  g.style.display = open ? 'block' : 'none';
+  if (a) a.textContent = open ? '▴ Skryť' : '▾ Zobraziť';
+}
+
 function initSklo() {
   initSkloTypSelect();
   // Populate global vzor selector
@@ -4439,14 +4481,16 @@ function initSklo() {
     });
   }
   const tbody = document.getElementById('sklo-vzory-tbody');
-  SKLO_VZORY.forEach(v => {
+  const tbody2 = document.getElementById('sklo-vzory-tbody2');
+  const half = Math.ceil(SKLO_VZORY.length / 2);
+  SKLO_VZORY.forEach((v, i) => {
     const tr = document.createElement('tr');
     if (v.id === 'ine') {
       tr.innerHTML = `<td><strong>${v.vzor}</strong></td><td><input type="number" id="ine-sirka" value="${v.sirka}" min="1" step="0.5" oninput="onIneWidthChange(this.value)" style="width:70px;padding:3px 6px;border:1.5px solid #F5C800;border-radius:4px;font-size:13px;font-weight:700;"></td><td>10</td>`;
     } else {
       tr.innerHTML = `<td>${v.vzor}</td><td>${v.sirka}</td><td>10</td>`;
     }
-    tbody.appendChild(tr);
+    ((i < half || !tbody2) ? tbody : tbody2).appendChild(tr);
   });
   // Sklo sa otvára s prázdnym zoznamom (riadky pridáva používateľ cez „+ Pridať riadok").
 }
