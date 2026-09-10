@@ -561,6 +561,7 @@
         <input type="text" id="inp-order" placeholder="napr. OBJ-2026-001" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:5px;font-size:14px;">
 
         <button onclick="exportPDF()" style="margin-top:12px;width:100%;padding:11px;background:var(--yellow);border:none;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;color:#1e1e1e;">⬇ Stiahnuť PDF</button>
+        <button id="btn-dl-png" onclick="downloadPartImagePNG()" style="margin-top:8px;width:100%;padding:10px;background:#fff;border:1.5px solid var(--yellow);border-radius:6px;font-size:13.5px;font-weight:700;cursor:pointer;color:#1e1e1e;">🖼 Stiahnuť obrázok dielca (PNG – na e-mail)</button>
         <button id="btn-dl-3dhtml" onclick="downloadModel3DHTML()" style="margin-top:8px;width:100%;padding:10px;background:#fff;border:1.5px solid var(--yellow);border-radius:6px;font-size:13.5px;font-weight:700;cursor:pointer;color:#1e1e1e;">⬇ Stiahnuť 3D model (.html – otvorí sa na mobile aj PC)</button>
         <div style="margin-top:8px;font-size:11.5px;color:#999;text-align:center;">Stiahnutím PDF sa ponuka automaticky uloží do evidencie.</div>
       </div>
@@ -5870,6 +5871,115 @@ async function downloadModel3DHTML() {
     alert('Nepodarilo sa vytvoriť 3D súbor (potrebné pripojenie na internet pri sťahovaní knižníc). ' + (e && e.message ? e.message : ''));
   } finally {
     if (btn) { btn.textContent = oldTxt; btn.disabled = false; }
+  }
+}
+
+// ── Stiahnuť vizuál dielca ako PNG obrázok (vhodné na e-mail – otvorí sa všade) ──
+async function downloadPartImagePNG() {
+  var btn = document.getElementById('btn-dl-png');
+  var old = btn ? btn.textContent : null;
+  if (btn) { btn.textContent = 'Pripravujem obrázok…'; btn.disabled = true; }
+  try {
+    if (typeof _flushHeavy3D === 'function') _flushHeavy3D();   // aktuálny 3D pred snímkou
+
+    // Parametre dielca
+    var isFreeNow = (currentTyp === 3);
+    var typLabel = isFreeNow ? 'Voľný ohyb' : (currentTyp === 2 ? 'TYP 2' : 'TYP 1');
+    var thick = ((typeof ohybEffectiveThick === 'function' ? ohybEffectiveThick() : currentThick)) + ' mm';
+    var selR = document.getElementById('sel-radius');
+    var radius = isFreeNow
+      ? ('R' + ((document.getElementById('inp-free-r') || {}).value || ''))
+      : (selR && selR.selectedOptions[0] ? selR.selectedOptions[0].text : '');
+    var H = (document.getElementById('inp-h') || {}).value || '';
+    var A = (document.getElementById('inp-a') || {}).value || '';
+    var B = (document.getElementById('inp-b') || {}).value || '';
+    var count = (document.getElementById('inp-count') || {}).value || '1';
+    var m2 = (document.getElementById('res-m2') || {}).textContent || '';
+    var order = (document.getElementById('inp-order') || {}).value || '';
+    var selF = document.getElementById('sel-finish');
+    var finish = (selF && selF.selectedOptions[0]) ? selF.selectedOptions[0].text : '';
+
+    // Render diagramov (nákres + 3D) do canvasov
+    var diags = [
+      { id: 'diagram-elev',  title: 'Nákres dielca' },
+      { id: 'diagram-3d',    title: '3D z boku' },
+      { id: 'diagram-front', title: '3D spredu' }
+    ];
+    var imgs = [];
+    for (var i = 0; i < diags.length; i++) {
+      var el = document.getElementById(diags[i].id);
+      var cv = null;
+      if (el) {
+        try {
+          var imgEl = el.querySelector('image');
+          var href = imgEl && (imgEl.getAttribute('href') || imgEl.getAttribute('xlink:href'));
+          if (href && href.indexOf('data:image') === 0) {
+            cv = await new Promise(function(res, rej){
+              var im = new Image();
+              im.onload = function(){
+                var c = document.createElement('canvas'); c.width = 640; c.height = 560;
+                var cx = c.getContext('2d'); cx.fillStyle = '#f0efe8'; cx.fillRect(0,0,640,560);
+                var s = Math.min(640/im.width, 560/im.height), iw = im.width*s, ih = im.height*s;
+                cx.drawImage(im, (640-iw)/2, (560-ih)/2, iw, ih); res(c);
+              };
+              im.onerror = rej; im.src = href;
+            });
+          } else {
+            cv = await svgToCanvas(el, 320, 280);
+          }
+        } catch(e) { console.warn('PNG diagram error', diags[i].id, e); }
+      }
+      imgs.push(cv);
+    }
+    var present = diags.filter(function(d,ix){ return imgs[ix]; });
+    var presentImgs = imgs.filter(Boolean);
+    if (!presentImgs.length) { alert('Nákres ešte nie je pripravený – chvíľu počkajte a skúste znova.'); return; }
+
+    // Kompozícia
+    var W = 1400, pad = 40, colGap = 20;
+    var headerH = 196;
+    var cols = presentImgs.length;
+    var colW = (W - pad*2 - colGap*(cols-1)) / cols;
+    var colH = colW * 280/320;
+    var canvasH = Math.round(headerH + 30 + colH + 70);
+
+    var canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = canvasH;
+    var ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, canvasH);
+    ctx.fillStyle = '#F5C800'; ctx.fillRect(0, 0, W, 8);   // žltý pruh hore
+
+    ctx.textBaseline = 'top';
+    ctx.fillStyle = '#1e1e1e'; ctx.font = 'bold 40px Arial, sans-serif';
+    ctx.fillText('AREDO – vizuál dielca', pad, 28);
+    ctx.font = '20px Arial, sans-serif'; ctx.fillStyle = '#666';
+    var dnes = new Date().toLocaleDateString('sk-SK');
+    ctx.fillText((order ? ('Objednávka: ' + order + '   |   ') : '') + 'Dátum: ' + dnes, pad, 84);
+
+    ctx.font = '22px Arial, sans-serif'; ctx.fillStyle = '#1e1e1e';
+    ctx.fillText(typLabel + '   •   Hrúbka: ' + thick + '   •   Rádius: ' + radius + '   •   Plocha: ' + m2, pad, 122);
+    ctx.fillText('Výška: ' + H + ' mm   •   Rozmery A/B: ' + A + ' / ' + B + ' mm   •   Počet: ' + count + ' ks' + (finish ? ('   •   Povrch: ' + finish) : ''), pad, 154);
+
+    var x = pad, y = headerH + 28;
+    for (var j = 0; j < presentImgs.length; j++) {
+      ctx.font = 'bold 20px Arial, sans-serif'; ctx.fillStyle = '#555';
+      ctx.fillText(present[j].title, x, y - 26);
+      ctx.drawImage(presentImgs[j], x, y, colW, colH);
+      ctx.strokeStyle = '#ddd'; ctx.lineWidth = 1; ctx.strokeRect(x, y, colW, colH);
+      x += colW + colGap;
+    }
+
+    ctx.font = '18px Arial, sans-serif'; ctx.fillStyle = '#999';
+    ctx.fillText('AREDO – partner nábytkárov   •   aredo.sk', pad, y + colH + 24);
+
+    var a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = 'aredo-dielec' + (order ? ('-' + order) : '') + '.png';
+    a.click();
+  } catch(e) {
+    alert('Nepodarilo sa vytvoriť obrázok. ' + (e && e.message ? e.message : ''));
+  } finally {
+    if (btn) { btn.textContent = old; btn.disabled = false; }
   }
 }
 
