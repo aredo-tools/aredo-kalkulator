@@ -526,12 +526,18 @@
     <div>
       <div class="card">
         <h2>Cenník</h2>
+        <label>Platnosť cenníka</label>
+        <div class="tier-selector" style="margin-bottom:12px;">
+          <div class="tier-btn cennik-ver-btn active" data-ver="new" onclick="setCennikVersion('new')">od 15. 9. 2026</div>
+          <div class="tier-btn cennik-ver-btn" data-ver="old" onclick="setCennikVersion('old')">do 14. 9. 2026</div>
+        </div>
         <label>Cenová úroveň</label>
         <div class="tier-selector">
           <div class="tier-btn active" onclick="setTier('strieborny',this)">Strieborný</div>
           <div class="tier-btn" onclick="setTier('zlaty',this)">Zlatý</div>
           <div class="tier-btn" onclick="setTier('platinovy',this)">Platinový</div>
           <div class="tier-btn" onclick="setTier('koncovy',this)">Koncový</div>
+          <div class="tier-btn" onclick="setTier('cesky',this)">Česká</div>
         </div>
         <label>Povrchová úprava</label>
         <select id="sel-finish" onchange="calc()"></select>
@@ -1492,6 +1498,14 @@
 <div id="tab-cennik" class="tab-content">
 <div class="container">
   <div style="padding:12px 0 4px;"><button onclick="showTab('home')" style="background:none;border:none;cursor:pointer;font-size:13px;font-weight:600;color:#787878;padding:0;">← Domov</button></div>
+  <div class="card" style="margin-bottom:16px;">
+    <h2>Platnosť cenníka</h2>
+    <div class="tier-selector">
+      <div class="tier-btn cennik-ver-btn active" data-ver="new" onclick="setCennikVersion('new')">Cenník od 15. 9. 2026 (nový)</div>
+      <div class="tier-btn cennik-ver-btn" data-ver="old" onclick="setCennikVersion('old')">Cenník do 14. 9. 2026 (starý)</div>
+    </div>
+    <p style="font-size:12px;color:#888;margin-top:10px;">Prepína ceny v kalkulačke Ohybov aj v tabuľkách nižšie. Staré ponuky majú cenu uloženú v evidencii, prepnutie ich neovplyvní.</p>
+  </div>
   <div class="card">
     <h2>Cenník ohybov – TYP 1 (R200–R500)</h2>
     <div class="tier-selector" id="cennik-tier-sel">
@@ -1499,6 +1513,7 @@
       <div class="tier-btn" onclick="setCennikTier('zlaty',this)">Zlatý</div>
       <div class="tier-btn" onclick="setCennikTier('platinovy',this)">Platinový</div>
       <div class="tier-btn" onclick="setCennikTier('koncovy',this)">Koncový</div>
+      <div class="tier-btn" onclick="setCennikTier('cesky',this)">Česká</div>
     </div>
     <table>
       <thead>
@@ -1770,7 +1785,7 @@ const TYP2_RADII = {
 };
 
 // Prices per m² [strieborny, zlaty, platinovy, koncovy]
-const FINISHES_T1 = [
+const FINISHES_T1_OLD = [
   { name: 'Surová MDF',                        p: [490.00, 473.43, 457.42, 575.75] },
   { name: 'Hladké matné – jednostranné',        p: [589.55, 569.22, 548.89, 691.20] },
   { name: 'Hladké matné – obojstranné',         p: [659.55, 639.22, 618.89, 761.20] },
@@ -1785,7 +1800,7 @@ const FINISHES_T1 = [
   { name: 'Orech americký / natural',           p: [840.11, 811.14, 782.17, 984.96] },
 ];
 
-const FINISHES_T2 = [
+const FINISHES_T2_OLD = [
   { name: 'Surová MDF',                        p: [600.00, 579.71, 560.11, 705.00] },
   { name: 'Hladké matné – jednostranné',        p: [707.46, 683.07, 658.67, 829.44] },
   { name: 'Hladké matné – obojstranné',         p: [777.46, 753.07, 728.67, 899.44] },
@@ -1800,8 +1815,60 @@ const FINISHES_T2 = [
   { name: 'Orech americký / natural',           p: [1008.14, 973.37, 938.61, 1181.95] },
 ];
 
-const TIER_IDX = { strieborny: 0, zlaty: 1, platinovy: 2, koncovy: 3 };
-const TIER_LABELS = ['Strieborný', 'Zlatý', 'Platinový', 'Koncový'];
+// ── Nový cenník platný od 15.9.2026 (staré ceny × 1,05 – rovnaké koeficienty) ──
+const FINISHES_T1_NEW = [
+  { name: 'Surová MDF', p: [514.50, 497.10, 480.29, 604.54] },
+  { name: 'Hladké matné – jednostranné', p: [619.03, 597.68, 576.33, 725.76] },
+  { name: 'Hladké matné – obojstranné', p: [692.53, 671.18, 649.83, 799.26] },
+  { name: 'Hladké matné + štruktúra – jednostranné', p: [650.53, 629.18, 607.83, 757.26] },
+  { name: 'Hladké lesklé – jednostranné', p: [735.09, 709.75, 684.40, 861.84] },
+  { name: 'Hladké lesklé – obojstranné', p: [808.59, 783.25, 757.90, 935.34] },
+  { name: 'Hladké lesklé + štruktúra – jednostranné', p: [766.59, 741.25, 715.90, 893.34] },
+  { name: 'Hladké lesklé (akryl technológia)', p: [754.45, 728.43, 702.41, 884.52] },
+  { name: 'Ohýbané dekoratívne panely (LP-1, LK-1, LB 12, LB 20, LK 19, LK-3, LV-3)', p: [831.82, 803.13, 774.46, 975.24] },
+  { name: 'Ohýbané hlbkofrézované dielce (len bez vnútorného výfrezu)', p: [831.82, 803.13, 774.46, 975.24] },
+  { name: 'Dub fláder/radial', p: [870.51, 840.49, 810.47, 1020.60] },
+  { name: 'Orech americký / natural', p: [882.12, 851.70, 821.28, 1034.21] },
+];
+const FINISHES_T2_NEW = [
+  { name: 'Surová MDF', p: [630.00, 608.70, 588.12, 740.25] },
+  { name: 'Hladké matné – jednostranné', p: [742.83, 717.22, 691.60, 870.91] },
+  { name: 'Hladké matné – obojstranné', p: [816.33, 790.72, 765.10, 944.41] },
+  { name: 'Hladké matné + štruktúra – jednostranné', p: [774.33, 748.72, 723.10, 902.41] },
+  { name: 'Hladké lesklé – jednostranné', p: [882.12, 851.70, 821.28, 1034.21] },
+  { name: 'Hladké lesklé – obojstranné', p: [955.62, 925.20, 894.78, 1107.71] },
+  { name: 'Hladké lesklé + štruktúra – jednostranné', p: [913.62, 883.20, 852.78, 1065.71] },
+  { name: 'Hladké lesklé (akryl technológia)', p: [905.33, 874.11, 842.90, 1061.42] },
+  { name: 'Ohýbané dekoratívne panely (LP-1, LK-1, LB 12, LB 20, LK 19, LK-3, LV-3)', p: [998.18, 963.76, 929.34, 1170.29] },
+  { name: 'Ohýbané hlbkofrézované dielce (len bez vnútorného výfrezu)', p: [998.18, 963.76, 929.34, 1170.29] },
+  { name: 'Dub fláder/radial', p: [1044.61, 1008.59, 972.57, 1224.72] },
+  { name: 'Orech americký / natural', p: [1058.55, 1022.04, 985.54, 1241.05] },
+];
+
+// Aktívny cenník ohybov – prepínateľný (nový = predvolený). Staré ponuky majú cenu uloženú v evidencii.
+let cennikVersion = 'new';   // 'new' = od 15.9.2026 | 'old' = do 14.9.2026
+let FINISHES_T1 = FINISHES_T1_NEW;
+let FINISHES_T2 = FINISHES_T2_NEW;
+function setCennikVersion(v){
+  cennikVersion = (v === 'old') ? 'old' : 'new';
+  FINISHES_T1 = (cennikVersion === 'old') ? FINISHES_T1_OLD : FINISHES_T1_NEW;
+  FINISHES_T2 = (cennikVersion === 'old') ? FINISHES_T2_OLD : FINISHES_T2_NEW;
+  // premietni do UI
+  document.querySelectorAll('.cennik-ver-btn').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-ver') === cennikVersion);
+  });
+  if (typeof populateFinishes === 'function') populateFinishes();
+  if (typeof calc === 'function') calc();
+  if (typeof renderCennikTable === 'function') renderCennikTable(currentCennikTier || 'strieborny');
+}
+
+const TIER_IDX = { strieborny: 0, zlaty: 1, platinovy: 2, koncovy: 3, cesky: 4 };
+const TIER_LABELS = ['Strieborný', 'Zlatý', 'Platinový', 'Koncový', 'Česká'];
+
+// Česká cena = Strieborný + 8 % (5. úroveň) – dopočítaná do všetkých cenníkov
+[FINISHES_T1_OLD, FINISHES_T2_OLD, FINISHES_T1_NEW, FINISHES_T2_NEW].forEach(function(arr){
+  arr.forEach(function(f){ if (f.p.length < 5) f.p.push(Math.round(f.p[0] * 1.08 * 100) / 100); });
+});
 
 // ============================================================
 // STATE
