@@ -1378,11 +1378,23 @@
 
         <label>Typ lišty</label>
         <select id="listy-type" onchange="calcListy()">
-          <option value="135">Hladká – imitujúca ohýbaný dielec (R100, R125, R50) — 135 €/mb</option>
-          <option value="165">Frézovaná – imitujúca ohýbaný dielec (R100, R125, R50) — 165 €/mb</option>
-          <option value="45">Doplatok lesk — 45 €/mb</option>
-          <option value="123.5">Surová lišta — 123,50 €/mb</option>
-          <option value="150">Dub fláder/radial — 150 €/mb</option>
+          <option value="273">Lišta hladká mat R-50</option>
+          <option value="368">Lišta hladká lesk R-50</option>
+          <option value="368">Lišta hladká mat dyha R-50</option>
+          <option value="336">Lišta hladká mat R-100; R-125</option>
+          <option value="431">Lišta hladká lesk R-100; R-125</option>
+          <option value="431">Lišta hladká dyha R-100; R-125</option>
+          <option value="420">Lišta ryhovaná mat R-100; R-125 (súhlas Prestige)</option>
+          <option value="420">Lišta ryhovaná lesk R-100; R-125 (súhlas Prestige)</option>
+        </select>
+
+        <label>Doplatok – lakovanie ľavých strán (voliteľné)</label>
+        <select id="listy-doplatok" onchange="calcListy()">
+          <option value="0">— žiadny —</option>
+          <option value="315">mat</option>
+          <option value="630">lesk</option>
+          <option value="840">lesk akrylový</option>
+          <option value="998">lesk metalický</option>
         </select>
 
         <label>Dĺžka (mb)</label>
@@ -1393,10 +1405,12 @@
 
         <label style="margin-top:14px;">Cenová úroveň</label>
         <div class="tier-selector">
-          <div class="tier-btn active" onclick="setListyTier(1,this)">Strieborný</div>
-          <div class="tier-btn" onclick="setListyTier(0.965,this)">Zlatý</div>
-          <div class="tier-btn" onclick="setListyTier(0.93,this)">Platinový</div>
+          <div class="tier-btn active" onclick="setListyTier('s',this)">Strieborný</div>
+          <div class="tier-btn" onclick="setListyTier('z',this)">Zlatý</div>
+          <div class="tier-btn" onclick="setListyTier('p',this)">Platinový</div>
+          <div class="tier-btn" onclick="setListyTier('c',this)">Český</div>
         </div>
+        <p style="font-size:11px;color:#999;margin-top:8px;">Cena = nákup × koeficient danej úrovne (koeficienty zadáš nižšie v tabuľke Nákupné ceny líšt).</p>
       </div>
     </div>
     <div>
@@ -1423,30 +1437,11 @@
     </div>
   </div>
 
-  <!-- Cenník líšt – predajné ceny -->
+  <!-- Cenník líšt – nákup + predajné podľa úrovní -->
   <div class="card" style="margin-top:16px;">
-    <h2>📁 Cenník líšt – predajné ceny (€/mb)</h2>
-    <p style="font-size:12px;color:#666;margin-bottom:12px;">Ceny bez DPH za bežný meter. Zlatý = −3,5 %, Platinový = −7 %, Česká = +8 % oproti Striebornému. Koncová sa doplní.</p>
-    <div style="overflow-x:auto;">
-      <table>
-        <thead><tr>
-          <th>Lišta</th>
-          <th class="yellow">Strieborný</th>
-          <th>Zlatý</th>
-          <th>Platinový</th>
-          <th>Česká</th>
-          <th>Koncová</th>
-        </tr></thead>
-        <tbody>
-          <tr><td>Hladká – imitujúca ohýbaný dielec (R100, R125, R50)</td><td><strong>135,00 €</strong></td><td>130,28 €</td><td>125,55 €</td><td>145,80 €</td><td style="color:#bbb">—</td></tr>
-          <tr><td>Frézovaná – imitujúca ohýbaný dielec (R100, R125, R50)</td><td><strong>165,00 €</strong></td><td>159,23 €</td><td>153,45 €</td><td>178,20 €</td><td style="color:#bbb">—</td></tr>
-          <tr><td>Surová lišta</td><td><strong>123,50 €</strong></td><td>119,18 €</td><td>114,86 €</td><td>133,38 €</td><td style="color:#bbb">—</td></tr>
-          <tr><td>Dub fláder / radial</td><td><strong>150,00 €</strong></td><td>144,75 €</td><td>139,50 €</td><td>162,00 €</td><td style="color:#bbb">—</td></tr>
-          <tr><td>Doplatok lesk</td><td><strong>45,00 €</strong></td><td>43,43 €</td><td>41,85 €</td><td>48,60 €</td><td style="color:#bbb">—</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <h3 style="margin-top:24px;font-size:16px;color:#1e1e1e;">🛒 Nákupné ceny líšt (Listwy Gięte)</h3>
+    <h2>📁 Cenník líšt</h2>
+    <p style="font-size:12px;color:#666;margin-bottom:12px;">Predajná cena každej lišty = <strong>nákup € × koeficient</strong> danej úrovne (Strieborný/Zlatý/Platinový/Český). Koeficienty zadáš do prázdnych polí pod názvami úrovní – prepočíta sa tabuľka aj kalkulačka.</p>
+    <h3 style="margin-top:8px;font-size:16px;color:#1e1e1e;">🛒 Nákupné a predajné ceny líšt (Listwy Gięte)</h3>
     <p style="font-size:12px;color:#666;margin:6px 0 12px;">Cena v Zł → <strong>+ percento</strong> → ÷ <strong>kurz</strong> → nákup v € → × <strong>koeficient</strong> (pre každú úroveň zvlášť) → predajná cena v €. Koeficient doplň do prázdneho poľa pod názvom úrovne – prepočíta sa celý stĺpec.</p>
     <div style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:14px;">
       <div><label style="margin-top:0;font-size:12px;">Percento (%)</label><input type="number" id="ln-pct" value="8" step="0.1" oninput="recalcListyNakup()" style="width:90px;"></div>
@@ -1466,10 +1461,10 @@
             <th style="text-align:center;">Český</th>
           </tr>
           <tr>
-            <th style="text-align:center;"><input type="number" id="ln-koef-s" step="0.01" placeholder="koef" oninput="recalcListyNakup()" style="width:66px;padding:3px 5px;font-size:12px;text-align:center;"></th>
-            <th style="text-align:center;"><input type="number" id="ln-koef-z" step="0.01" placeholder="koef" oninput="recalcListyNakup()" style="width:66px;padding:3px 5px;font-size:12px;text-align:center;"></th>
-            <th style="text-align:center;"><input type="number" id="ln-koef-p" step="0.01" placeholder="koef" oninput="recalcListyNakup()" style="width:66px;padding:3px 5px;font-size:12px;text-align:center;"></th>
-            <th style="text-align:center;"><input type="number" id="ln-koef-c" step="0.01" placeholder="koef" oninput="recalcListyNakup()" style="width:66px;padding:3px 5px;font-size:12px;text-align:center;"></th>
+            <th style="text-align:center;"><input type="number" id="ln-koef-s" value="1.55" step="0.01" placeholder="koef" oninput="recalcListyNakup()" style="width:66px;padding:3px 5px;font-size:12px;text-align:center;"></th>
+            <th style="text-align:center;"><input type="number" id="ln-koef-z" value="1.50" step="0.01" placeholder="koef" oninput="recalcListyNakup()" style="width:66px;padding:3px 5px;font-size:12px;text-align:center;"></th>
+            <th style="text-align:center;"><input type="number" id="ln-koef-p" value="1.45" step="0.01" placeholder="koef" oninput="recalcListyNakup()" style="width:66px;padding:3px 5px;font-size:12px;text-align:center;"></th>
+            <th style="text-align:center;"><input type="number" id="ln-koef-c" value="1.60" step="0.01" placeholder="koef" oninput="recalcListyNakup()" style="width:66px;padding:3px 5px;font-size:12px;text-align:center;"></th>
           </tr>
         </thead>
         <tbody>
@@ -1481,11 +1476,6 @@
           <tr data-z="431"><td>Lišta hladká dyha R-100; R-125</td><td>431</td><td class="ln-plus">—</td><td class="ln-eur">—</td><td class="ln-s" style="text-align:center;">—</td><td class="ln-z" style="text-align:center;">—</td><td class="ln-p" style="text-align:center;">—</td><td class="ln-c" style="text-align:center;">—</td></tr>
           <tr data-z="420"><td>Lišta ryhovaná mat R-100; R-125 <span style="color:#999">(vyžaduje súhlas Prestige)</span></td><td>420</td><td class="ln-plus">—</td><td class="ln-eur">—</td><td class="ln-s" style="text-align:center;">—</td><td class="ln-z" style="text-align:center;">—</td><td class="ln-p" style="text-align:center;">—</td><td class="ln-c" style="text-align:center;">—</td></tr>
           <tr data-z="420"><td>Lišta ryhovaná lesk R-100; R-125 <span style="color:#999">(vyžaduje súhlas Prestige)</span></td><td>420</td><td class="ln-plus">—</td><td class="ln-eur">—</td><td class="ln-s" style="text-align:center;">—</td><td class="ln-z" style="text-align:center;">—</td><td class="ln-p" style="text-align:center;">—</td><td class="ln-c" style="text-align:center;">—</td></tr>
-          <tr><td colspan="8" style="background:#fdecec;color:#c0392b;font-weight:700;padding:7px 10px;">Dopláty za lakovanie ľavých strán</td></tr>
-          <tr data-z="315"><td>mat</td><td>315</td><td class="ln-plus">—</td><td class="ln-eur">—</td><td class="ln-s" style="text-align:center;">—</td><td class="ln-z" style="text-align:center;">—</td><td class="ln-p" style="text-align:center;">—</td><td class="ln-c" style="text-align:center;">—</td></tr>
-          <tr data-z="630"><td>lesk</td><td>630</td><td class="ln-plus">—</td><td class="ln-eur">—</td><td class="ln-s" style="text-align:center;">—</td><td class="ln-z" style="text-align:center;">—</td><td class="ln-p" style="text-align:center;">—</td><td class="ln-c" style="text-align:center;">—</td></tr>
-          <tr data-z="840"><td>lesk akrylový</td><td>840</td><td class="ln-plus">—</td><td class="ln-eur">—</td><td class="ln-s" style="text-align:center;">—</td><td class="ln-z" style="text-align:center;">—</td><td class="ln-p" style="text-align:center;">—</td><td class="ln-c" style="text-align:center;">—</td></tr>
-          <tr data-z="998"><td>lesk metalický</td><td>998</td><td class="ln-plus">—</td><td class="ln-eur">—</td><td class="ln-s" style="text-align:center;">—</td><td class="ln-z" style="text-align:center;">—</td><td class="ln-p" style="text-align:center;">—</td><td class="ln-c" style="text-align:center;">—</td></tr>
         </tbody>
       </table>
     </div>
@@ -1893,7 +1883,7 @@ async function preloadLogo() {
 }
 let currentTier = 'strieborny';
 let currentCennikTier = 'strieborny';
-let listyTierMult = 1.0;
+let listyTier = 's';   // 's'|'z'|'p'|'c' – úroveň pre kalkulačku líšt (koeficient z Nákupné ceny líšt)
 
 // ============================================================
 // TABS
@@ -3539,26 +3529,48 @@ function drawInteractive3D(R, thick, H, P1mm, P2mm, zab, finishName) {
 // ============================================================
 // LIŠTY
 // ============================================================
-function setListyTier(mult, el) {
-  listyTierMult = mult;
+function setListyTier(t, el) {
+  listyTier = t;   // 's' | 'z' | 'p' | 'c'
   document.querySelectorAll('#tab-listy .tier-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
+  if (el) el.classList.add('active');
   calcListy();
 }
 
+// Cena lišty = nákup € × koeficient zvolenej úrovne (koeficienty z tabuľky Nákupné ceny líšt)
 function calcListy() {
-  const basePrice = parseFloat(document.getElementById('listy-type').value) || 0;
+  const zl = parseFloat(document.getElementById('listy-type').value) || 0;
   const mb = parseFloat(document.getElementById('listy-mb').value) || 0;
   const count = parseInt(document.getElementById('listy-count').value) || 1;
-  const price = basePrice * listyTierMult;
-  const total = price * mb * count;
+  const pct = parseFloat((document.getElementById('ln-pct')||{}).value) || 0;
+  const kurz = parseFloat((document.getElementById('ln-kurz')||{}).value) || 0;
+  const nakup = kurz > 0 ? zl * (1 + pct/100) / kurz : 0;
+  const koef = parseFloat((document.getElementById('ln-koef-' + listyTier)||{}).value);
+  const dopZl = parseFloat((document.getElementById('listy-doplatok')||{}).value) || 0;
+  const dopNakup = (kurz > 0 && dopZl > 0) ? dopZl * (1 + pct/100) / kurz : 0;
 
+  const info = document.getElementById('listy-mb-info');
+  const setBr = function(unit, total){
+    document.getElementById('listy-br-unit').textContent = unit;
+    document.getElementById('listy-br-len').textContent = mb + ' mb';
+    document.getElementById('listy-br-cnt').textContent = count + ' ks';
+    document.getElementById('listy-br-total').textContent = total;
+  };
+
+  if (isNaN(koef)) {
+    document.getElementById('listy-res').textContent = '—';
+    if (info) info.textContent = 'Zadaj koeficient pre zvolenú úroveň (tabuľka Nákupné ceny líšt nižšie).';
+    setBr('—', '—');
+    return;
+  }
+  const lisPrice = nakup * koef;
+  const dopPrice = dopNakup * koef;
+  const price = lisPrice + dopPrice;
+  const total = price * mb * count;
   document.getElementById('listy-res').textContent = fmt(total);
-  document.getElementById('listy-mb-info').textContent = `${price.toFixed(2)} €/mb × ${mb} mb × ${count} ks`;
-  document.getElementById('listy-br-unit').textContent = price.toFixed(2) + ' €/mb';
-  document.getElementById('listy-br-len').textContent = mb + ' mb';
-  document.getElementById('listy-br-cnt').textContent = count + ' ks';
-  document.getElementById('listy-br-total').textContent = fmt(total);
+  if (info) info.textContent = dopPrice > 0
+    ? `lišta ${lisPrice.toFixed(2)} + doplatok ${dopPrice.toFixed(2)} = ${price.toFixed(2)} €/mb × ${mb} mb × ${count} ks`
+    : `nákup ${nakup.toFixed(2)} € × ${koef} → ${price.toFixed(2)} €/mb × ${mb} mb × ${count} ks`;
+  setBr(price.toFixed(2) + ' €/mb', fmt(total));
 }
 
 // Nákupné ceny líšt (Listwy Gięte): Zł → +% → ÷kurz → nákup € → ×koeficient → predaj €
@@ -3585,6 +3597,7 @@ function recalcListyNakup() {
       cell.textContent = isNaN(koef[t]) ? '—' : (f(eur * koef[t]) + ' €');
     });
   });
+  if (typeof calcListy === 'function') calcListy();   // prepočítaj aj kalkulačku
 }
 
 // ============================================================
