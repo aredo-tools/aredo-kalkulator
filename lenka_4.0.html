@@ -351,9 +351,9 @@
       <div style="font-size:26px;font-weight:700;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.4);">AHOJ LENKA 👋</div>
     </div>
 
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;max-width:1200px;margin:0 auto;">
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px;max-width:1500px;margin:0 auto;">
 
-      <!-- R1C1: Výpočet ohybov -->
+      <!-- Riadok 1: Výpočet ohybov -->
       <div onclick="showTab('kalk')" style="cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
         <div style="width:48px;height:48px;background:#F5C800;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1e1e1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="12" y1="10" x2="14" y2="10"/><line x1="8" y1="14" x2="10" y2="14"/><line x1="12" y1="14" x2="14" y2="14"/><line x1="8" y1="18" x2="10" y2="18"/><line x1="12" y1="18" x2="14" y2="18"/></svg>
@@ -362,34 +362,7 @@
         <div style="font-size:12px;color:#666;line-height:1.5;">Kalkulácia ceny ohýbaných dielcov TYP 1 a TYP 2 vrátane nákresu a PDF výstupu.</div>
       </div>
 
-      <!-- R1C2: Sklo -->
-      <div onclick="showTab('sklo')" style="cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
-        <div style="width:48px;height:48px;background:#F5C800;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1e1e1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
-        </div>
-        <div style="font-size:15px;font-weight:700;color:#1e1e1e;margin-bottom:5px;">Sklo</div>
-        <div style="font-size:12px;color:#666;line-height:1.5;">Výpočet rozmerov skla podľa vzoru rámu, výšky a šírky dielca. Plocha, obvod, gumička.</div>
-      </div>
-
-      <!-- R1C3: Lamely -->
-      <div onclick="showTab('lamely')" style="cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
-        <div style="width:48px;height:48px;background:#F5C800;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1e1e1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="10" x2="20" y2="10"/><line x1="4" y1="14" x2="20" y2="14"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
-        </div>
-        <div style="font-size:15px;font-weight:700;color:#1e1e1e;margin-bottom:5px;">Lamely</div>
-        <div style="font-size:12px;color:#666;line-height:1.5;">Výpočet rozloženia lamiel – všetky vzory: Prime, Kraft, Bend, Value, Just One. SVG nákres profilu.</div>
-      </div>
-
-      <!-- R1C4: Cenník ohybov -->
-      <div onclick="showTab('cennik')" style="cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
-        <div style="width:48px;height:48px;background:#F5C800;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1e1e1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M14.5 9a4 4 0 1 0 0 6"/><line x1="8" y1="11" x2="13" y2="11"/><line x1="8" y1="13" x2="13" y2="13"/></svg>
-        </div>
-        <div style="font-size:15px;font-weight:700;color:#1e1e1e;margin-bottom:5px;">Cenník ohybov</div>
-        <div style="font-size:12px;color:#666;line-height:1.5;">Prehľad cien ohybov podľa rádiu, hrúbky a povrchovej úpravy.</div>
-      </div>
-
-      <!-- R2C1: Lišty imitujúce ohyby -->
+      <!-- Riadok 1: Lišty imitujúce ohyby -->
       <div onclick="showTab('listy')" style="cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
         <div style="width:48px;height:48px;background:#F5C800;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1e1e1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v10H3z"/><line x1="7" y1="7" x2="7" y2="11"/><line x1="11" y1="7" x2="11" y2="11"/><line x1="15" y1="7" x2="15" y2="11"/></svg>
@@ -398,34 +371,7 @@
         <div style="font-size:12px;color:#666;line-height:1.5;">Kalkulácia ceny frézovaných líšt imitujúcich ohýbané dielce.</div>
       </div>
 
-      <!-- R2C2: Technické parametre -->
-      <div onclick="showTab('techparam')" style="cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
-        <div style="width:48px;height:48px;background:#F5C800;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1e1e1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M3 14h7v7H3z"/><path d="M14 14h7v7h-7z"/></svg>
-        </div>
-        <div style="font-size:15px;font-weight:700;color:#1e1e1e;margin-bottom:5px;">Technické parametre</div>
-        <div style="font-size:12px;color:#666;line-height:1.5;">Parametre vzorových dielcov – šírky rámikov, min. rozmery, vitríny, frézovanie pod sklo.</div>
-      </div>
-
-      <!-- R2C3: Nadväznosť panelov -->
-      <div onclick="showTab('nadv')" style="cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
-        <div style="width:48px;height:48px;background:#F5C800;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1e1e1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="9" height="10" rx="1"/><rect x="13" y="7" width="9" height="10" rx="1"/><line x1="11" y1="12" x2="13" y2="12" stroke-dasharray="1.5 1"/></svg>
-        </div>
-        <div style="font-size:15px;font-weight:700;color:#1e1e1e;margin-bottom:5px;">Nadväznosť panelov</div>
-        <div style="font-size:12px;color:#666;line-height:1.5;">Výpočet spájania panelov – medzery a technické info pre všetky vzory (S / M / L).</div>
-      </div>
-
-      <!-- R2C4: 3D model -->
-      <div onclick="showTab('3d')" style="cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
-        <div style="width:48px;height:48px;background:#F5C800;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1e1e1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-        </div>
-        <div style="font-size:15px;font-weight:700;color:#1e1e1e;margin-bottom:5px;">3D model</div>
-        <div style="font-size:12px;color:#666;line-height:1.5;">Interaktívny 3D náhľad ohýbaného dielca. Výber povrchu, farby, stiahnutie OBJ / GLB.</div>
-      </div>
-
-      <!-- R3C1: Evidencia ponúk -->
+      <!-- Riadok 1: Evidencia ponúk -->
       <div onclick="showTab('ponuky')" style="cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
         <div style="width:48px;height:48px;background:#F5C800;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1e1e1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
@@ -434,8 +380,62 @@
         <div style="font-size:12px;color:#666;line-height:1.5;">Uložené ponuky – kto ju vytvoril, kedy, meno zákazníka a poznámka.</div>
       </div>
 
-      <!-- R3C2: Nákupné ceny výroby -->
-      <div onclick="showTab('nakup')" style="cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
+      <!-- Riadok 1: Cenník ohybov -->
+      <div onclick="showTab('cennik')" style="cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
+        <div style="width:48px;height:48px;background:#F5C800;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1e1e1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M14.5 9a4 4 0 1 0 0 6"/><line x1="8" y1="11" x2="13" y2="11"/><line x1="8" y1="13" x2="13" y2="13"/></svg>
+        </div>
+        <div style="font-size:15px;font-weight:700;color:#1e1e1e;margin-bottom:5px;">Cenník ohybov</div>
+        <div style="font-size:12px;color:#666;line-height:1.5;">Prehľad cien ohybov podľa rádiu, hrúbky a povrchovej úpravy.</div>
+      </div>
+
+      <!-- Riadok 1: 3D model -->
+      <div onclick="showTab('3d')" style="cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
+        <div style="width:48px;height:48px;background:#F5C800;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1e1e1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <div style="font-size:15px;font-weight:700;color:#1e1e1e;margin-bottom:5px;">3D model</div>
+        <div style="font-size:12px;color:#666;line-height:1.5;">Interaktívny 3D náhľad ohýbaného dielca. Výber povrchu, farby, stiahnutie OBJ / GLB.</div>
+      </div>
+
+      <!-- Riadok 2: Sklo -->
+      <div onclick="showTab('sklo')" style="grid-column:1;cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
+        <div style="width:48px;height:48px;background:#F5C800;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1e1e1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+        </div>
+        <div style="font-size:15px;font-weight:700;color:#1e1e1e;margin-bottom:5px;">Sklo</div>
+        <div style="font-size:12px;color:#666;line-height:1.5;">Výpočet rozmerov skla podľa vzoru rámu, výšky a šírky dielca. Plocha, obvod, gumička.</div>
+      </div>
+
+      <!-- Riadok 2: Technické parametre -->
+      <div onclick="showTab('techparam')" style="cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
+        <div style="width:48px;height:48px;background:#F5C800;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1e1e1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M3 14h7v7H3z"/><path d="M14 14h7v7h-7z"/></svg>
+        </div>
+        <div style="font-size:15px;font-weight:700;color:#1e1e1e;margin-bottom:5px;">Technické parametre</div>
+        <div style="font-size:12px;color:#666;line-height:1.5;">Parametre vzorových dielcov – šírky rámikov, min. rozmery, vitríny, frézovanie pod sklo.</div>
+      </div>
+
+      <!-- Riadok 3: Lamely -->
+      <div onclick="showTab('lamely')" style="grid-column:1;cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
+        <div style="width:48px;height:48px;background:#F5C800;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1e1e1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="10" x2="20" y2="10"/><line x1="4" y1="14" x2="20" y2="14"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+        </div>
+        <div style="font-size:15px;font-weight:700;color:#1e1e1e;margin-bottom:5px;">Lamely</div>
+        <div style="font-size:12px;color:#666;line-height:1.5;">Výpočet rozloženia lamiel – všetky vzory: Prime, Kraft, Bend, Value, Just One. SVG nákres profilu.</div>
+      </div>
+
+      <!-- Riadok 3: Nadväznosť panelov -->
+      <div onclick="showTab('nadv')" style="cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
+        <div style="width:48px;height:48px;background:#F5C800;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1e1e1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="9" height="10" rx="1"/><rect x="13" y="7" width="9" height="10" rx="1"/><line x1="11" y1="12" x2="13" y2="12" stroke-dasharray="1.5 1"/></svg>
+        </div>
+        <div style="font-size:15px;font-weight:700;color:#1e1e1e;margin-bottom:5px;">Nadväznosť panelov</div>
+        <div style="font-size:12px;color:#666;line-height:1.5;">Výpočet spájania panelov – medzery a technické info pre všetky vzory (S / M / L).</div>
+      </div>
+
+      <!-- Riadok 4: Nákupné ceny výroby -->
+      <div onclick="showTab('nakup')" style="grid-column:1;cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
         <div style="width:48px;height:48px;background:#F5C800;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1e1e1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l3-4 3 3 4-6"/></svg>
         </div>
