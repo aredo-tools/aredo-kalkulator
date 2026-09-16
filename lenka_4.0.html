@@ -448,9 +448,22 @@
         <div style="font-size:12px;color:#666;line-height:1.5;">Cenník v Zł → +% → kurz → nákup v €→ koeficient → predajná cena v €.</div>
       </div>
 
-      <!-- Riadok 3: prázdne miesta -->
-      <div style="border-radius:14px;background:rgba(255,255,255,0.14);border:2px dashed rgba(255,255,255,0.45);min-height:120px;"></div>
-      <div style="border-radius:14px;background:rgba(255,255,255,0.14);border:2px dashed rgba(255,255,255,0.45);min-height:120px;"></div>
+      <!-- Riadok 3: Nákupné ceny akrylik – dielce -->
+      <div onclick="showTab('akryl-dielce')" style="cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
+        <div style="width:48px;height:48px;background:#F5C800;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1e1e1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l3-4 3 3 4-6"/></svg>
+        </div>
+        <div style="font-size:15px;font-weight:700;color:#1e1e1e;margin-bottom:5px;">Nákupné ceny akrylik – dielce</div>
+        <div style="font-size:12px;color:#666;line-height:1.5;">Cenník akrylik (fronty): 1L/2L 18 a 36 mm. Prepočet Zł → nákup € → predaj.</div>
+      </div>
+      <!-- Riadok 3: Nákupné ceny akrylik – tabule a ABS -->
+      <div onclick="showTab('akryl-tab')" style="cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
+        <div style="width:48px;height:48px;background:#F5C800;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1e1e1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l3-4 3 3 4-6"/></svg>
+        </div>
+        <div style="font-size:15px;font-weight:700;color:#1e1e1e;margin-bottom:5px;">Nákupné ceny akrylik – tabule a ABS</div>
+        <div style="font-size:12px;color:#666;line-height:1.5;">Cenník akrylik (dosky + hrany/ABS): doska 1L/2L, hrana 22/1, 42/1.</div>
+      </div>
 
     </div>
   </div>
@@ -958,6 +971,61 @@
       </table>
     </div>
     <div style="margin-top:10px;font-size:11.5px;color:#888;">Cena Zł je editovateľná. Nákup (€) = (Cena Zł + percento) ÷ kurz. Predaj (€) = Nákup × koeficient.</div>
+  </div>
+</div>
+</div>
+
+
+<!-- ========== TAB: NÁKUPNÉ CENY AKRYLIK – Nákupné ceny akrylik – dielce ========== -->
+<div id="tab-akryl-dielce" class="tab-content">
+<div class="container">
+  <div style="padding:12px 0 4px;"><button onclick="showTab('home')" style="background:none;border:none;cursor:pointer;font-size:13px;font-weight:600;color:#787878;padding:0;">← Domov</button></div>
+  <div class="card" style="margin-bottom:16px;">
+    <h2>Nákupné ceny akrylik – dielce</h2>
+    <p style="font-size:13px;color:#666;margin-bottom:14px;">Ceny v Zł z cenníka akrylik. Prepínač zobrazenia: <strong>Cena Zł</strong> → <strong>Nákup €</strong> (Zł + % ÷ kurz) → <strong>Predaj €</strong> (× koeficient). Polia sa dajú voľne meniť.</p>
+    <div style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:14px;">
+      <div><label style="margin-top:0;font-size:12px;">Percento (%)</label><input type="number" id="ak-dielce-pct" value="8" step="0.1" oninput="renderAkryl('dielce')" style="width:90px;"></div>
+      <div><label style="margin-top:0;font-size:12px;">Kurz (Zł/€)</label><input type="number" id="ak-dielce-kurz" value="4.2" step="0.01" oninput="renderAkryl('dielce')" style="width:90px;"></div>
+      <div><label style="margin-top:0;font-size:12px;">Koeficient</label><input type="number" id="ak-dielce-koef" value="1" step="0.01" oninput="renderAkryl('dielce')" style="width:90px;"></div>
+    </div>
+    <div class="tier-selector" style="max-width:440px;">
+      <div class="tier-btn active" onclick="setAkrylView('dielce','zl',this)">Cena Zł</div>
+      <div class="tier-btn" onclick="setAkrylView('dielce','nakup',this)">Nákup €</div>
+      <div class="tier-btn" onclick="setAkrylView('dielce','predaj',this)">Predaj €</div>
+    </div>
+    <input type="text" id="ak-dielce-filter" placeholder="Hľadať farbu / kód / typ…" oninput="renderAkryl('dielce')" style="margin-top:12px;width:100%;max-width:440px;padding:8px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;">
+  </div>
+  <div class="card">
+    <div style="overflow-x:auto;">
+      <table id="ak-dielce-table"><thead><tr><th style="padding:8px;">Kód</th><th style="padding:8px;">Farba</th><th style="padding:8px;">Rewers</th><th style='padding:8px;white-space:nowrap;'>Front 1L 18mm</th><th style='padding:8px;white-space:nowrap;'>Front 2L 18mm</th><th style='padding:8px;white-space:nowrap;'>Front 1L 36mm</th><th style='padding:8px;white-space:nowrap;'>Front 2L 36mm</th></tr></thead><tbody id="ak-dielce-tbody"></tbody></table>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ========== TAB: NÁKUPNÉ CENY AKRYLIK – Nákupné ceny akrylik – tabule a ABS ========== -->
+<div id="tab-akryl-tab" class="tab-content">
+<div class="container">
+  <div style="padding:12px 0 4px;"><button onclick="showTab('home')" style="background:none;border:none;cursor:pointer;font-size:13px;font-weight:600;color:#787878;padding:0;">← Domov</button></div>
+  <div class="card" style="margin-bottom:16px;">
+    <h2>Nákupné ceny akrylik – tabule a ABS</h2>
+    <p style="font-size:13px;color:#666;margin-bottom:14px;">Ceny v Zł z cenníka akrylik. Prepínač zobrazenia: <strong>Cena Zł</strong> → <strong>Nákup €</strong> (Zł + % ÷ kurz) → <strong>Predaj €</strong> (× koeficient). Polia sa dajú voľne meniť.</p>
+    <div style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:14px;">
+      <div><label style="margin-top:0;font-size:12px;">Percento (%)</label><input type="number" id="ak-tab-pct" value="8" step="0.1" oninput="renderAkryl('tab')" style="width:90px;"></div>
+      <div><label style="margin-top:0;font-size:12px;">Kurz (Zł/€)</label><input type="number" id="ak-tab-kurz" value="4.2" step="0.01" oninput="renderAkryl('tab')" style="width:90px;"></div>
+      <div><label style="margin-top:0;font-size:12px;">Koeficient</label><input type="number" id="ak-tab-koef" value="1" step="0.01" oninput="renderAkryl('tab')" style="width:90px;"></div>
+    </div>
+    <div class="tier-selector" style="max-width:440px;">
+      <div class="tier-btn active" onclick="setAkrylView('tab','zl',this)">Cena Zł</div>
+      <div class="tier-btn" onclick="setAkrylView('tab','nakup',this)">Nákup €</div>
+      <div class="tier-btn" onclick="setAkrylView('tab','predaj',this)">Predaj €</div>
+    </div>
+    <input type="text" id="ak-tab-filter" placeholder="Hľadať farbu / kód / typ…" oninput="renderAkryl('tab')" style="margin-top:12px;width:100%;max-width:440px;padding:8px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;">
+  </div>
+  <div class="card">
+    <div style="overflow-x:auto;">
+      <table id="ak-tab-table"><thead><tr><th style="padding:8px;">Kód</th><th style="padding:8px;">Farba</th><th style="padding:8px;">Rewers</th><th style='padding:8px;white-space:nowrap;'>Doska 1L</th><th style='padding:8px;white-space:nowrap;'>Doska 2L</th><th style='padding:8px;white-space:nowrap;'>Hrana 22/1</th><th style='padding:8px;white-space:nowrap;'>Hrana 42/1 (ABS)</th></tr></thead><tbody id="ak-tab-tbody"></tbody></table>
+    </div>
   </div>
 </div>
 </div>
@@ -1908,6 +1976,8 @@ function showTab(id) {
   if (id === 'sklo' && typeof clearSkloRows === 'function') clearSkloRows();
   if (id === 'nakup' && typeof initNakup === 'function') initNakup();
   if (id === 'listy' && typeof recalcListyNakup === 'function') recalcListyNakup();
+  if (id === 'akryl-dielce' && typeof renderAkryl === 'function') renderAkryl('dielce');
+  if (id === 'akryl-tab' && typeof renderAkryl === 'function') renderAkryl('tab');
 
   // Move interactive-3d-container between kalk slot and tab-3d slot
   var c3d = document.getElementById('interactive-3d-container');
@@ -7309,6 +7379,228 @@ function delNakupRow(idx) {
   if (!confirm('Zmazať tento riadok?')) return;
   NAKUP_DATA.splice(idx, 1);
   renderNakup();
+}
+
+// ===== Nákupné ceny AKRYLIK (dielce / tabule a ABS) =====
+var AKRYL_DIELCE=[
+{t:'Białe: Akrylik 1700 połysk- 18 mm',kod:'5000 B',n:'Biały',rev:'Biały',p:[226,null,317,494]},
+{t:'Białe: Akrylik 1700 połysk- 18 mm',kod:'1982-2',n:'Biały',rev:'Biały',p:[226,null,317,494]},
+{t:'Białe: Akrylik 1700 połysk- 18 mm',kod:'8000',n:'Biały Zimny',rev:'Biały',p:[226,null,317,494]},
+{t:'Jasne: Akrylik 1800 połysk - 18 mm – utwardzony',kod:'6000',n:'Biały Arktyczny',rev:'Biały',p:[261,353,346,574]},
+{t:'Jasne: Akrylik 1800 połysk - 18 mm – utwardzony',kod:'1982',n:'Biały',rev:'Biały',p:[261,353,346,574]},
+{t:'Jasne: Akrylik 1800 połysk - 18 mm – utwardzony',kod:'1994',n:'Biały Ciepły',rev:'Biały',p:[266,null,351,585]},
+{t:'Jasne: Akrylik 1800 połysk - 18 mm – utwardzony',kod:'7498',n:'Cappuccino',rev:'Biały',p:[265,null,350,583]},
+{t:'Jasne: Akrylik 1800 połysk - 18 mm – utwardzony',kod:'7496',n:'Kremowy',rev:'Biały',p:[265,null,350,583]},
+{t:'Jasne: Akrylik 1800 połysk - 18 mm – utwardzony',kod:'85384',n:'Popiel',rev:'Kolor',p:[265,null,350,583]},
+{t:'Jasne: Akrylik 1800 połysk - 18 mm – utwardzony',kod:'85468',n:'Jasnoszary',rev:'Kolor',p:[265,null,350,583]},
+{t:'Intensywne: Akrylik 1800 połysk – 18 mm – utwardzony',kod:'3362',n:'Czerwony',rev:'Biały',p:[275,null,360,606]},
+{t:'Intensywne: Akrylik 1800 połysk – 18 mm – utwardzony',kod:'4548',n:'Fiolet',rev:'Biały',p:[275,null,360,606]},
+{t:'Intensywne: Akrylik 1800 połysk – 18 mm – utwardzony',kod:'4644',n:'Kobalt',rev:'Biały',p:[275,null,360,606]},
+{t:'Intensywne: Akrylik 1800 połysk – 18 mm – utwardzony',kod:'4670',n:'Morski',rev:'Biały',p:[275,null,360,606]},
+{t:'Intensywne: Akrylik 1800 połysk – 18 mm – utwardzony',kod:'5357',n:'Laguna',rev:'Biały',p:[275,null,360,606]},
+{t:'Intensywne: Akrylik 1800 połysk – 18 mm – utwardzony',kod:'8421',n:'Czarny',rev:'Kolor',p:[275,360,360,606]},
+{t:'Intensywne: Akrylik 1800 połysk – 18 mm – utwardzony',kod:'85382',n:'Ciemnoszary',rev:'Kolor',p:[275,null,360,606]},
+{t:'Intensywne: Akrylik 1800 połysk – 18 mm – utwardzony',kod:'85383',n:'Szary',rev:'Kolor',p:[275,null,360,606]},
+{t:'Metaliki: Akrylik 1800– 18 mm połysk - utwardzonyPŁYTA KIERUNKOWA !!!',kod:'11035',n:'Biały metalik',rev:'Biały',p:[282,null,367,622]},
+{t:'Metaliki: Akrylik 1800– 18 mm połysk - utwardzonyPŁYTA KIERUNKOWA !!!',kod:'4473',n:'Oxyd',rev:'Biały',p:[282,null,367,622]},
+{t:'Metaliki: Akrylik 1800– 18 mm połysk - utwardzonyPŁYTA KIERUNKOWA !!!',kod:'7408',n:'Kubanit',rev:'Biały',p:[282,null,367,622]},
+{t:'Metaliki: Akrylik 1800– 18 mm połysk - utwardzonyPŁYTA KIERUNKOWA !!!',kod:'8427',n:'Czarny metalik',rev:'Czarny',p:[282,null,367,622]},
+{t:'Metaliki: Akrylik 1800– 18 mm połysk - utwardzonyPŁYTA KIERUNKOWA !!!',kod:'8636',n:'Srebrny',rev:'Kolor',p:[282,null,367,622]},
+{t:'Metaliki: Akrylik 1800– 18 mm połysk - utwardzonyPŁYTA KIERUNKOWA !!!',kod:'8855',n:'Antracyt',rev:'Kolor',p:[282,null,367,622]},
+{t:'Akrylik MAT– 18 mm - LAMINAT PET AFP',kod:'1644M',n:'Biel Alpejska',rev:'dwustr.',p:[246,246,336,553]},
+{t:'Akrylik MAT– 18 mm - LAMINAT PET AFP',kod:'11279M',n:'Biały Polar AFP',rev:'dwustr.',p:[246,246,336,553]},
+{t:'Akrylik MAT– 18 mm - LAMINAT PET AFP',kod:'7045M',n:'Kaszmir AFP',rev:'dwustr.',p:[246,246,336,553]},
+{t:'Akrylik MAT– 18 mm - LAMINAT PET AFP',kod:'7656M',n:'Magnolia AFP',rev:'dwustr.',p:[246,246,336,553]},
+{t:'Akrylik MAT– 18 mm - LAMINAT PET AFP',kod:'102M',n:'Popiel',rev:'dwustr.',p:[246,246,336,553]},
+{t:'Akrylik MAT– 18 mm - LAMINAT PET AFP',kod:'85901M',n:'Szary Kamienny AFP',rev:'dwustr.',p:[246,246,336,553]},
+{t:'Akrylik MAT– 18 mm - LAMINAT PET AFP',kod:'85933M',n:'Szary Pył AFP',rev:'dwustr.',p:[246,246,336,553]},
+{t:'Akrylik MAT– 18 mm - LAMINAT PET AFP',kod:'85987M',n:'Szary Aksamitny AFP',rev:'dwustr.',p:[246,246,336,553]},
+{t:'Akrylik MAT– 18 mm - LAMINAT PET AFP',kod:'85993M',n:'Szary Kaszmir AFP',rev:'dwustr.',p:[246,246,336,553]},
+{t:'Akrylik MAT– 18 mm - LAMINAT PET AFP',kod:'5452M',n:'Zielony Avocado AFP',rev:'dwustr.',p:[246,246,336,553]},
+{t:'Akrylik MAT– 18 mm - LAMINAT PET AFP',kod:'81141M',n:'Czarny Diament AFP',rev:'dwustr.',p:[246,246,336,553]},
+{t:'Akrylik MAT- 18 mm2800x1300Akrylik MAT- 18 mm',kod:'11082M',n:'Arktyczny AFP',rev:'Biały',p:[256,343,341,563]},
+{t:'Akrylik MAT- 18 mm2800x1300Akrylik MAT- 18 mm',kod:'1982M',n:'Śnieżnobiały AFP',rev:'Biały',p:[256,343,341,563]},
+{t:'Akrylik MAT- 18 mm2800x1300Akrylik MAT- 18 mm',kod:'7496M',n:'Kremowy AFP',rev:'Biały',p:[256,null,341,563]},
+{t:'Akrylik MAT- 18 mm2800x1300Akrylik MAT- 18 mm',kod:'7498M',n:'Cappuccino AFP',rev:'Biały',p:[256,null,341,563]},
+{t:'Akrylik MAT- 18 mm2800x1300Akrylik MAT- 18 mm',kod:'85468M',n:'Jasnoszary AFP',rev:'Kolor',p:[256,343,341,563]},
+{t:'Akrylik MAT- 18 mm2800x1300Akrylik MAT- 18 mm',kod:'85384M',n:'Popiel AFP',rev:'Kolor',p:[256,null,341,563]},
+{t:'Akrylik MAT- 18 mm2800x1300Akrylik MAT- 18 mm',kod:'5357M',n:'Laguna AFP',rev:'Biały',p:[275,null,361,607]},
+{t:'Akrylik MAT- 18 mm2800x1300Akrylik MAT- 18 mm',kod:'4670M',n:'Morski AFP',rev:'Biały',p:[275,null,361,607]},
+{t:'Akrylik MAT- 18 mm2800x1300Akrylik MAT- 18 mm',kod:'85383M',n:'Szary AFP',rev:'Kolor',p:[256,null,341,563]},
+{t:'Akrylik MAT- 18 mm2800x1300Akrylik MAT- 18 mm',kod:'85728M',n:'Szary 2 AFP',rev:'Kolor',p:[256,null,341,563]},
+{t:'Akrylik MAT- 18 mm2800x1300Akrylik MAT- 18 mm',kod:'85382M',n:'Antracyt AFP',rev:'Kolor',p:[256,343,341,563]},
+{t:'Akrylik MAT- 18 mm2800x1300Akrylik MAT- 18 mm',kod:'8421M',n:'Czarny AFP',rev:'Kolor',p:[256,343,341,563]},
+{t:'Akrylik MAT- 18 mm2800x1300Akrylik MAT- 18 mm',kod:'85735M',n:'Granit AFP',rev:'Kolor',p:[256,null,341,563]},
+{t:'Akrylik MAT- 18 mm2800x1300Akrylik MAT- 18 mm',kod:'5406M',n:'Szałwiowy AFP',rev:'Kolor',p:[275,null,360,582]},
+{t:'Akrylik MAT- 18 mm2800x1300Akrylik MAT- 18 mm',kod:'3493M',n:'Bordo AFP',rev:'Biały',p:[275,null,360,582]},
+{t:'Akrylik MAT - 18 mmPŁYTA KIERUNKOWA !!!',kod:'4702M',n:'Granat AFP',rev:'Kolor',p:[275,null,361,563]},
+{t:'Akrylik MAT - 18 mmPŁYTA KIERUNKOWA !!!',kod:'6005M',n:'Zielony Butelkowy AFP',rev:'Biały',p:[275,null,361,607]},
+{t:'Akrylik Metalik-MATPŁYTA KIERUNKOWA !!!',kod:'4774m',n:'Niebieski stalowy AFP',rev:'Biały',p:[288,null,373,635]},
+{t:'Akrylik Metalik-MATPŁYTA KIERUNKOWA !!!',kod:'7408M',n:'Kubanit metalik AFP',rev:'Biały',p:[288,null,373,635]},
+{t:'Akrylik Metalik-MATPŁYTA KIERUNKOWA !!!',kod:'7648m',n:'Złoty Piaskowy AFP',rev:'Biały',p:[288,null,373,635]},
+{t:'Akrylik Metalik-MATPŁYTA KIERUNKOWA !!!',kod:'85841M',n:'Szary metalik AFP',rev:'Kolor',p:[288,null,373,635]},
+{t:'Akrylik Metalik-MATPŁYTA KIERUNKOWA !!!',kod:'8855M',n:'Antracyt met. AFP',rev:'Kolor',p:[288,null,373,635]},
+{t:'Akrylik Metalik-MATPŁYTA KIERUNKOWA !!!',kod:'8856M',n:'Oliwkowy Metalik AFP',rev:'Antracyt',p:[317,null,402,700]},
+{t:'Akrylik Metalik-MATPŁYTA KIERUNKOWA !!!',kod:'8857M',n:'Mosiądz',rev:'Antracyt',p:[317,null,402,700]},
+{t:'Akrylik Metalik-MATPŁYTA KIERUNKOWA !!!',kod:'8858M',n:'Grafit Metalik AFP',rev:'Antracyt',p:[317,null,402,700]},
+{t:'Akrylik Metalik-MATPŁYTA KIERUNKOWA !!!',kod:'8859M',n:'Antyczne złoto AFP',rev:'Antracyt',p:[317,null,402,700]},
+{t:'Akrylik Metalik-MATbrak AF - LAMINAT PETPŁYTA KIERUNKOWA !!! 2800z1300',kod:'8860M',n:'Biały Perłowy',rev:'Biały',p:[288,null,373,671]},
+{t:'Akrylik Metalik-MATbrak AF - LAMINAT PETPŁYTA KIERUNKOWA !!! 2800z1300',kod:'8861M',n:'Złoty Perłowy',rev:'Szary',p:[288,null,373,671]},
+{t:'Akrylik Metalik-MATbrak AF - LAMINAT PETPŁYTA KIERUNKOWA !!! 2800z1300',kod:'8862M',n:'Brązowy Perłowy',rev:'Szary',p:[288,null,373,671]},
+{t:'Akrylik Metalik-MATbrak AF - LAMINAT PETPŁYTA KIERUNKOWA !!! 2800z1300',kod:'8863M',n:'Niebieski Metalik',rev:'Szary',p:[288,null,373,671]},
+{t:'Akrylik Metalik-MATbrak AF - LAMINAT PETPŁYTA KIERUNKOWA !!! 2800z1300',kod:'8864M',n:'Kameleon Metalik',rev:'Szary',p:[288,null,373,671]},
+{t:'Akrylik Metalik-MATbrak AF - LAMINAT PETPŁYTA KIERUNKOWA !!! 2800z1300',kod:'8865M',n:'Czarny Metalik',rev:'Czarny',p:[288,null,373,671]},
+{t:'Akrylik Metalik-MATbrak AF - LAMINAT PETPŁYTA KIERUNKOWA !!! 2800z1300',kod:'8866M',n:'Burgund Metalik',rev:'Czarny',p:[288,null,373,671]},
+{t:'Akrylik Metalik-MATbrak AF - LAMINAT PETPŁYTA KIERUNKOWA !!! 2800z1300',kod:'8867M',n:'Brązowy Czekoladowy',rev:'Czarny',p:[288,null,null,null]},
+{t:'Akrylik Metalik-MATbrak AF - LAMINAT PETPŁYTA KIERUNKOWA !!! 2800z1300',kod:'8868M',n:'Mocha Mousse',rev:'Czarny',p:[288,null,null,null]},
+{t:'STRUKTURALNY Aryl – płyta kierunkowa !!!',kod:'T02',n:'Biały strukturalny',rev:'Szary',p:[317,null,402,700]},
+{t:'STRUKTURALNY Aryl – płyta kierunkowa !!!',kod:'T03',n:'Złoty strukturalny',rev:'Szary',p:[317,null,402,700]},
+{t:'STRUKTURALNY Aryl – płyta kierunkowa !!!',kod:'T04',n:'Brązowy strukturalny',rev:'Szary',p:[317,null,402,700]},
+{t:'STRUKTURALNY Aryl – płyta kierunkowa !!!',kod:'T05',n:'Burgund strukturalny',rev:'Szary',p:[317,null,402,700]},
+{t:'STRUKTURALNY Aryl – płyta kierunkowa !!!',kod:'T06',n:'Czarny Perłowy',rev:'Szary',p:[317,null,402,700]},
+{t:'STRUKTURALNY Aryl – płyta kierunkowa !!!',kod:'T07',n:'Brązowy Czekoladowy',rev:'Szary',p:[317,null,null,null]},
+{t:'STRUKTURALNY Aryl – płyta kierunkowa !!!',kod:'T08',n:'Mocha Mousse',rev:'Szary',p:[317,null,null,null]},
+{t:'kratka plastikowa 1',kod:'hafele',n:'571.70.706',rev:'',p:[null,null,null,35]},
+{t:'kratka plastikowa 2',kod:'hafele',n:'571.55.316',rev:'',p:[null,null,null,25]},
+{t:'kratka plastikowa 3',kod:'hafele',n:'571.55.334',rev:'',p:[null,null,null,25]},
+{t:'kratka plastikowa 4',kod:'hafele',n:'571.55.343',rev:'',p:[null,null,null,25]},
+{t:'kratka plastikowa 5',kod:'hafele',n:'571.55.352',rev:'',p:[null,null,null,25]},
+{t:'Drewno super MAT',kod:'554M',n:'DĄB WOTAN',rev:'',p:[null,305,405,630]},
+{t:'Drewno super MAT',kod:'k003M',n:'DĄB CRAFT ZŁOTY',rev:'',p:[null,305,405,630]},
+{t:'Drewno super MAT',kod:'k1180M',n:'DĄB HALIFAX',rev:'',p:[null,305,405,630]},
+{t:'Drewno super MAT',kod:'k3730M',n:'ORZECH BIAŁY',rev:'',p:[null,305,405,630]},
+{t:'Kamień super MAT',kod:'OF252M',n:'BIAŁY CARRARA',rev:'',p:[null,305,null,null]},
+{t:'Kamień super MAT',kod:'OF2264M',n:'MARMUR NERO',rev:'',p:[null,305,null,null]},
+{t:'Drewno Połysk',kod:'554H',n:'DĄB WOTAN',rev:'',p:[null,305,null,null]},
+{t:'Drewno Połysk',kod:'k003H',n:'DĄB CRAFT ZŁOTY',rev:'',p:[null,305,null,null]},
+{t:'Drewno Połysk',kod:'1180H',n:'DĄB HALIFAX',rev:'',p:[null,305,null,null]},
+{t:'Kamień Połysk',kod:'OF2264H',n:'MARMUR NERO',rev:'',p:[null,305,null,null]},
+{t:'Kamień Połysk',kod:'OF252H',n:'BIAŁY CARRARA',rev:'',p:[null,305,null,null]},
+{t:'Spectrum Metal Gładki',kod:'M02',n:'Metal Miedź Gładki',rev:'',p:[null,600,null,null]},
+{t:'Spectrum Metal Gładki',kod:'M06',n:'Metal Złoty Gładki',rev:'',p:[null,600,null,null]},
+{t:'Spectrum Metal Gładki',kod:'M04',n:'Metal Tytan Gładki',rev:'',p:[null,600,null,null]},
+{t:'Spectrum Metal Porysowany',kod:'M02',n:'Metal Miedź Crumbles',rev:'',p:[null,600,null,null]},
+{t:'Spectrum Metal Porysowany',kod:'M06',n:'Metal Złoty Crumbles',rev:'',p:[null,750,null,null]},
+{t:'Spectrum Metal Porysowany',kod:'M04',n:'Metal Tytan Crumbles',rev:'',p:[null,600,null,null]}
+];
+var AKRYL_TAB=[
+{t:'Białe: Akrylik 1700 połysk- 18 mm',kod:'5000 B',n:'Biały',rev:'Biały',p:[387,625,3.1,null]},
+{t:'Białe: Akrylik 1700 połysk- 18 mm',kod:'1982-2',n:'Biały',rev:'Biały',p:[387,625,3.1,null]},
+{t:'Białe: Akrylik 1700 połysk- 18 mm',kod:'8000',n:'Biały Zimny',rev:'Biały',p:[387,625,3.1,null]},
+{t:'Jasne: Akryl 1800 połysk - 18 mm – utwardzony',kod:'6000',n:'Biały Arktyczny',rev:'Biały',p:[483,750,3.1,null]},
+{t:'Jasne: Akryl 1800 połysk - 18 mm – utwardzony',kod:'1982',n:'Biały',rev:'Biały',p:[483,750,3.1,null]},
+{t:'Jasne: Akryl 1800 połysk - 18 mm – utwardzony',kod:'1994',n:'Biały Ciepły',rev:'Biały',p:[483,750,3.1,null]},
+{t:'Jasne: Akryl 1800 połysk - 18 mm – utwardzony',kod:'7498',n:'Cappuccino',rev:'Biały',p:[483,781,3.1,null]},
+{t:'Jasne: Akryl 1800 połysk - 18 mm – utwardzony',kod:'7496',n:'Kremowy',rev:'Biały',p:[483,781,3.1,null]},
+{t:'Jasne: Akryl 1800 połysk - 18 mm – utwardzony',kod:'85384',n:'Popiel',rev:'Kolor',p:[483,781,3.1,null]},
+{t:'Jasne: Akryl 1800 połysk - 18 mm – utwardzony',kod:'85468',n:'Jasnoszary',rev:'Kolor',p:[483,781,3.1,null]},
+{t:'Intensywne: Akryl 1800 połysk – 18 mm – utwardzony',kod:'3362',n:'Czerwony',rev:'Biały',p:[501,799,3.1,null]},
+{t:'Intensywne: Akryl 1800 połysk – 18 mm – utwardzony',kod:'4548',n:'Fiolet',rev:'Biały',p:[501,799,3.1,null]},
+{t:'Intensywne: Akryl 1800 połysk – 18 mm – utwardzony',kod:'4644',n:'Kobalt',rev:'Biały',p:[501,799,3.1,null]},
+{t:'Intensywne: Akryl 1800 połysk – 18 mm – utwardzony',kod:'4670',n:'Morski',rev:'Biały',p:[501,799,3.1,null]},
+{t:'Intensywne: Akryl 1800 połysk – 18 mm – utwardzony',kod:'5357',n:'Laguna',rev:'Biały',p:[501,799,3.1,null]},
+{t:'Intensywne: Akryl 1800 połysk – 18 mm – utwardzony',kod:'8421',n:'Czarny',rev:'Kolor',p:[501,799,3.1,null]},
+{t:'Intensywne: Akryl 1800 połysk – 18 mm – utwardzony',kod:'85382',n:'Ciemnoszary',rev:'Kolor',p:[501,799,3.1,null]},
+{t:'Intensywne: Akryl 1800 połysk – 18 mm – utwardzony',kod:'85383',n:'Szary',rev:'Kolor',p:[501,799,3.1,null]},
+{t:'Metaliki: Akryl 1800– 18 mm połysk - utwardzonyPŁYTA KIERUNKOWA !!!',kod:'11035',n:'Biały metalik',rev:'Biały',p:[528,831,4.2,null]},
+{t:'Metaliki: Akryl 1800– 18 mm połysk - utwardzonyPŁYTA KIERUNKOWA !!!',kod:'4473',n:'Oxyd',rev:'Biały',p:[528,831,4.2,null]},
+{t:'Metaliki: Akryl 1800– 18 mm połysk - utwardzonyPŁYTA KIERUNKOWA !!!',kod:'7408',n:'Kubanit',rev:'Biały',p:[528,831,4.2,null]},
+{t:'Metaliki: Akryl 1800– 18 mm połysk - utwardzonyPŁYTA KIERUNKOWA !!!',kod:'8427',n:'Czarny metalik',rev:'Czarny',p:[528,831,4.2,null]},
+{t:'Metaliki: Akryl 1800– 18 mm połysk - utwardzonyPŁYTA KIERUNKOWA !!!',kod:'8636',n:'Srebrny',rev:'Kolor',p:[528,831,4.2,null]},
+{t:'Metaliki: Akryl 1800– 18 mm połysk - utwardzonyPŁYTA KIERUNKOWA !!!',kod:'8855',n:'Antracyt',rev:'Kolor',p:[528,831,4.2,null]},
+{t:'Akryl MAT– 18 mm - LAMINAT PET AFP',kod:'1644M',n:'Biel Alpejska',rev:'dwustr.',p:[393,393,3.1,null]},
+{t:'Akryl MAT– 18 mm - LAMINAT PET AFP',kod:'11279M',n:'Biały Polar AFP',rev:'dwustr.',p:[393,393,3.1,null]},
+{t:'Akryl MAT– 18 mm - LAMINAT PET AFP',kod:'11351M',n:'Biały AFP',rev:'dwustr.',p:[393,393,3.1,null]},
+{t:'Akryl MAT– 18 mm - LAMINAT PET AFP',kod:'86013M',n:'Beżowy AFP',rev:'dwustr.',p:[393,393,3.1,null]},
+{t:'Akryl MAT– 18 mm - LAMINAT PET AFP',kod:'5474M',n:'Aloes AFP',rev:'dwustr.',p:[393,393,3.1,null]},
+{t:'Akryl MAT– 18 mm - LAMINAT PET AFP',kod:'85334M',n:'Grafit AFP',rev:'dwustr.',p:[393,393,3.1,null]},
+{t:'Akryl MAT– 18 mm - LAMINAT PET AFP',kod:'4803M',n:'Ciemno Niebieski AFP',rev:'dwustr.',p:[393,393,3.1,null]},
+{t:'Akryl MAT– 18 mm - LAMINAT PET AFP',kod:'5472M',n:'Zielony Łupkowy AFP',rev:'dwustr.',p:[393,393,3.1,null]},
+{t:'Akryl MAT– 18 mm - LAMINAT PET AFP',kod:'7045M',n:'Kaszmir AFP',rev:'dwustr.',p:[393,393,3.1,null]},
+{t:'Akryl MAT– 18 mm - LAMINAT PET AFP',kod:'7656M',n:'Magnolia AFP',rev:'dwustr.',p:[393,393,3.1,null]},
+{t:'Akryl MAT– 18 mm - LAMINAT PET AFP',kod:'102M',n:'Popiel',rev:'dwustr.',p:[393,393,3.1,null]},
+{t:'Akryl MAT– 18 mm - LAMINAT PET AFP',kod:'85901M',n:'Szary Kamienny AFP',rev:'dwustr.',p:[393,393,3.1,null]},
+{t:'Akryl MAT– 18 mm - LAMINAT PET AFP',kod:'85933M',n:'Szary Pył AFP',rev:'dwustr.',p:[393,393,3.1,null]},
+{t:'Akryl MAT– 18 mm - LAMINAT PET AFP',kod:'85987M',n:'Szary Aksamitny AFP',rev:'dwustr.',p:[393,393,3.1,null]},
+{t:'Akryl MAT– 18 mm - LAMINAT PET AFP',kod:'85993M',n:'Szary Kaszmir AFP',rev:'dwustr.',p:[393,393,3.1,null]},
+{t:'Akryl MAT– 18 mm - LAMINAT PET AFP',kod:'5452M',n:'Zielony Avocado AFP',rev:'dwustr.',p:[393,393,3.1,null]},
+{t:'Akryl MAT– 18 mm - LAMINAT PET AFP',kod:'81141M',n:'Czarny Diament AFP',rev:'dwustr.',p:[393,393,3.1,null]},
+{t:'Akryl MAT- 18 mm',kod:'11082M',n:'Arktyczny AFP',rev:'Biały',p:[420,650,3.1,null]},
+{t:'Akryl MAT- 18 mm',kod:'1982M',n:'Śnieżnobiały AFP',rev:'Biały',p:[420,650,3.1,null]},
+{t:'Akryl MAT- 18 mm',kod:'7496M',n:'Kremowy AFP',rev:'Biały',p:[420,650,3.1,null]},
+{t:'Akryl MAT- 18 mm',kod:'7498M',n:'Cappuccino AFP',rev:'Biały',p:[420,650,3.1,null]},
+{t:'Akryl MAT- 18 mm',kod:'85468M',n:'Jasnoszary AFP',rev:'Kolor',p:[420,650,3.1,null]},
+{t:'Akryl MAT- 18 mm',kod:'85384M',n:'Popiel AFP',rev:'Kolor',p:[420,650,3.1,null]},
+{t:'Akryl MAT- 18 mm',kod:'5357M',n:'Laguna AFP',rev:'Biały',p:[420,650,3.1,null]},
+{t:'Akryl MAT- 18 mm',kod:'4670M',n:'Morski AFP',rev:'Biały',p:[420,650,3.1,null]},
+{t:'Akryl MAT- 18 mm',kod:'85383M',n:'Szary AFP',rev:'Kolor',p:[420,650,3.1,null]},
+{t:'Akryl MAT- 18 mm',kod:'85728M',n:'Szary 2 AFP',rev:'Kolor',p:[420,650,3.1,null]},
+{t:'Akryl MAT- 18 mm',kod:'85382M',n:'Antracyt AFP',rev:'Kolor',p:[420,650,3.1,null]},
+{t:'Akryl MAT- 18 mm',kod:'8421M',n:'Czarny AFP',rev:'Kolor',p:[420,650,3.1,null]},
+{t:'Akryl MAT- 18 mm',kod:'85735M',n:'Granit AFP',rev:'Kolor',p:[420,650,3.1,null]},
+{t:'Akryl MAT- 18 mm',kod:'5406M',n:'Szałwiowy AFP',rev:'Kolor',p:[420,650,3.1,null]},
+{t:'Akryl MAT- 18 mm',kod:'3493M',n:'Bordo AFP',rev:'Biały',p:[420,650,3.1,null]},
+{t:'Akryl MAT - 18 mmPŁYTA KIERUNKOWA !!!',kod:'4702M',n:'Granat AFP',rev:'Kolor',p:[420,650,3.1,null]},
+{t:'Akryl MAT - 18 mmPŁYTA KIERUNKOWA !!!',kod:'6005M',n:'Zielony Butelkowy AFP',rev:'Biały',p:[420,650,3.1,null]},
+{t:'Akrylik Metalik-MATPŁYTA KIERUNKOWA !!!',kod:'4774m',n:'Niebieski stalowy AFP',rev:'Biały',p:[474,732,4.2,null]},
+{t:'Akrylik Metalik-MATPŁYTA KIERUNKOWA !!!',kod:'7408M',n:'Kubanit metalik AFP',rev:'Biały',p:[474,732,4.2,null]},
+{t:'Akrylik Metalik-MATPŁYTA KIERUNKOWA !!!',kod:'7648m',n:'Złoty Piaskowy AFP',rev:'Biały',p:[474,732,4.2,null]},
+{t:'Akrylik Metalik-MATPŁYTA KIERUNKOWA !!!',kod:'85841M',n:'Szary metalik AFP',rev:'Kolor',p:[474,732,4.2,null]},
+{t:'Akrylik Metalik-MATPŁYTA KIERUNKOWA !!!',kod:'8855M',n:'Antracyt met. AFP',rev:'Kolor',p:[474,732,4.2,null]},
+{t:'Akryl Metalik-MATPŁYTA KIERUNKOWA !!!',kod:'8856M',n:'Oliwkowy Metalik AFP',rev:'Antracyt',p:[534,870,4.2,null]},
+{t:'Akryl Metalik-MATPŁYTA KIERUNKOWA !!!',kod:'8859M',n:'Antyczne złoto AFP',rev:'Antracyt',p:[534,870,4.2,null]},
+{t:'Akryl Metalik - MAT PETbrak AF - LAMINAT PETPŁYTA KIERUNKOWA !!! 2800z1300',kod:'8860M',n:'Biały Perłowy',rev:'Biały',p:[465,705,4.2,null]},
+{t:'Akryl Metalik - MAT PETbrak AF - LAMINAT PETPŁYTA KIERUNKOWA !!! 2800z1300',kod:'8861M',n:'Złoty Perłowy',rev:'Szary',p:[465,705,4.2,null]},
+{t:'Akryl Metalik - MAT PETbrak AF - LAMINAT PETPŁYTA KIERUNKOWA !!! 2800z1300',kod:'8862M',n:'Brązowy Perłowy',rev:'Szary',p:[465,705,4.2,null]},
+{t:'Akryl Metalik - MAT PETbrak AF - LAMINAT PETPŁYTA KIERUNKOWA !!! 2800z1300',kod:'8863M',n:'Niebieski Metalik',rev:'Szary',p:[465,705,4.2,null]},
+{t:'Akryl Metalik - MAT PETbrak AF - LAMINAT PETPŁYTA KIERUNKOWA !!! 2800z1300',kod:'8864M',n:'Kameleon Metalik',rev:'Szary',p:[465,705,4.2,null]},
+{t:'Akryl Metalik - MAT PETbrak AF - LAMINAT PETPŁYTA KIERUNKOWA !!! 2800z1300',kod:'8865M',n:'Czarny Metalik',rev:'Czarny',p:[465,705,4.2,null]},
+{t:'Akryl Metalik - MAT PETbrak AF - LAMINAT PETPŁYTA KIERUNKOWA !!! 2800z1300',kod:'8866M',n:'Burgund Metalik',rev:'Czarny',p:[465,705,4.2,null]},
+{t:'Akryl Metalik - MAT PETbrak AF - LAMINAT PETPŁYTA KIERUNKOWA !!! 2800z1300',kod:'8867M',n:'Brązowy Czekoladowy',rev:'Czarny',p:[465,705,4.2,null]},
+{t:'Akryl Metalik - MAT PETbrak AF - LAMINAT PETPŁYTA KIERUNKOWA !!! 2800z1300',kod:'8868M',n:'Mocha Mousse',rev:'Szary',p:[465,705,4.2,null]},
+{t:'Akryl Metalik - MAT PETbrak AF - LAMINAT PETPŁYTA KIERUNKOWA !!! 2800z1300',kod:'T02',n:'Biały Perłowy',rev:'Biały',p:[506,745,4.2,null]},
+{t:'Akryl Metalik - MAT PETbrak AF - LAMINAT PETPŁYTA KIERUNKOWA !!! 2800z1300',kod:'T03',n:'Złoty Perłowy',rev:'Szary',p:[506,745,4.2,null]},
+{t:'Akryl Metalik - MAT PETbrak AF - LAMINAT PETPŁYTA KIERUNKOWA !!! 2800z1300',kod:'T04',n:'Brązowy Perłowy',rev:'Szary',p:[506,745,4.2,null]},
+{t:'Akryl Metalik - MAT PETbrak AF - LAMINAT PETPŁYTA KIERUNKOWA !!! 2800z1300',kod:'T05',n:'Burgund',rev:'Szary',p:[506,745,4.2,null]},
+{t:'Akryl Metalik - MAT PETbrak AF - LAMINAT PETPŁYTA KIERUNKOWA !!! 2800z1300',kod:'T06',n:'Czarny Parłowy',rev:'Czarny',p:[506,745,4.2,null]},
+{t:'Akryl Metalik - MAT PETbrak AF - LAMINAT PETPŁYTA KIERUNKOWA !!! 2800z1300',kod:'T07',n:'Brązowy Czekoladowy',rev:'Czarny',p:[506,745,4.2,null]},
+{t:'Akryl Metalik - MAT PETbrak AF - LAMINAT PETPŁYTA KIERUNKOWA !!! 2800z1300',kod:'T08',n:'Mocha Mause',rev:'Szary',p:[506,745,4.2,null]}
+];
+
+var AKRYL_VIEW = { dielce:'zl', tab:'zl' };
+function akFmt(v){ return (Math.round(v*100)/100).toFixed(2).replace('.',','); }
+function akVal(id){ var e=document.getElementById(id); return e?e.value:''; }
+function akrylCell(zl, which){
+  if(zl===null||zl===undefined||isNaN(zl)) return '<span style="color:#bbb">—</span>';
+  var view=AKRYL_VIEW[which];
+  if(view==='zl') return (Number.isInteger(zl)?zl:akFmt(zl))+' Zł';
+  var p=parseFloat(akVal('ak-'+which+'-pct'))||0, k=parseFloat(akVal('ak-'+which+'-kurz'))||0;
+  var c=parseFloat(akVal('ak-'+which+'-koef')); if(isNaN(c)) c=1;
+  var eur = k>0 ? zl*(1+p/100)/k : NaN;
+  if(isNaN(eur)) return '—';
+  return akFmt(view==='predaj'? eur*c : eur)+' €';
+}
+function setAkrylView(which, v, el){
+  AKRYL_VIEW[which]=v;
+  var box=el.parentNode; [].forEach.call(box.children,function(b){b.classList.remove('active');}); el.classList.add('active');
+  renderAkryl(which);
+}
+function renderAkryl(which){
+  var data = which==='dielce'?AKRYL_DIELCE:AKRYL_TAB;
+  var tb=document.getElementById('ak-'+which+'-tbody'); if(!tb) return;
+  var q=(akVal('ak-'+which+'-filter')||'').toLowerCase().trim();
+  var esc=(typeof nkEsc==='function')?nkEsc:function(s){return String(s==null?'':s);};
+  var html=''; var curT=null;
+  data.forEach(function(r){
+    if(q && (r.n+' '+r.kod+' '+r.t).toLowerCase().indexOf(q)<0) return;
+    if(r.t!==curT){ curT=r.t; html+='<tr><td colspan="7" style="padding:6px 10px;font-weight:700;color:#c0392b;background:#fdecec;border-bottom:1px solid #eee;">'+esc(r.t)+'</td></tr>'; }
+    html+='<tr><td style="padding:4px 8px;border-bottom:1px solid #eee;white-space:nowrap;font-size:12px;color:#666;">'+esc(r.kod)+'</td>'
+        + '<td style="padding:4px 8px;border-bottom:1px solid #eee;font-size:12.5px;">'+esc(r.n)+'</td>'
+        + '<td style="padding:4px 8px;border-bottom:1px solid #eee;font-size:11.5px;color:#888;">'+esc(r.rev||'')+'</td>';
+    r.p.forEach(function(zl){ html+='<td style="padding:4px 8px;border-bottom:1px solid #eee;text-align:right;font-size:12.5px;">'+akrylCell(zl,which)+'</td>'; });
+    html+='</tr>';
+  });
+  tb.innerHTML = html || '<tr><td colspan="7" style="padding:14px;text-align:center;color:#888;">Nič nenájdené.</td></tr>';
 }
 </script>
 </body>
