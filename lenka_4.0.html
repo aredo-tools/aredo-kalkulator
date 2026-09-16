@@ -7098,6 +7098,123 @@ function nkGroups(){
   return g;
 }
 
+// Jednotky presne podľa nákupného cenníka (PDF). % ide cez row.u; ks/mb sú v NK_UNITS (kľúč 'názov|cena'); ostatné = m².
+var NK_UNITS = {
+  'Listwa wieńcząca typ B 30 mm x 2440 mm|212':'ks',
+  'Listwa wieńcząca typ D 72 mm x 2440 mm|296':'ks',
+  'Listwa wieńcząca typ DK 92 mm x 2440 mm|425':'ks',
+  'LIstwa podszafkowa typ G 50 mm x 2440 mm|133':'ks',
+  'Pilaster P-1, P-2, P-3 szer. 50 mm , wys. 400 mm - 2600 mm|180':'mb',
+  'Pilaster P-4, P-5 szer. 50 mm , wys. 400 mm - 2600 mm|191':'mb',
+  'Pilaster P-6 szer. 50 mm , wys. 400 mm - 2600 mm|251':'mb',
+  'Pilaster P-11 szer. 100 mm , wys. 400 mm - 2600 mm|221':'mb',
+  'Pilaster P-12 szer. 100 mm , wys. 400 mm - 2600 mm|261':'mb',
+  'Pilaster P-13 szer. 150 mm , wys. 400 mm - 2600 mm|287':'mb',
+  'Listwy - cena pomniejszona o|53':'mb',
+  'Pilaster - cena pomniejszona o|26':'mb',
+  'Listwa wieńcząca typ B 30 mm x 2440 mm|189':'ks',
+  'Listwa wieńcząca typ D 72 mm x 2440 mm|251':'ks',
+  'Listwa wieńcząca typ DK 92 mm x 2440 mm|324':'ks',
+  'LIstwa podszafkowa typ G 50 mm x 2440 mm|105':'ks',
+  'Pilaster P-1, P-2, P-3 szer. 50 mm , wys. 400 mm - 2600 mm|133':'mb',
+  'Pilaster P-4, P-5 szer. 50 mm , wys. 400 mm - 2600 mm|150':'mb',
+  'Pilaster P-6 szer. 50 mm , wys. 400 mm - 2600 mm|172':'mb',
+  'Pilaster P-11 szer. 100 mm , wys. 400 mm - 2600 mm|150':'mb',
+  'Pilaster P-12 szer. 100 mm , wys. 400 mm - 2600 mm|172':'mb',
+  'Pilaster P-13 szer. 150 mm , wys. 400 mm - 2600 mm|189':'mb',
+  'Uchwyt fornirowany RU, RP|88':'ks',
+  'Uchwyt fornirowany RP|72':'ks',
+  'Uchwyt lakierowany RU|88':'ks',
+  'Fornirowanie ramki w środku|210':'ks',
+  'Wstawka Drewniana do RFF; RFO - środek MDF|158':'ks',
+  'Wstawka Drewniana do RFF; RFO - środek Fornir|210':'ks',
+  'Kolejny uchwyt na froncie RU-D; RU-G; RP|48':'ks',
+  'Uchwyt RFO; RFF; RFS|73':'ks',
+  'Uchwyt RFO z frezowaniem wewnątrz R-2|125':'ks',
+  'Uchwyt Cargo typ " C "|145':'ks',
+  'Uchwyt Cargo typ "L"|100':'ks',
+  'Frezowanie Witryny pod szybę|50':'ks',
+  'Frezowanie pod zmywarkę|50':'ks',
+  'Frezowanie po wentylacje / 3 nacięcia /|79':'ks',
+  'Frezowanie Witryny pod szybę z gumką|79':'ks',
+  'Wiercenie pod zawias / standard /|8':'ks',
+  'Frezowanie pod Uchwyt UKW-4; UKW-5; UKW-7|42':'ks',
+  'Wiercenie pod napinacze Hafelle|89':'ks',
+  'Dorobienie koloru|84':'ks',
+  'Lakier Antyfinger G05|53':'ks',
+  'Lakier mat/połysk 100 gram|58':'ks',
+  'Lakier mat/połysk 500 gram|90':'ks',
+  'Lakier mat/połysk 1000 gram|126':'ks',
+  'Lakier mat/połysk + Lakier nawierzchniowy 2 x 1000 gram|252':'ks',
+  'Lakier Metalioczny 1000 gram|158':'ks',
+  'Lakier Metaliczny VMO; KVM 1000 gram|210':'ks',
+  'Lakier w Sprayu - Mat|74':'ks',
+  'Lakier w Sprayu - Połsyk|79':'ks',
+  'Komplet lakierniczy mat/połysk 100 gram|69':'ks',
+  'Komplet lakierniczy mat/połysk 500 gram|108':'ks',
+  'Komplet lakierniczy mat/połysk 1000 gram|151':'ks',
+  'Komplet lakierniczy Metaliczny 1000 gram|221':'ks',
+  'Komplet Lakierniczy VMO, KVM 1000 gram|415':'ks',
+  'Komplet Lakierniczy mat/połsyk + Lakier Nawierzchniowy 2 x 1000 gram|302':'ks',
+  '105mb|30':'mb',
+  '131mb|30':'mb',
+  'Uchwyt: Profil-L, Profil-C; LKW-5; LKW-10; LKW-4; LKW-40 - Mat VMO158mb|30':'mb',
+  '79mb|30':'mb',
+  'Koło Fi 100 mm - 250 mm|53':'ks',
+  'Koło Fi 251 mm - 500 mm|95':'ks',
+  'Koło Fi 501 mm - 1200 mm|137':'ks',
+  'Koło Fi 1201 mm - 1500 mm|179':'ks',
+  'Planowanie MDF do dowolnej grubości|158':'ks',
+  'Frezowanie łuków o różnych promieniach oraz wcięć|74':'ks',
+  'Frezowanie skośne elementu prostego|56':'ks',
+  'Frezowanie skośne elementu frezowanego / Ryfle itp /|74':'ks',
+  'Frezowanie nietypowej krawędzi|74':'ks',
+  'Zawias standard / Blum /|7':'ks',
+  'Zawias niestandard|13':'ks',
+  'System Revego|252':'ks',
+  'Frezowanie boczne|16':'ks',
+  'Frezowanie pod HDF / MDF /Pilśnię|53':'ks',
+  'Wiercenie wielu dziur 25 zł plus cena za każdą dziurę|5':'ks',
+  'Wiercenie wielu otworów wentylacyjnych do h-max 400 mm|26':'ks',
+  'Frezowanie boczne dla drzwi wejściowych zawiasy - zawiasy|158':'ks',
+  'Frezowanie boczne dla drzwi wejściowych - zamek|210':'ks',
+  'Frezowanie pod półki fi 3-4|2':'ks',
+  'Frezowanie pod półki fi 3-4|3':'ks',
+  'Frezowanie pod półki fi 3-4|4':'ks',
+  'Front Prosty / mat, połysk /|66':'ks',
+  'Front Prosty / metaliczny /|79':'ks',
+  'Front Prosty / VMO ; KVM /|100':'ks',
+  'Front Głęboko Frezowany|93':'ks',
+  'Front Głęboki Frez z Rattanem|126':'ks',
+  'Front Ryflowany|93':'ks',
+  'Front Fornirowany|66':'ks',
+  'Front Fornirowany i bejcowany|93':'ks',
+  'Front Fornirowany z uchwytem|103':'ks',
+  'Front Fornirowany z uchwytem i bejcowany|141':'ks',
+  'Front Fornirowany Ryflowany|93':'ks',
+  'Front Fornirowany Ryflowany i bejcowany|141':'ks',
+  'Front Fornirowany Ryflowany na Czarnym MDF-ie|141':'ks',
+  'Front Fornirowany z Rattanem|152':'ks',
+  'Front Prosty, RP; RU-D; RU-G / seria min. 10 szt /|14':'ks',
+  'Front Prosty + uchwyt RFO; RFF / seria min. 10 szt /|49':'ks',
+  'Stojak z czarnego MDF-u z wzornikami / 22 szt /|1155':'ks',
+  'Stojak z Głębokimi frezami / 18 szt /|1155':'ks',
+  'Listwa Gładka Mat R-50|273':'mb',
+  'Listwa Gładka Połysk R-50|368':'mb',
+  'Listwa Gładka Mat Fornir R-50|368':'mb',
+  'Listwa Gładka Mat R-100; R-125|336':'mb',
+  'Listwa Gładka Połysk R-100; R-125|431':'mb',
+  'Listwa Gładka Fornir R-100; R-125|431':'mb',
+  'Listwa Ryflowana Mat R-100; R-125 / wymagana zgoda Prestige /|420':'mb',
+  'Listwa Ryflowana Połysk R-100; R-125 / wymagana zgoda Prestige /|420':'mb'
+};
+function nkUnit(row){
+  if (row.u === '%') return '%';
+  if (row.j) return row.j;   // ručná jednotka má prednosť
+  var z = (row.z==null) ? '' : (row.z===Math.round(row.z) ? String(Math.round(row.z)) : String(row.z));
+  return NK_UNITS[(row.n||'') + '|' + z] || 'm²';
+}
+
 function nkRowHtml(row, i){
   if (row.c !== undefined) {
     // Legenda/poznámky (footnotes) – zarovnané doľava, sivé, nemazateľné
@@ -7114,9 +7231,10 @@ function nkRowHtml(row, i){
       + '<td style="padding:5px 6px;border-bottom:1px solid #eee;text-align:center;"><button title="Zmazať" onclick="delNakupRow('+i+')" style="padding:3px 8px;background:#fee;border:1px solid #fcc;border-radius:4px;cursor:pointer;font-size:11px;color:#c00;">✕</button></td>'
       + '</tr>';
   }
-  return '<tr data-nk="item" data-idx="'+i+'">'
+  var u = nkUnit(row);
+  return '<tr data-nk="item" data-idx="'+i+'" data-unit="'+u+'">'
     + '<td style="padding:5px 10px;border-bottom:1px solid #eee;"><input type="text" value="'+nkEsc(row.n)+'" oninput="NAKUP_DATA['+i+'].n=this.value" style="width:100%;min-width:180px;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:12.5px;">'+(nkSk(row.n)?'<div style="font-size:11px;color:#999;margin-top:2px;">'+nkEsc(nkSk(row.n))+'</div>':'')+'</td>'
-    + '<td style="padding:5px 8px;border-bottom:1px solid #eee;text-align:center;"><input type="number" class="nk-zl" value="'+(row.z==null?'':row.z)+'" step="0.01" oninput="NAKUP_DATA['+i+'].z=parseFloat(this.value)||0; recalcNakup()" style="width:90px;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:12.5px;text-align:right;"></td>'
+    + '<td style="padding:5px 8px;border-bottom:1px solid #eee;text-align:center;white-space:nowrap;"><input type="number" class="nk-zl" value="'+(row.z==null?'':row.z)+'" step="0.01" oninput="NAKUP_DATA['+i+'].z=parseFloat(this.value)||0; recalcNakup()" style="width:80px;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:12.5px;text-align:right;"> <span style="font-size:11px;color:#888;">Zł/'+u+'</span></td>'
     + '<td class="nk-plus" style="padding:5px 10px;border-bottom:1px solid #eee;text-align:right;">—</td>'
     + '<td class="nk-eur" style="padding:5px 10px;border-bottom:1px solid #eee;text-align:right;font-weight:600;background:#f5f9ff;">—</td>'
     + '<td class="nk-predaj" style="padding:5px 10px;border-bottom:1px solid #eee;text-align:right;font-weight:700;color:#1a7a1a;background:#f3faf4;">—</td>'
@@ -7164,12 +7282,14 @@ function recalcNakup() {
   document.querySelectorAll('#nk-tbody tr[data-nk="item"]').forEach(function(tr){
     const zlInp = tr.querySelector('.nk-zl');
     const zl = parseFloat(zlInp.value) || 0;
+    const u = tr.getAttribute('data-unit') || '';
+    const suf = u ? (' €/' + u) : ' €';
     const plus = zl * (1 + pct/100);
     const eur = kurz > 0 ? plus / kurz : NaN;
     const predaj = isNaN(eur) ? NaN : eur * koefV;
-    tr.querySelector('.nk-plus').textContent = nkFmt(plus);
-    tr.querySelector('.nk-eur').textContent = nkFmt(eur) + (isNaN(eur)?'':' €');
-    tr.querySelector('.nk-predaj').textContent = nkFmt(predaj) + (isNaN(predaj)?'':' €');
+    tr.querySelector('.nk-plus').textContent = nkFmt(plus) + (u ? (' Zł/'+u) : '');
+    tr.querySelector('.nk-eur').textContent = nkFmt(eur) + (isNaN(eur)?'':suf);
+    tr.querySelector('.nk-predaj').textContent = nkFmt(predaj) + (isNaN(predaj)?'':suf);
   });
 }
 
