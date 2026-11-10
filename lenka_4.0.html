@@ -348,10 +348,10 @@
   <!-- OBSAH NAD FOTKOU -->
   <div style="position:relative;z-index:2;padding:40px 24px 48px;">
     <div style="text-align:center;margin-bottom:36px;">
-      <div style="font-size:26px;font-weight:700;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.4);">AHOJ LENKA 👋</div>
+      <div id="home-greeting" style="font-size:26px;font-weight:700;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.4);">AHOJ 👋</div>
     </div>
 
-    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px;max-width:1500px;margin:0 auto;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;max-width:1240px;margin:0 auto;">
 
       <!-- Riadok 1: Výpočet ohybov -->
       <div onclick="showTab('kalk')" style="cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
@@ -399,7 +399,7 @@
       </div>
 
       <!-- Riadok 2: Sklo -->
-      <div onclick="showTab('sklo')" style="grid-column:1;cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
+      <div onclick="showTab('sklo')" style="cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
         <div style="width:48px;height:48px;background:#F5C800;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1e1e1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
         </div>
@@ -416,13 +416,12 @@
         <div style="font-size:12px;color:#666;line-height:1.5;">Parametre vzorových dielcov – šírky rámikov, min. rozmery, vitríny, frézovanie pod sklo.</div>
       </div>
 
-      <!-- Riadok 2: prázdne miesta -->
-      <div style="border-radius:14px;background:rgba(255,255,255,0.14);border:2px dashed rgba(255,255,255,0.45);min-height:120px;"></div>
-      <div style="border-radius:14px;background:rgba(255,255,255,0.14);border:2px dashed rgba(255,255,255,0.45);min-height:120px;"></div>
-      <div style="border-radius:14px;background:rgba(255,255,255,0.14);border:2px dashed rgba(255,255,255,0.45);min-height:120px;"></div>
+      
+      
+      
 
       <!-- Riadok 3: Lamely -->
-      <div onclick="showTab('lamely')" style="grid-column:1;cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
+      <div onclick="showTab('lamely')" data-admin="1" style="cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
         <div style="width:48px;height:48px;background:#F5C800;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1e1e1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="10" x2="20" y2="10"/><line x1="4" y1="14" x2="20" y2="14"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
         </div>
@@ -431,7 +430,7 @@
       </div>
 
       <!-- Riadok 3: Nadväznosť panelov -->
-      <div onclick="showTab('nadv')" style="cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
+      <div onclick="showTab('nadv')" data-admin="1" style="cursor:pointer;background:rgba(255,255,255,0.92);border-radius:14px;padding:22px 18px;box-shadow:0 4px 24px rgba(0,0,0,0.18);border:2px solid transparent;transition:all 0.15s;backdrop-filter:blur(6px);" onmouseover="this.style.borderColor='#F5C800';this.style.boxShadow='0 6px 32px rgba(0,0,0,0.28)'" onmouseout="this.style.borderColor='transparent';this.style.boxShadow='0 4px 24px rgba(0,0,0,0.18)'">
         <div style="width:48px;height:48px;background:#F5C800;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1e1e1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="9" height="10" rx="1"/><rect x="13" y="7" width="9" height="10" rx="1"/><line x1="11" y1="12" x2="13" y2="12" stroke-dasharray="1.5 1"/></svg>
         </div>
@@ -808,18 +807,13 @@
 
   <!-- Výber (čo si vyberám) – pod obrázkami frézovania -->
   <div class="card" style="margin-top:16px;">
-    <h2>Typ skla a cena</h2>
+    <h2>Typ skla</h2>
     <div style="display:flex;align-items:flex-start;gap:32px;flex-wrap:wrap;">
       <div>
         <label style="margin-top:0;">Typ skla</label>
         <select id="sklo-typ" onchange="onSkloTypChange()" style="padding:8px 10px;border:1.5px solid #ddd;border-radius:6px;font-size:13px;min-width:180px;">
           <option value="">— vybrať typ skla —</option>
         </select>
-      </div>
-      <div>
-        <label style="margin-top:0;">Cena za m² (€, bez DPH)</label>
-        <input type="number" id="sklo-cena-m2" value="" placeholder="zadaj cenu" step="0.01" min="0" oninput="calcSklo()" style="width:130px;padding:8px 10px;border:1.5px solid #ddd;border-radius:6px;font-size:14px;">
-        <p style="font-size:11px;color:#888;margin-top:4px;">Predvyplní sa pri výbere skla, môžeš upraviť.</p>
       </div>
       <div style="font-size:12px;color:#888;padding-top:28px;line-height:1.6;">
         Plocha sa počíta z rozmerov skla (Výška skla × Šírka skla).<br>
@@ -900,7 +894,6 @@
             <th>Plocha fakt. (m²)</th>
             <th>Obvod skla (m)</th>
             <th>Gumička celkom (m)</th>
-            <th>Cena (€)</th>
             <th>Poznámka</th>
             <th></th>
           </tr></thead>
@@ -912,7 +905,6 @@
               <td id="sklo-sum-plocha-fact" style="font-weight:700;color:#e67e22;">—</td>
               <td>—</td>
               <td id="sklo-sum-gumicka">—</td>
-              <td id="sklo-sum-cena" style="font-weight:700;color:var(--green);">—</td>
               <td colspan="2"></td>
             </tr>
           </tfoot>
@@ -1226,7 +1218,7 @@
 </div>
 
 <!-- ========== TAB: LAMELY ========== -->
-<div id="tab-lamely" class="tab-content">
+<div id="tab-lamely" class="tab-content" data-admin="1">
 <div class="container">
   <div style="padding:12px 0 4px;"><button onclick="showTab('home')" style="background:none;border:none;cursor:pointer;font-size:13px;font-weight:600;color:#787878;padding:0;">← Domov</button></div>
 
@@ -1693,7 +1685,7 @@
 </div>
 
 <!-- ========== TAB: NADVÄZNOSŤ PANELOV ========== -->
-<div id="tab-nadv" class="tab-content">
+<div id="tab-nadv" class="tab-content" data-admin="1">
 <div class="container" style="max-width:900px;">
   <div style="padding:12px 0 4px;"><button onclick="showTab('home')" style="background:none;border:none;cursor:pointer;font-size:13px;font-weight:600;color:#787878;padding:0;">← Domov</button></div>
 
@@ -1978,7 +1970,7 @@ let listyTier = 's';   // 's'|'z'|'p'|'c' – úroveň pre kalkulačku líšt (k
 // TABS
 // ============================================================
 // Moduly len pre admina
-var ADMIN_TABS = ['ponuky','cennik','3d','nakup','akryl-dielce','akryl-tab'];
+var ADMIN_TABS = ['ponuky','cennik','3d','nakup','akryl-dielce','akryl-tab','lamely','nadv'];
 function applyRoleVisibility(){
   var admin = !!window._isAdmin;
   document.querySelectorAll('[data-admin="1"]').forEach(function(el){ el.style.display = admin ? '' : 'none'; });
@@ -4835,7 +4827,6 @@ function addSkloRow(vzorIdx) {
     <td class="sk-plocha-fact" style="text-align:center;font-size:12px;font-weight:700;color:#e67e22;"></td>
     <td class="sk-obvod" style="text-align:center;font-size:12px;"></td>
     <td class="sk-gumicka" style="text-align:center;font-size:12px;font-weight:600;"></td>
-    <td class="sk-cena" style="text-align:center;font-size:12px;font-weight:700;color:var(--green);"></td>
     <td><input type="text" style="width:100px;padding:4px 6px;border:1px solid #ddd;border-radius:4px;font-size:12px;" placeholder="poznámka"></td>
     <td><button onclick="document.getElementById('sklo-row-${id}').remove(); calcSklo();" style="padding:3px 8px;background:#fee;border:1px solid #fcc;border-radius:4px;cursor:pointer;font-size:11px;color:#c00;">✕</button></td>
   `;
@@ -4850,10 +4841,9 @@ function clearSkloRows() {
 
 function calcSklo() {
   const presah = parseFloat(document.getElementById('sklo-presah').value) || 10;
-  const pricePerM2 = parseFloat(document.getElementById('sklo-cena-m2').value) || 0;
   const MIN_M2 = 0.200;
   const rows = document.getElementById('sklo-tbody').querySelectorAll('tr');
-  let sumPlocha = 0, sumPlochaBill = 0, sumGumicka = 0, sumCena = 0;
+  let sumPlocha = 0, sumPlochaBill = 0, sumGumicka = 0;
   rows.forEach(tr => {
     const sel = tr.querySelector('select');
     const inputs = tr.querySelectorAll('input[type="number"]');
@@ -4869,13 +4859,11 @@ function calcSklo() {
     const plochaBillPc = plochaPc > 0 ? Math.max(plochaPc, MIN_M2) : 0; // min 0.200/ks; 0 pri prázdnom riadku
     const plochaCelkom = plochaPc * ks;
     const plochaBillCelkom = plochaBillPc * ks;
-    const cenaRow = plochaBillCelkom * pricePerM2;
     const obvod = 2 * (vSkla + sSkla) / 1000;
     const gumicka = obvod * ks;
     sumPlocha += plochaCelkom;
     sumPlochaBill += plochaBillCelkom;
     sumGumicka += gumicka;
-    sumCena += cenaRow;
     tr.querySelector('.sk-sirka-ramu').textContent = sirkaRamu;
     tr.querySelector('.sk-v-skla').textContent = vSkla.toFixed(0);
     tr.querySelector('.sk-s-skla').textContent = sSkla.toFixed(0);
@@ -4886,20 +4874,14 @@ function calcSklo() {
     tr.querySelector('.sk-plocha-fact').textContent = plochaBillCelkom.toFixed(4) + (plochaPc > 0 && plochaPc < MIN_M2 ? ' ⚠' : '');
     tr.querySelector('.sk-obvod').textContent = obvod.toFixed(3);
     tr.querySelector('.sk-gumicka').textContent = gumicka.toFixed(3);
-    tr.querySelector('.sk-cena').textContent = pricePerM2 > 0 ? cenaRow.toFixed(2) + ' €' : '—';
   });
   document.getElementById('sklo-sum-plocha').textContent = sumPlocha.toFixed(4) + ' m²';
   document.getElementById('sklo-sum-plocha-fact').textContent = sumPlochaBill.toFixed(4) + ' m²';
   document.getElementById('sklo-sum-gumicka').textContent = sumGumicka.toFixed(3) + ' m';
-  document.getElementById('sklo-sum-cena').textContent = pricePerM2 > 0 ? sumCena.toFixed(2) + ' €' : '—';
 }
 
 function onSkloTypChange() {
   const sel = document.getElementById('sklo-typ');
-  const typ = SKLO_TYPY.find(t => t.name === sel.value);
-  if (typ && typ.cena) {
-    document.getElementById('sklo-cena-m2').value = typ.cena;
-  }
   calcSklo();
 }
 
@@ -5152,19 +5134,16 @@ async function exportSkloPDFZakaznik() {
 
   let py = 36;
   doc.setFontSize(14); doc.setTextColor(30,30,30); doc.setFont(undefined,'bold');
-  doc.text(nd('Cenova ponuka – Sklo'), margin, py); py += 9;
+  doc.text(nd('Rozmery skla'), margin, py); py += 9;
 
   // Summary
   const typSkla = document.getElementById('sklo-typ').value || '—';
-  const priceM2 = parseFloat(document.getElementById('sklo-cena-m2').value) || 0;
   const sumPlochaTxt  = document.getElementById('sklo-sum-plocha').textContent;
   const sumBillTxt    = document.getElementById('sklo-sum-plocha-fact').textContent;
-  const sumCenaTxt    = document.getElementById('sklo-sum-cena').textContent;
 
   doc.setFontSize(9); doc.setFont(undefined,'normal'); doc.setTextColor(80,80,80);
   [
     [nd('Typ skla'), nd(typSkla)],
-    [nd('Cena za m2'), priceM2 > 0 ? priceM2.toFixed(2)+' EUR/m2 (bez DPH)' : '—'],
     [nd('Celkova plocha skla'), sumPlochaTxt],
     [nd('Fakturovana plocha (min. 0,200 m2/ks)'), sumBillTxt],
   ].forEach(([lbl, val]) => {
@@ -5175,8 +5154,8 @@ async function exportSkloPDFZakaznik() {
   py += 5;
 
   // Table header
-  const colW = [26,26,30,30,10,26,24];
-  const hdrLabels = ['Oznacenie','Vzor ramu','Dielca (mm)','Sklo (mm)','Ks','Plocha fakt.','Cena'];
+  const colW = [30,30,34,34,12,32];
+  const hdrLabels = ['Oznacenie','Vzor ramu','Dielca (mm)','Sklo (mm)','Ks','Plocha fakt.'];
   const rowH = 6;
   doc.setFillColor(245,200,0);
   doc.rect(margin, py, cw, 6.5, 'F');
@@ -5202,7 +5181,6 @@ async function exportSkloPDFZakaznik() {
       vSkla     : tr.querySelector('.sk-v-skla')?.textContent || '',
       sSkla     : tr.querySelector('.sk-s-skla')?.textContent || '',
       plochaBill: (tr.querySelector('.sk-plocha-fact')?.textContent||'').replace(' ⚠',''),
-      cena      : tr.querySelector('.sk-cena')?.textContent || '—',
     });
   });
 
@@ -5214,7 +5192,7 @@ async function exportSkloPDFZakaznik() {
     const cells = [
       nd(r.oznacenie), nd(r.vzor),
       r.vDielca+'x'+r.sDielca, r.vSkla+'x'+r.sSkla,
-      r.ks, r.plochaBill, r.cena
+      r.ks, r.plochaBill
     ];
     cells.forEach((c,i)=>{ doc.text(String(c), cx+1.5, py+4.2); cx+=colW[i]; });
     py += rowH;
@@ -5226,21 +5204,18 @@ async function exportSkloPDFZakaznik() {
   doc.setFontSize(8.5); doc.setFont(undefined,'bold'); doc.setTextColor(255,255,255);
   doc.text('SPOLU', margin+2, py+4.8);
   const billX = margin + colW.slice(0,5).reduce((a,b)=>a+b,0);
-  const priceX = margin + colW.slice(0,6).reduce((a,b)=>a+b,0);
   doc.text(nd(sumBillTxt), billX+1.5, py+4.8);
-  doc.setTextColor(245,200,0);
-  doc.text(nd(sumCenaTxt), priceX+1.5, py+4.8);
   py += 11;
 
   doc.setFontSize(7.5); doc.setTextColor(120,120,120); doc.setFont(undefined,'normal');
-  doc.text(nd('* Minimalna fakturovana plocha: 0,200 m2/ks. Ceny bez DPH.'), margin, py);
+  doc.text(nd('* Minimalna fakturovana plocha: 0,200 m2/ks.'), margin, py);
 
   // Footer
   doc.setFillColor(245,200,0); doc.rect(margin, ph-16, cw, 0.5, 'F');
   doc.setFontSize(8); doc.setTextColor(150,150,150);
   doc.text('AREDO - aredo.sk', margin, ph-10);
   doc.text('Vygenerovane: '+today, pw-margin, ph-10, {align:'right'});
-  doc.save('aredo-sklo-zakaznik.pdf');
+  doc.save('aredo-sklo-rozmery.pdf');
 }
 
 // ===================== SKLO PDF – SKLENEÁR =====================
@@ -6352,12 +6327,23 @@ init();
 
   // Admini – vidia aj citlivé moduly (nákupné ceny, evidencia, cenník, 3D, poznámky)
   var ADMIN_EMAILS = ['llengvarska@gmail.com'];
+  // Pekné mená podľa e-mailu (fallback = časť pred @)
+  var USER_NAMES = { 'llengvarska@gmail.com':'Lenka', 'veronika@aredo.sk':'Veronika' };
+  function userDisplayName(email){
+    if (!email) return '';
+    var e = String(email).toLowerCase().trim();
+    if (USER_NAMES[e]) return USER_NAMES[e];
+    var local = e.split('@')[0].split(/[._+\-]/)[0];
+    return local ? local.charAt(0).toUpperCase() + local.slice(1) : '';
+  }
   function unlock(email){
     if (gate) gate.style.display = 'none';
     if (elUser){ elUser.style.display = 'flex'; }
     if (elUserEmail){ elUserEmail.textContent = email || ''; }
     window._authEmail = email || null;
     window._isAdmin = !!(email && ADMIN_EMAILS.indexOf(String(email).toLowerCase().trim()) >= 0);
+    var gr = document.getElementById('home-greeting');
+    if (gr){ var nm = userDisplayName(email); gr.textContent = 'AHOJ ' + (nm ? nm.toUpperCase()+' ' : '') + '👋'; }
     if (typeof applyRoleVisibility === 'function') applyRoleVisibility();
   }
 
