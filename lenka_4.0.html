@@ -6327,6 +6327,9 @@ init();
 
   // Admini – vidia aj citlivé moduly (nákupné ceny, evidencia, cenník, 3D, poznámky)
   var ADMIN_EMAILS = ['llengvarska@gmail.com'];
+  // PRÍSTUP DO APPKY – pevný zámok v kóde (hard cap). Dnu sa dostane LEN tento zoznam,
+  // aj keby bol niekto pridaný do Supabase allowed_emails. Pridať človeka = úprava kódu (push).
+  var CLIENT_ALLOWED = ['llengvarska@gmail.com', 'veronika@aredo.sk'];
   // Pekné mená podľa e-mailu (fallback = časť pred @)
   var USER_NAMES = { 'llengvarska@gmail.com':'Lenka', 'veronika@aredo.sk':'Veronika' };
   function userDisplayName(email){
@@ -6361,7 +6364,9 @@ init();
     try {
       if (!session){ view('login'); return; }
       var email = (session.user && session.user.email) ? session.user.email.toLowerCase() : '';
-      var ok = await isAllowed(email);
+      // Dvojitý zámok: musí byť v pevnom zozname v kóde AJ v Supabase allowed_emails
+      var inClient = CLIENT_ALLOWED.indexOf(email) >= 0;
+      var ok = inClient ? await isAllowed(email) : false;
       if (ok){ unlock(email); }
       else {
         view('denied');
